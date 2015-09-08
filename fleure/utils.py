@@ -13,6 +13,7 @@ Misc utility routines for fleure.
 """
 from __future__ import absolute_import
 
+import itertools
 import logging
 import os.path
 import os
@@ -33,6 +34,28 @@ RPMDB_FILENAMES = ("Packages", "Basenames", "Dirnames", "Installtid", "Name",
                    "Obsoletename", "Providename", "Requirename")
 
 _RHERRATA_RE = re.compile(r"^RH[SBE]A-\d{4}[:-]\d{4}(?:-\d+)?$")
+
+
+def concat(xss):
+    """
+    Concatenates a list of lists.
+
+    >>> concat([[]])
+    []
+    >>> concat((()))
+    []
+    >>> concat([[1,2,3],[4,5]])
+    [1, 2, 3, 4, 5]
+    >>> concat([[1,2,3],[4,5,[6,7]]])
+    [1, 2, 3, 4, 5, [6, 7]]
+    >>> concat(((1,2,3),(4,5,[6,7])))
+    [1, 2, 3, 4, 5, [6, 7]]
+    >>> concat(((1,2,3),(4,5,[6,7])))
+    [1, 2, 3, 4, 5, [6, 7]]
+    >>> concat((i, i*2) for i in range(3))
+    [0, 0, 1, 2, 2, 4]
+    """
+    return list(itertools.chain.from_iterable(xs for xs in xss))
 
 
 def uniq(vals, sort=True, key=None, reverse=False, use_set=False):
