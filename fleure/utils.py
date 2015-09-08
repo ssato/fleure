@@ -35,6 +35,42 @@ RPMDB_FILENAMES = ("Packages", "Basenames", "Dirnames", "Installtid", "Name",
 _RHERRATA_RE = re.compile(r"^RH[SBE]A-\d{4}[:-]\d{4}(?:-\d+)?$")
 
 
+def uniq(vals, sort=True, key=None, reverse=False, use_set=False):
+    """
+    Returns new list of no duplicated items.
+    If ``sort`` is True, result list will be sorted.
+
+    :param vals: Any valss such as a list, tuple and generator.
+    :param key: Key to compare items passed to :function:`sorted`
+        if ``sort`` is True.
+    :param reverse: Sorted result list reversed if ``sort`` is True.
+    :param use_set: Use :function:`set` to make unique items set if True.
+        It's much faster than naive implementation but items must be hash-able
+        objects as :function:`set` requires this as its inputs. Also, result
+        list will be sorted even if ``sort`` is not True in this case.
+
+    >>> uniq([])
+    []
+    >>> uniq([0, 3, 1, 2, 1, 0, 4, 5])
+    [0, 1, 2, 3, 4, 5]
+    >>> uniq([0, 3, 1, 2, 1, 0, 4, 5], reverse=True)
+    [5, 4, 3, 2, 1, 0]
+    >>> uniq([0, 3, 1, 2, 1, 0, 4, 5], sort=False)
+    [0, 3, 1, 2, 4, 5]
+    >>> uniq((0, 3, 1, 2, 1, 0, 4, 5), sort=False)
+    [0, 3, 1, 2, 4, 5]
+    """
+    if use_set:
+        return sorted(set(vals), key=key, reverse=reverse)
+
+    acc = []
+    for val in vals:
+        if val not in acc:
+            acc.append(val)
+
+    return sorted(acc, key=key, reverse=reverse) if sort else acc
+
+
 def _is_bsd_hashdb(dbpath):
     """
     TODO: Is this enough to check if given file ``dbpath`` is RPM DB file ?
