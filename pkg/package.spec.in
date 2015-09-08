@@ -1,0 +1,81 @@
+# Ref. https://fedoraproject.org/wiki/Packaging:Python
+%global srcname fleure
+%global sumtxt  Package level static analysis tool for RPM-based Linux systems
+
+Name:           python-%{srcname}
+Version:        @VERSION@
+Release:        1%{?dist}
+Summary:        %{sumtxt}
+Group:          Applications/System
+License:        AGPLv3+ and GPLv3+
+URL:            https://github.com/ssato/%{srcname}
+#Source0:        https://github.com/ssato/%{srcname}/tarball/master/%{name}-%{version}.tar.gz
+Source0:        %{srcname}-%{version}.tar.gz
+BuildArch:      noarch
+BuildRequires:  python2-devel python3-devel
+BuildRequires:  python-setuptools python3-setuptools
+# for pygettext.py:
+BuildRequires:  python2-tools python3-tools
+
+%description
+A package level static analysis tool for systems running RPM-based linux
+distributions such like RHEL (primary target) and Fedora.
+
+%package     -n python2-%{srcname}
+Summary:        %{sumtxt}
+Requires:       python-beautifulsoup4
+# Available from: https://copr.fedoraproject.org/coprs/ssato/python-anyconfig/
+Requires:       python-anyconfig
+Requires:       python-bunch
+Requires:       python-networkx
+Requires:       python-tablib
+Requires:       graphviz
+Requires:       libosinfo
+Requires:       rpm-python
+%{?python_provide:%python_provide python2-%{srcname}}
+
+%description -n python2-%{srcname}
+A package level static analysis tool for systems running RPM-based linux
+distributions such like RHEL (primary target) and Fedora.
+
+%package     -n python3-%{srcname}
+Summary:        %{sumtxt}
+Requires:       python3-beautifulsoup4
+Requires:       python3-anyconfig
+Requires:       python3-bunch
+Requires:       python3-networkx
+Requires:       python3-tablib
+Requires:       rpm-python3
+%{?python_provide:%python_provide python3-%{srcname}}
+
+%description -n python3-%{srcname}
+A package level static analysis tool for systems running RPM-based linux
+distributions such like RHEL (primary target) and Fedora.
+
+%prep
+%autosetup
+
+%build
+%py2_build
+%py3_build
+
+%install
+%py2_install
+%py3_install
+
+%files -n python2-%{srcname}
+%license LICENSE
+%doc README.rst
+%{python2_sitelib}/*
+%{_bindir}/%{srcname}_cli-2.7
+
+%files -n python3-%{srcname}
+%license LICENSE
+%doc README.rst
+%{python3_sitelib}/*
+%{_bindir}/%{srcname}_cli
+%{_bindir}/%{srcname}_cli-3.4
+
+%changelog
+* Wed Sep  9 2012 Satoru SATOH <ssato@redhat.com> - 0.1-1
+- Initial packaging originally came from the part of rpmkit

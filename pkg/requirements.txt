@@ -1,0 +1,6 @@
+anyconfig
+beautifulsoup4
+bunch
+matplotlib
+networkx
+tablib
