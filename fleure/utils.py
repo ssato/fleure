@@ -13,6 +13,7 @@ Misc utility routines for fleure.
 """
 from __future__ import absolute_import
 
+import codecs
 import itertools
 import json
 import logging
