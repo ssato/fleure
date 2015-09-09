@@ -53,7 +53,7 @@ A package level static analysis tool for systems running RPM-based linux
 distributions such like RHEL (primary target) and Fedora.
 
 %prep
-%autosetup
+%setup -q -n %{srcname}-%{version}
 
 %build
 %py2_build
@@ -77,5 +77,5 @@ distributions such like RHEL (primary target) and Fedora.
 %{_bindir}/%{srcname}_cli-3.4
 
 %changelog
-* Wed Sep  9 2012 Satoru SATOH <ssato@redhat.com> - 0.1-1
+* Thu Sep 10 2015 Satoru SATOH <ssato@redhat.com> - 0.1-1
 - Initial packaging originally came from the part of rpmkit
