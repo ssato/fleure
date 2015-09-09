@@ -14,11 +14,14 @@ Misc utility routines for fleure.
 from __future__ import absolute_import
 
 import itertools
+import json
 import logging
+import operator
 import os.path
 import os
 import re
 import rpm
+import yum
 
 try:
     import bsddb
@@ -94,6 +97,35 @@ def uniq(vals, sort=True, key=None, reverse=False, use_set=False):
     return sorted(acc, key=key, reverse=reverse) if sort else acc
 
 
+def uconcat(xss):
+    """uniq + concat
+    """
+    return uniq(concat(xss))
+
+
+def copen(path, flag='r', encoding="utf-8", **kwargs):
+    return codecs.open(path, flag, encoding)
+
+
+def json_load(filepath, encoding="utf-8"):
+    """
+    Load ``filepath`` in JSON format and return data.
+
+    :param filepath: Output file path
+    """
+    return json.load(copen(filepath, encoding=encoding))
+
+
+def json_dump(data, filepath):
+    """
+    Dump given ``data`` into ``filepath`` in JSON format.
+
+    :param data: Data to dump
+    :param filepath: Output file path
+    """
+    json.dump(data, copen(filepath, 'w'))
+
+
 def _is_bsd_hashdb(dbpath):
     """
     TODO: Is this enough to check if given file ``dbpath`` is RPM DB file ?
@@ -147,6 +179,49 @@ def check_rpmdb_root(root, readonly=True, dbnames=RPMDB_FILENAMES):
             os.chmod(dbpath, 0o444)
 
     return True
+
+
+def pcmp(lhs, rhs):
+    """
+    Compare packages by these NVRAEs.
+
+    :param lhs, rhs: dict(name, version, release, epoch, arch)
+
+    :note: It does not utilize rpm.versionCompare even if yum is not available.
+
+    >>> lhs = dict(name="gpg-pubkey", version="00a4d52b", release="4cb9dd70",
+    ...           arch="noarch", epoch=0,
+    ... )
+    >>> rhs = dict(name="gpg-pubkey", version="069c8460", release="4d5067bf",
+    ...           arch="noarch", epoch=0,
+    ... )
+    >>> pcmp(lhs, lhs) == 0
+    True
+    >>> pcmp(lhs, rhs) < 0
+    True
+
+    >>> p3 = dict(name="kernel", version="2.6.38.8", release="32",
+    ...           arch="x86_64", epoch=0,
+    ... )
+    >>> p4 = dict(name="kernel", version="2.6.38.8", release="35",
+    ...           arch="x86_64", epoch=0,
+    ... )
+    >>> pcmp(p3, p4) < 0
+    True
+
+    >>> p5 = dict(name="rsync", version="2.6.8", release="3.1",
+    ...           arch="x86_64", epoch=0,
+    ... )
+    >>> p6 = dict(name="rsync", version="3.0.6", release="4.el5",
+    ...           arch="x86_64", epoch=0,
+    ... )
+    >>> pcmp(p3, p4) < 0
+    True
+    """
+    p2evr = operator.itemgetter("epoch", "version", "release")
+
+    assert lhs["name"] == rhs["name"], "Trying to compare different packages!"
+    return yum.compareEVR(p2evr(lhs), p2evr(rhs))
 
 
 def errata_url(advisory):
