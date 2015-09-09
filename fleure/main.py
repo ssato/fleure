@@ -59,6 +59,7 @@ LOG = logging.getLogger("fleure")
 ERRATA_KEYWORDS = ("crash", "panic", "hang", "SEGV", "segmentation fault",
                    "data corruption")
 CORE_RPMS = ("kernel", "glibc", "bash", "openssl", "zlib")
+BACKENDS = dict(yum=fleure.yumbase.Base, dnf=fleure.dnfbase.Base)
 
 
 def errata_matches_keywords_g(ers, keywords=ERRATA_KEYWORDS):
@@ -432,10 +433,12 @@ def dump_results(workdir, rpms, errata, updates, score=0,
         dump_xls(dds, os.path.join(workdir, "errata_details.xls"))
 
 
-def get_backend(backend):
+def get_backend(backend, backends=None):
     """Get backend.
     """
-    backends = dict(yum=fleure.yumbase.Base, dnf=fleure.dnfbase.Base)
+    if backends is None:
+        backends = BACKENDS
+
     return backends.get(backend, "dnf")
 
 
