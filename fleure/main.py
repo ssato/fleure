@@ -60,6 +60,7 @@ ERRATA_KEYWORDS = ("crash", "panic", "hang", "SEGV", "segmentation fault",
                    "data corruption")
 CORE_RPMS = ("kernel", "glibc", "bash", "openssl", "zlib")
 BACKENDS = dict(yum=fleure.yumbase.Base, dnf=fleure.dnfbase.Base)
+DEFAULT_BACKEND = "dnf"
 
 
 def errata_matches_keywords_g(ers, keywords=ERRATA_KEYWORDS):
@@ -439,7 +440,7 @@ def get_backend(backend, backends=None):
     if backends is None:
         backends = BACKENDS
 
-    return backends.get(backend, "dnf")
+    return backends.get(backend, DEFAULT_BACKEND)
 
 
 @profile
