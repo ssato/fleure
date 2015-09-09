@@ -71,7 +71,7 @@ def errata_matches_keywords_g(ers, keywords=ERRATA_KEYWORDS):
         given keywords
     """
     for ert in ers:
-        mks = [k for k in keywords if k in ers["description"]]
+        mks = [k for k in keywords if k in ert["description"]]
         if mks:
             ert["keywords"] = mks
             yield ert
@@ -356,7 +356,7 @@ def dump_results(workdir, rpms, errata, updates, score=0,
     # TODO: Keep DRY principle.
     lrpmkeys = [_("name"), _("epoch"), _("version"), _("release"), _("arch")]
 
-    rpmdkeys = rpmkeys + ["summary", "vendor", "buildhost"]
+    rpmdkeys = list(rpmkeys) + ["summary", "vendor", "buildhost"]
     lrpmdkeys = lrpmkeys + [_("summary"), _("vendor"), _("buildhost")]
 
     sekeys = ("advisory", "severity", "synopsis", "url", "update_names")
@@ -626,9 +626,10 @@ def main(root, workdir=None, repos=None, did=None, score=0,
     :param backend: Backend module to use to get updates and errata
     """
     set_loglevel(verbosity)
-
     host = prepare(root, workdir, repos, did, cachedir, backend)
+
     if host.available:
+        LOG.info("Anaylize the host: %s", host.id)
         analyze(host, score, keywords, rpms, period, refdir)
 
 # vim:sw=4:ts=4:et:
