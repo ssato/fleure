@@ -19,7 +19,7 @@ import fleure.multihosts
 
 _TODAY = datetime.datetime.now().strftime("%F")
 _DEFAULTS = dict(path=None, workdir="/tmp/rk-updateinfo-{}".format(_TODAY),
-                 repos=[], multiproc=False, id=None,
+                 repos=None, multiproc=False, id=None,
                  score=0, keywords=fleure.main.ERRATA_KEYWORDS,
                  rpms=fleure.main.CORE_RPMS, period='', cachedir=None,
                  refdir=None, backend=fleure.main.DEFAULT_BACKEND,
@@ -96,7 +96,7 @@ def main():
     root = args[0] if args else raw_input("Host[s] data dir (root) > ")
     assert os.path.exists(root), "Not found RPM DB Root: %s" % root
 
-    period = options.period.split(',') if options.period else ()
+    period = options.period.split(',') if options.period else None
 
     if os.path.exists(os.path.join(root, "var/lib/rpm")):
         fleure.main.main(root, options.workdir, options.repos, options.id,
