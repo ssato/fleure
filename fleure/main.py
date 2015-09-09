@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2013 Satoru SATOH <ssato@redhat.com>
 # Copyright (C) 2013 - 2015 Red Hat, Inc.
-# License: GPLv3+
+# License: AGPLv3+
 #
 # pylint: disable=too-many-arguments,too-many-locals,no-member
 """Fleure's main module
