@@ -1,0 +1,2 @@
+[console_scripts]
+fleure_cli = fleure.cli:main
