@@ -23,7 +23,7 @@ _DEFAULTS = dict(path=None, workdir="/tmp/rk-updateinfo-{}".format(_TODAY),
                  score=0, keywords=fleure.main.ERRATA_KEYWORDS,
                  rpms=fleure.main.CORE_RPMS, period='', cachedir=None,
                  refdir=None, backend=fleure.main.DEFAULT_BACKEND,
-                 verbosity=0)
+                 backends=fleure.main.BACKENDS, verbosity=0)
 _USAGE = """\
 %prog [Options...] ROOT
 
