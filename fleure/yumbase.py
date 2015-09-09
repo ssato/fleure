@@ -231,11 +231,10 @@ class Base(fleure.base.Base):
 
         see also: yum.updateinfo.exclude_updates
         """
-        extras = self.list_packages("extras")
-        extra_names = [e["name"] for e in extras]
+        extras = [e["name"] for e in self.list_packages("extras")]
 
         ygh = self.base.doPackageLists("installed")
-        ips = [_to_pkg(p, extras, extra_names) for p in ygh.installed]
+        ips = [_to_pkg(p, extras) for p in ygh.installed]
         self.packages["installed"] = ips
 
         return ips
