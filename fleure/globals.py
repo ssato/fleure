@@ -72,7 +72,7 @@ def errata_list_path(workdir, filename="errata.json"):
     return os.path.join(workdir, filename)
 
 
-def updates_file_path(workdir, filename="updates.json"):
+def updates_list_path(workdir, filename="updates.json"):
     """
     :param workdir: Working dir to dump the result
     """
