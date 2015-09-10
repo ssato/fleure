@@ -9,14 +9,14 @@
 # software; if not, see http://www.gnu.org/licenses/gpl.html
 #
 # pylint: disable=missing-docstring
-import fleure.yumbase as TT
-import fleure.utils
-import fleure.tests.common
-
 import os.path
 import os
 import shutil
 import unittest
+
+import fleure.yumbase as TT
+import fleure.utils
+import fleure.tests.common
 
 
 if fleure.tests.common.is_rhel_or_fedora():
@@ -39,19 +39,21 @@ if fleure.tests.common.is_rhel_or_fedora():
 
         def test_10_create(self):
             self.assertTrue(isinstance(self.base.base, TT.yum.YumBase))
-            self.assertEquals(self.base.base.repos.listEnabled(), [])
 
         def test_30_list_installed(self):
+            self.base.prepare()
             pkgs = self.base.list_installed()
 
             self.assertTrue(isinstance(pkgs, list))
             self.assertNotEquals(pkgs, [])
 
         def test_40_list_errata(self):
+            self.base.prepare()
             ers = self.base.list_errata()
             self.assertTrue(isinstance(ers, list))
 
         def test_50_list_updates(self):
+            self.base.prepare()
             pkgs = self.base.list_updates()
             self.assertTrue(isinstance(pkgs, list))
 
