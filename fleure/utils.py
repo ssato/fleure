@@ -149,13 +149,18 @@ def _is_bsd_hashdb(dbpath):
     return True
 
 
-def check_rpmdb_root(root, readonly=True, dbnames=RPMDB_FILENAMES):
+def check_rpmdb_root(root, readonly=True, system=False,
+                     dbnames=RPMDB_FILENAMES):
     """
-    :param root: The pivot root directry where target's RPM DB files exist.
-    :param readonly: Ensure RPM DB files readonly.
+    :param root: The pivot root directry where target's RPM DB files exist
+    :param readonly: Ensure RPM DB files readonly
+    :param system: Allow accessing system RPM DB in /var/lib/rpm
     :return: True if necessary setup was done w/ success else False
     """
-    assert root != "/", "Do not run this for host system's RPM DB!"
+    if system:
+        readonly = True
+    else:
+        assert root != "/", "Do not run this for host system's RPM DB!"
 
     rpmdbdir = os.path.join(root, RPMDB_SUBDIR)
 
@@ -175,7 +180,7 @@ def check_rpmdb_root(root, readonly=True, dbnames=RPMDB_FILENAMES):
             # NOTE: It's not an error at once.
             LOG.info("RPM DB %s looks missing", dbn)
 
-        if readonly and os.access(dbpath, os.W_OK):
+        if readonly and os.access(dbpath, os.W_OK) and not system:
             LOG.info("Drop write access perm from %s ", dbn)
             os.chmod(dbpath, 0o444)
 
