@@ -61,7 +61,7 @@ class Base(object):
     def ready(self):
         """Is ready to get updateinfo ?
         """
-        return self._populated and self._packages["installed"]
+        return self._populated
 
     def configure(self):
         """Setup configurations, repos to access, etc.
