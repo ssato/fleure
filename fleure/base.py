@@ -2,7 +2,9 @@
 # Copyright (C) 2014 Satoru SATOH <ssato redhat.com>
 # License: GPLv3+
 #
-"""Base class.
+# suppress warns of `kwargs`
+# pylint: disable=unused-argument
+"""Base class of backends.
 """
 from __future__ import absolute_import
 
@@ -16,103 +18,117 @@ import fleure.utils
 LOG = logging.getLogger(__name__)
 
 
+class BaseNotReadyError(RuntimeError):
+    """Exception to be raised if base object is not ready; it's not configured
+    nor populated yet.
+    """
+    pass
+
+
 class Base(object):
     """Backend engine object
     """
     _name = "base"
 
     def __init__(self, root='/', repos=None, workdir=None, cachedir=None,
-                 **kwargs):
+                 cacheonly=False, **kwargs):
         """
-        :param root: RPM DB root dir
+        :param root: RPM DB root dir, ex. '/' (var/lib/rpm)
         :param repos: A list of repos to enable
         :param workdir: Working dir to save logs and results
-        :param cachedir: Working dir to save logs and results, will be
-            os.path.join(root, 'var/cache') if None
-
-        >>> base = Base()
+        :param cachedir:
+            Dir to save cache, will be <root>/var/cache if None
+        :param cacheonly:
+            Do not access network to fetch updateinfo data and load them from
+            the local cache entirely.
+        :param kwargs: Backend specific keyword args
         """
         self.root = os.path.abspath(root)
-        self.workdir = root if workdir is None else workdir
         self.repos = [] if repos is None else repos
+        self.workdir = root if workdir is None else workdir
+        self.cacheonly = cacheonly
         self._packages = collections.defaultdict(list)
 
         if cachedir is None:
-            self._cachedir = os.path.join(self.root, "var/cache")
+            self.cachedir = os.path.join(self.root, "var/cache")
         else:
-            self._cachedir = cachedir
+            self.cachedir = cachedir
+
+        self._configured = False
+        self._populated = False
+
+        self._packages = dict(installed=None, updates=None, obsoletes=None,
+                              errata=None)
 
     @property
     def name(self):
         """Name property"""
         return self._name
 
-    @property
-    def cachedir(self):
-        """Cache dir property"""
-        return self._cachedir
+    def ready(self):
+        """Is ready to get updateinfo ?
+        """
+        return self._populated and self._packages["installed"]
 
-    @cachedir.setter
-    def cachedir(self, val):
-        """Cache dir property setter"""
-        self._cachedir = val
+    def configure(self):
+        """Setup configurations, repos to access, etc.
+        """
+        pass
 
-    def is_rpmdb_available(self, readonly=False):
+    def populate(self):
+        """Populate updateinfo from yum repos.
         """
-        :return: True if given RPM database is ready to load.
-        """
-        return fleure.utils.check_rpmdb_root(self.root, readonly)
+        pass
 
-    def packages(self, pkgnarrow="installed"):
-        """
-        :return: A list of {installed, updates} packages or errata
-        """
-        return self._packages[pkgnarrow]
+    def prepare(self):
+        """Configure and populate.
 
-    def list_installed(self, **kwargs):
+        :note: This method should be called explicitly.
         """
-        List installed RPMs.
-        """
-        res = self.packages("installed")
-        if not res:
-            res = self.list_installed_impl(**kwargs)
+        if not self._configured:
+            self.configure()
 
-        return res
+        if not self._populated:
+            if self._configured:
+                if fleure.utils.check_rpmdb_root(self.root, readonly=True):
+                    self.populate()
+
+    def _make_list_of(self, item):
+        """placeholder.
+
+        :param item: Name of the items to return, e.g. 'installed', 'errata'
+        """
+        raise NotImplementedError("Inherited class must implement this!")
+
+    def _get_list_of(self, item):
+        """Make a list of items if not and return it.
+
+        :param item: Name of the items to return, e.g. 'installed', 'errata'
+        """
+        if not self.ready():
+            raise BaseNotReadyError("It's not ready yet! Populate it before "
+                                    "getting a list of %s.", item)
+
+        items = self._packages.get(item, None)
+        if items is None:  # Indicates it's not initialized.
+            items = self._make_list_of(item)
+
+        return items
+
+    def list_installed(self):
+        """List installed RPMs.
+        """
+        return self._get_list_of("installed")
 
     def list_updates(self, **kwargs):
+        """List update RPMs.
         """
-        List update RPMs.
-        """
-        res = self.packages("updates")
-        if not res:
-            res = self.list_updates_impl(**kwargs)
-
-        return res
+        return self._get_list_of("updates")
 
     def list_errata(self, **kwargs):
+        """List Errata.
         """
-        List Errata.
-        """
-        res = self.packages("errata")
-        if not res:
-            res = self.list_errata_impl(**kwargs)
-
-        return res
-
-    def list_installed_impl(self, **kwargs):
-        """Method placeholder (template method).
-        """
-        raise NotImplementedError("list_installed_impl")
-
-    def list_updates_impl(self, **kwargs):
-        """Method placeholder (template method).
-        """
-        raise NotImplementedError("list_updates_impl")
-
-    def list_errata_impl(self, **kwargs):
-        """Method placeholder (template method).
-        """
-        raise NotImplementedError("list_errata_impl")
+        return self._get_list_of("errata")
 
 
 _VENDOR_RH = "Red Hat, Inc."
