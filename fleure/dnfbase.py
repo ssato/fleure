@@ -138,6 +138,33 @@ def hadv_to_errata(hadv):
     return errata
 
 
+def _pathjoin(*paths):
+    """
+    :param paths: A list of paths to join
+
+    >>> _pathjoin('/', 'a/b/c')
+    '/a/b/c'
+    >>> _pathjoin('/', 'a', 'b', 'c')
+    '/a/b/c'
+    >>> _pathjoin('/', '/a/b/c')
+    '/a/b/c'
+    """
+    if not paths:
+        return os.path.sep
+
+    ret = paths[0]
+    for subpath in paths[1:]:
+        if not subpath:
+            return ret
+
+        if subpath.startswith(os.path.sep):
+            subpath = subpath[1:]
+
+        ret = os.path.join(ret, subpath)
+
+    return ret
+
+
 class Base(fleure.base.Base):
     """Dnf backend.
     """
@@ -165,14 +192,20 @@ class Base(fleure.base.Base):
         ...     assert isinstance(base.base, dnf.Base)
         """
         # setup self.{root, cachedir, ....}
-        super(Base, self).__init__(root, repos, **kwargs)
+        super(Base, self).__init__(root, repos, workdir, cachedir,
+                                   cacheonly, **kwargs)
 
         conf = dnf.conf.Conf()
         if self.root != os.path.sep:
             conf.installroot = self.root
-            conf.cachedir = os.path.join(self.root, conf.cachedir[1:])
-            conf.logdir = os.path.join(self.root, conf.logdir[1:])
-            conf.persistdir = os.path.join(self.root, conf.persistdir[1:])
+            conf.logdir = _pathjoin(self.root, conf.logdir)
+            conf.persistdir = _pathjoin(self.root, conf.persistdir)
+
+        if cachedir is None:
+            conf.cachedir = _pathjoin(self.root, conf.cachedir)
+            self.cachedir = conf.cachedir
+        else:
+            self.cachedir = conf.cachedir = cachedir
 
         self.base = dnf.Base(conf)
         self._hpackages = collections.defaultdict(list)
