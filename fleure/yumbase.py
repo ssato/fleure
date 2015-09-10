@@ -13,6 +13,7 @@ import logging
 import yum
 
 import fleure.base
+import fleure.package
 import fleure.utils
 
 
@@ -112,9 +113,9 @@ def _to_pkg(pkg, extras=None):
     if isinstance(pkg, collections.Mapping):
         return pkg
 
-    return fleure.base.Package(pkg.name, pkg.version, pkg.release, pkg.arch,
-                               pkg.epoch, pkg.summary, pkg.vendor,
-                               pkg.buildhost, extras)
+    return fleure.package.Package(pkg.name, pkg.version, pkg.release, pkg.arch,
+                                  pkg.epoch, pkg.summary, pkg.vendor,
+                                  pkg.buildhost, extras)
 
 
 class Base(fleure.base.Base):
@@ -122,155 +123,110 @@ class Base(fleure.base.Base):
     """
     _name = "yum"
 
-    def __init__(self, root='/', repos=None, load_available_repos=True,
-                 **kwargs):
+    def __init__(self, root='/', repos=None, workdir=None, cachedir=None,
+                 cacheonly=False, **kwargs):
         """
         Create an initialized yum.YumBase instance.
         Created instance has no enabled repos by default.
 
-        :param root: RPM DB root dir in absolute path
-        :param repos: List of Yum repos to enable
-        :param load_available_repos: It will populates the package sack from
-            the repositories if True
+        :param root: RPM DB root dir, ex. '/' (var/lib/rpm)
+        :param repos: A list of repos to enable
+        :param workdir: Working dir to save logs and results
+        :param cachedir:
+            Dir to save cache, will be <root>/var/cache if None
+        :param cacheonly:
+            Do not access network to fetch updateinfo data and load them from
+            the local cache entirely.
 
         >>> import os.path
         >>> if os.path.exists("/etc/redhat-release"):
         ...     base = Base()
         ...     assert isinstance(base.base, yum.YumBase)
-        ...     base.base.repos.listEnabled() == []
-        True
         """
         super(Base, self).__init__(root, repos, **kwargs)
         self.base = yum.YumBase()
 
-        try:
-            self.base.conf.installroot = self.root
-        except AttributeError:
-            self.base.preconf.root = self.root
-
+        # TODO: In some versions of yum, yum.YumBase.preconf.root might needs
+        # to be set instead of yum.YumBase.conf.installroot.
+        self.base.conf.installroot = self.root
         self.base.conf.cachedir = self.cachedir
         self.base.logger = self.base.verbose_logger = LOG
 
-        self._activate_repos(repos)
-
-        self.packages = dict()
-        self.load_available_repos = load_available_repos
-        self.populated = False
-
-    @property
-    def cachedir(self):
-        """cachedir property (overridden)"""
-        return self.base.conf.cachedir
-
-    def set_cachedir(self, cachedir):
-        """setup cachedir"""
-        self.base.conf.cachedir = cachedir
-
-    def set_cacheonly(self):
-        """make it not using network and only fetch data from local cache.
-        """
-        self.base.conf.cache = 1
+        if self.cacheonly:
+            self.base.conf.cache = 1
 
     def _activate_repos(self, repos):
         """
-        Enable only given yum repos.
+        Enable only specified yum repos explicitly with others are disabled.
 
-        :param repos: A list of repos to enable
+        :param repos: A list of repo IDs to enable
         :see: :meth:`findRepos` of the :class:`yum.repos.RepoStorage`
         """
-        # Disale all repos at first.
-        for repo in self.base.repos.findRepos('*'):
+        for repo in self.base.repos.findRepos('*'):  # Disale all at first.
             repo.disable()
 
         if repos is not None:
-            for repo_name in repos:
-                for repo in self.base.repos.findRepos(repo_name):
+            for rid in repos:
+                for repo in self.base.repos.findRepos(rid):
                     repo.enable()
 
-    def _load_repos(self):
+    def configure(self):
+        """Configure RPM DB root, yum repos to fetch updateinfo and setup
+        cachedir.
         """
-        Populates the package sack from the repositories.  Network access
-        happens if any non-local repos activated and it will take some time
-        to finish.
+        self._activate_repos(self.repos)
+        self._configured = True
+
+    def populate(self):
         """
-        if self.load_available_repos and not self.populated:
+        Populates the package sack from the repositories.
+
+        Network access to yum repos will happen if any non-local repos
+        activated and it should be going to take some time to finish.
+        """
+        if not self._populated:
             LOG.info("Loading yum repo metadata from repos: %s",
                      ','.join(r.id for r in self.base.repos.listEnabled()))
             # self.base._getTs()
             self.base._getSacks()
             self.base._getUpdates()
-            self.populated = True
 
-    def list_packages(self, pkgnarrow="installed"):
+        self._populated = True  # TBD
+
+    def _make_list_of(self, pkgnarrow):
         """
         List installed or update RPMs similar to
         "repoquery --pkgnarrow=updates --all --plugins --qf '%{nevra}'".
 
-        :param pkgnarrow: Package list narrowing factor
+        :param pkgnarrow: Package list narrowing factor or 'errata'
         :return: A dict contains lists of dicts of packages
-
-        TODO: Find out better and correct ways to activate repo and sacks.
         """
-        assert pkgnarrow in _PKG_NARROWS, "Invalid pkgnarrow: " + pkgnarrow
+        if pkgnarrow in _PKG_NARROWS:
+            ygh = self.base.doPackageLists(pkgnarrow)
 
-        pkgs = self.packages.get(pkgnarrow)
-        if pkgs:
-            return pkgs
+            if pkgnarrow == "installed":
+                extras = [p["name"] for p in self._make_list_of("extras")]
+                objs = [_to_pkg(p, extras) for p in ygh.installed]
+            else:
+                objs = [_to_pkg(p) for p in getattr(ygh, pkgnarrow, [])]
 
-        self._load_repos()
+            self._packages[pkgnarrow] = objs
 
-        ygh = self.base.doPackageLists(pkgnarrow)
-        pkgs = [_to_pkg(p) for p in getattr(ygh, pkgnarrow, [])]
-        self.packages[pkgnarrow] = pkgs
+        elif pkgnarrow == "errata":
+            # See also :func:`update_minimal` in yum.updateinfo.
+            oldpkgtups = [t[1] for t in self.base.up.getUpdatesTuples()]
 
-        return pkgs
+            _notice_lister = self.base.upinfo.get_applicable_notices
+            npss_g = itertools.ifilter(None,
+                                       (_notice_lister(o) for o in oldpkgtups))
+            ers = itertools.chain(*((_notice_to_errata(t[1]) for t in ts)
+                                    for ts in npss_g))
+            objs = list(ers)
+            self._packages[pkgnarrow] = objs
 
-    def list_installed(self):
-        """
-        :return: List of dicts of installed RPMs info
-
-        see also: yum.updateinfo.exclude_updates
-        """
-        extras = [e["name"] for e in self.list_packages("extras")]
-
-        ygh = self.base.doPackageLists("installed")
-        ips = [_to_pkg(p, extras) for p in ygh.installed]
-        self.packages["installed"] = ips
-
-        return ips
-
-    def list_updates(self, obsoletes=True):
-        """
-        Method to mimic "yum check-update".
-
-        :param obsoletes: Include obsoletes in updates list if True
-        :return: List of dicts of update RPMs info
-        """
-        ups = self.list_packages("updates")
-
-        if obsoletes:
-            obs = self.list_packages("obsoletes")
-            return ups + obs
         else:
-            return ups
+            raise ValueError("Invalid list item was given: %s", pkgnarrow)
 
-    def list_errata(self):
-        """
-        List applicable Errata.
-
-        :param root: RPM DB root dir in absolute path
-        :param repos: List of Yum repos to enable
-        :param disabled_repos: List of Yum repos to disable
-
-        :return: A dict contains lists of dicts of errata
-        """
-        self._load_repos()
-        oldpkgtups = [t[1] for t in self.base.up.getUpdatesTuples()]
-        npss_g = itertools.ifilter(None,
-                                   (self.base.upinfo.get_applicable_notices(o)
-                                    for o in oldpkgtups))
-        ers = itertools.chain(*((_notice_to_errata(t[1]) for t in ts) for ts
-                                in npss_g))
-        return list(ers)
+        return objs
 
 # vim:sw=4:ts=4:et:
