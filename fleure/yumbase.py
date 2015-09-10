@@ -143,7 +143,8 @@ class Base(fleure.base.Base):
         ...     base = Base()
         ...     assert isinstance(base.base, yum.YumBase)
         """
-        super(Base, self).__init__(root, repos, **kwargs)
+        super(Base, self).__init__(root, repos, workdir, cachedir, cacheonly,
+                                   **kwargs)
         self.base = yum.YumBase()
 
         # TODO: In some versions of yum, yum.YumBase.preconf.root might needs
