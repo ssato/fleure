@@ -28,6 +28,7 @@ if fleure.tests.common.is_rhel_or_fedora():
                             rpmdbdir)
 
             self.base = TT.Base(self.workdir)
+            self.base.prepare()
 
         def tearDown(self):
             fleure.tests.common.cleanup_workdir(self.workdir)
