@@ -481,6 +481,7 @@ def prepare(root, workdir=None, repos=None, did=None, cachedir=None,
 
     base = get_backend(backend)(host.root, host.repos, workdir=host.workdir,
                                 cachedir=cachedir)
+    base.prepare()
     LOG.debug(_("%s: Initialized backend %s"), host.id, base.name)
     host.base = base
 
@@ -495,7 +496,8 @@ def prepare(root, workdir=None, repos=None, did=None, cachedir=None,
 
     fleure.utils.json_dump(dict(data=host.installed, ),
                            fleure.globals.rpm_list_path(host.workdir))
-    host.available = True
+    if base.ready():
+        host.available = True
 
     return host
 
