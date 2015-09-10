@@ -26,14 +26,24 @@ import fleure.cveinfo
 import fleure.globals
 import fleure.datasets
 import fleure.utils
-import fleure.dnfbase
-import fleure.yumbase
 
 from fleure.globals import _
 from fleure.datasets import (
     make_dataset, list_updates_from_errata, list_latest_errata_by_updates,
     NEVRA_KEYS,
 )
+
+import fleure.yumbase
+
+BACKENDS = dict(yum=fleure.yumbase.Base, )
+DEFAULT_BACKEND = "yum"
+try:
+    import fleure.dnfbase
+
+    BACKENDS["dnf"] = fleure.dnfbase.Base
+    DEFAULT_BACKEND = "dnf"  # Prefer this.
+except ImportError:  # dnf is not available for RHEL, AFAIK.
+    pass
 
 if os.environ.get("FLEURE_MEMORY_DEBUG", False):
     try:
@@ -59,8 +69,6 @@ LOG = logging.getLogger("fleure")
 ERRATA_KEYWORDS = ("crash", "panic", "hang", "SEGV", "segmentation fault",
                    "data corruption")
 CORE_RPMS = ("kernel", "glibc", "bash", "openssl", "zlib")
-BACKENDS = dict(yum=fleure.yumbase.Base, dnf=fleure.dnfbase.Base)
-DEFAULT_BACKEND = "dnf"
 
 
 def errata_matches_keywords_g(ers, keywords=ERRATA_KEYWORDS):
