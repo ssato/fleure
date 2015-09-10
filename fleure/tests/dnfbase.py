@@ -15,7 +15,25 @@ import unittest
 
 
 if fleure.tests.common.is_rhel_or_fedora():
-    class Test00(unittest.TestCase):
+    class Test10(unittest.TestCase):
+
+        def test_12__init__with_root(self):
+            base = TT.Base(root="/tmp")
+            self.assertTrue(isinstance(base, TT.Base))
+
+            conf = base.base.conf
+            self.assertEquals(conf.installroot, u"/tmp")
+            self.assertEquals(conf.logdir, u"/tmp/var/log")
+
+        def test_14__init__with_cachedir(self):
+            cachedir = u"/tmp/aaa"
+            base = TT.Base(cachedir=cachedir)
+            self.assertTrue(isinstance(base, TT.Base))
+            self.assertEquals(base.base.conf.cachedir, cachedir,
+                              "%s vs. %s" % (base.base.conf.cachedir,
+                                             cachedir))
+
+    class Test20(unittest.TestCase):
 
         def setUp(self):
             self.workdir = fleure.tests.common.setup_workdir()
