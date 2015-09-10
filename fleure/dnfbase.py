@@ -17,6 +17,7 @@ import operator
 import os.path
 
 import fleure.base
+import fleure.package
 import fleure.utils
 
 
@@ -25,15 +26,17 @@ LOG = logging.getLogger(__name__)
 
 def _to_pkg(pkg, extras=None):
     """
-    Convert Package object :: hawkey.Package to fleure.base.Package
-    object.
+    Convert Package object :: hawkey.Package to a dict object
+    :: fleure.package.Package object.
 
-    :param pkg: Package object which Base.list_installed(), etc. returns
-    :param extras: A list of dicts represent extra packages which is installed
-        but not available from yum repos available.
+    :param pkg: Package object which base.list_installed(), etc. returns
+    :param extras:
+        A list of dicts represent extra packages which is installed but not
+        available from yum repos available.
 
-    :todo: Some data is missing in hawkey.Package,
-        e.g. hawkey.Package.packager != vendor and buildhost is not available.
+    .. todo:: Some data is missing in hawkey.Package and we must get them
+       anyhow; hawkey.Package.packager != vendor, buildhost is not
+       available, etc.
     """
     if extras is None:
         originally_from = "TBD"
@@ -44,11 +47,11 @@ def _to_pkg(pkg, extras=None):
             originally_from = "Unknown"
 
     if isinstance(pkg, collections.Mapping):
-        return pkg
+        return pkg  # Conversion should be done already.
 
-    return fleure.base.Package(pkg.name, pkg.v, pkg.r, pkg.a, pkg.epoch,
-                               pkg.summary, pkg.packager, "N/A",
-                               originally_from=originally_from)
+    return fleure.package.Package(pkg.name, pkg.v, pkg.r, pkg.a, pkg.epoch,
+                                  pkg.summary, pkg.packager, "N/A",
+                                  originally_from=originally_from)
 
 
 # see dnf.cli.commands.updateinfo.UpdateInfoCommand.TYPE2LABEL:
@@ -140,14 +143,19 @@ class Base(fleure.base.Base):
     """
     _name = "dnf"
 
-    def __init__(self, root='/', repos=None, workdir=None, **kwargs):
+    def __init__(self, root='/', repos=None, workdir=None, cachedir=None,
+                 cacheonly=False, **kwargs):
         """
         Create and initialize dnf.Base or dnf.cli.cli.BaseCli object.
 
         :param root: RPM DB root dir
         :param repos: A list of repos to enable
-        :param disabled_repos: A list of repos to disable
         :param workdir: Working dir to save logs and results
+        :param cachedir:
+            Dir to save cache, will be <root>/var/cache if None
+        :param cacheonly:
+            Do not access network to fetch updateinfo data and load them from
+            the local cache entirely.
 
         see also: :function:`dnf.automatic.main.main`
 
@@ -167,129 +175,64 @@ class Base(fleure.base.Base):
             conf.persistdir = os.path.join(self.root, conf.persistdir[1:])
 
         self.base = dnf.Base(conf)
-
-        self._repo_md_ready = False
         self._hpackages = collections.defaultdict(list)
 
-    def _list_dnf_installed(self):
+    def configure(self):
+        """Configure repos, etc.
         """
-        Compute the installed packages list and cache it internally if not.
+        self.base.read_all_repos()
+        for rid, repo in self.base.repos.items():
+            getattr(repo, "enable" if rid in self.repos else "disable")()
 
-        Please note that this private method expects initialization (see
-        :meth:`prepare`) has been done already.
+        self._configured = True
 
-        :return: A list of installed hawkey.Package
+    def _make_list_of(self, item):
         """
-        if not self._hpackages["installed"]:
-            res = self.base.sack.query().installed()
-            if not isinstance(res, list):
-                res = res.run()
-            self._hpackages["installed"] = res
-
-        return self._hpackages["installed"]
-
-    def _list_dnf_upgrades(self):
+        :param item:
+            Name of the items to make a list, e.g. 'installed', 'updates',
+            'errata'.
         """
-        Compute the update packages list and cache it internally if not like
-        :meth:`_list_dnf_installed`.
+        if item in ("installed", "updates", "obsoletes"):  # TODO: others.
+            query = self.base.sack.query()
 
-        Please note that this private method expects initialization (see
-        :meth:`prepare`) has been done already.
+            if item == "installed":
+                hpkgs = query.installed()
+            elif item == "updates":
+                hpkgs = query.upgrades()
+            else:  # obsoletes
+                hpkgs = query.filter(obsoletes=query.installed())
 
-        :return: A list of update hawkey.Package
-        """
-        if not self._hpackages["updates"]:
-            res = self.base.sack.query().upgrades()
-            if not isinstance(res, list):
-                res = res.run()
-            self._hpackages["updates"] = res
+            if not isinstance(hpkgs, list):
+                hpkgs = hpkgs.run()
 
-        return self._hpackages["updates"]
+            self._hpackages[item] = hpkgs
+            self._packages[item] = objs = [_to_pkg(p) for p in hpkgs]
 
-    def _list_dnf_obsoletes(self):
-        """
-        Compute the obsolete packages list and cache it internally if not like
-        :meth:`_list_dnf_upgrades`. The results should be a sub set of upgrade
-        packages.
+        elif item == "errata":
+            ips = self._hpackages.get("installed", False)
+            if not ips:
+                # Make it generated and cached.
+                self._make_list_of("installed")
+                ips = self._hpackages.get("installed", False)
 
-        Please note that this private method expects initialization (see
-        :meth:`prepare`) has been done already.
+            advs = itertools.chain(*(p.get_advisories(hawkey.GT) for p in ips))
+            advs = fleure.utils.uniq(advs, key=operator.attrgetter("id"))
+            self._hpackages["errata"] = advs
+            self._packages["errata"] = objs = [hadv_to_errata(a) for a in advs]
 
-        :return: A list of update hawkey.Package
-        """
-        if not self._hpackages["obsoletes"]:
-            qry = self.base.sack.query()
-            res = self.base.sack.query().filter(obsoletes=qry.installed())
-            if not isinstance(res, list):
-                res = res.run()
-            self._hpackages["obsoletes"] = res
+        return objs
 
-        return self._hpackages["obsoletes"]
-
-    def prepare(self):
+    def populate(self):
         """
         Initialize RPM DB (sack) and Yum repo metadata (fetch from remote).
         """
-        if not self._repo_md_ready:
-            self.base.read_all_repos()
-            for rid in self.base.repos.keys():
-                if rid in self.repos:
-                    self.base.repos[rid].enable()
-                else:
-                    self.base.repos[rid].disable()
-
+        if not self._populated:
             # It will take some time to get metadata from remote repos.
             # see :method:`run` in :class:`dnf.cli.cli.Cli`.
             self.base.fill_sack(load_system_repo='auto')
             self.base.upgrade_all()
             self.base.resolve()
 
-            self._repo_md_ready = True
-
-    def list_installed_impl(self, **kwargs):
-        """
-        List installed packages.
-
-        >>> import os.path
-        >>> if os.path.exists("/etc/redhat-release"):
-        ...     base = Base()
-        ...     ipkgs = base.list_installed_impl()
-        ...     assert len(ipkgs) > 0
-        """
-        self.prepare()
-        if not self._packages["installed"]:
-            ips = self._list_dnf_installed()
-            self._packages["installed"] = [_to_pkg(p) for p in ips]
-
-        return self._packages["installed"]
-
-    def list_errata_impl(self, **kwargs):
-        """
-        List errata.
-        """
-        self.prepare()
-        if not self._hpackages["errata"]:
-            ips = self._list_dnf_installed()
-            advs = itertools.chain(*(pkg.get_advisories(hawkey.GT) for pkg
-                                     in ips))
-            advs = fleure.utils.uniq(advs, key=operator.attrgetter("id"))
-            self._hpackages["errata"] = advs
-            self._packages["errata"] = [hadv_to_errata(a) for a in advs]
-
-        return self._packages["errata"]
-
-    def list_updates_impl(self, obsoletes=True, **kwargs):
-        """
-        :param obsoletes: Include obsoletes in updates list if True
-        """
-        self.prepare()
-        if not self._packages["updates"]:
-            res = self._list_dnf_upgrades()
-            self._packages["updates"] = [_to_pkg(p) for p in res]
-
-            res = self._list_dnf_obsoletes()
-            self._packages["obsoletes"] = [_to_pkg(p) for p in res]
-
-        return self._packages["updates"]  # obosletes in updates.
+            self._populated = True
 
 # vim:sw=4:ts=4:et:
