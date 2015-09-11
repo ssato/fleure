@@ -22,7 +22,6 @@ import os.path
 import os
 import tablib
 
-import fleure.cveinfo
 import fleure.globals
 import fleure.datasets
 import fleure.utils
