@@ -135,11 +135,7 @@ def make_dataset(list_data, title=None, headers=None, lheaders=None):
         tds.title = title[:30]
 
     if headers is not None:
-        if lheaders is not None:
-            tds.headers = [h.replace('_s', '') for h in lheaders]
-        else:
-            tds.headers = [h.replace('_s', '') for h in headers]
-
+        tds.headers = headers if lheaders is None else lheaders
         for val in list_data:
             tds.append([_make_cell_data(val, h) for h in headers])
     else:
