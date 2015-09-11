@@ -167,6 +167,8 @@ def _pathjoin(*paths):
 
 class Base(fleure.base.Base):
     """Dnf backend.
+
+    TODO: Implement cacheonly mode.
     """
     _name = "dnf"
 
@@ -216,6 +218,9 @@ class Base(fleure.base.Base):
         self.base.read_all_repos()
         for rid, repo in self.base.repos.items():
             getattr(repo, "enable" if rid in self.repos else "disable")()
+            # :see: :meth:`md_only_cached` of the :class:`dnf.repo.Repo`
+            if self.cacheonly:
+                repo.md_only_cached = True
 
         self._configured = True
 
