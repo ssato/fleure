@@ -15,7 +15,6 @@ from operator import itemgetter
 # https://apps.fedoraproject.org/packages/python-bunch
 import bunch
 import datetime
-import functools
 import itertools
 import logging
 import os.path
@@ -48,19 +47,9 @@ if os.environ.get("FLEURE_MEMORY_DEBUG", False):
     try:
         from memory_profiler import profile
     except ImportError:
-        def profile(fnc):
-            """memory profile decorator"""
-            def wrapper(*args, **kwargs):
-                """memory profile wrapper"""
-                return fnc(*args, **kwargs)
-            return functools.wraps(fnc)(wrapper)
+        from fleure.decorators import noop as profile
 else:
-    def profile(fnc):
-        """memory profile decorator"""
-        def wrapper(*args, **kwargs):
-            """memory profile wrapper"""
-            return fnc(*args, **kwargs)
-        return functools.wraps(fnc)(wrapper)
+    from fleure.decorators import noop as profile
 
 
 LOG = logging.getLogger("fleure")
