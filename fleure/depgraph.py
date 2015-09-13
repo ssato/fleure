@@ -198,6 +198,9 @@ def dump_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
     output = os.path.join(workdir, outname + ".dot")
     anytemplate.render_to("rpm_depgraph_gv.dot.j2", ctx, output, paths,
                           at_engine="jinja2", at_ask_missing=True)
+    anytemplate.render_to("rpm_depgraph_gv.css.j2", ctx,
+                          os.path.join(workdir, outname + ".css"),
+                          paths, at_engine="jinja2", at_ask_missing=True)
 
     output2 = os.path.join(workdir, outname + ".svg")
     cmd_s = "sfdp -Tsvg -o%s %s" % (output2, output)
