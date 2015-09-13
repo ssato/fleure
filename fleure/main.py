@@ -21,6 +21,7 @@ import os
 import tablib
 
 import fleure.analysis
+import fleure.depgraph
 import fleure.globals
 import fleure.datasets
 import fleure.utils
@@ -63,10 +64,14 @@ def _dump_xls(dataset, filepath):
         out.write(book.xls)
 
 
-def dump_results(workdir, rpms, errata, updates, score=0,
+def dump_results(root, workdir, rpms, errata, updates, score=0,
                  keywords=ERRATA_KEYWORDS, core_rpms=None, details=True,
-                 rpmkeys=NEVRA_KEYS, vendor="redhat"):
+                 rpmkeys=NEVRA_KEYS,
+                 paths=fleure.globals.FLEURE_TEMPLATE_PATHS, vendor="redhat"):
     """
+    Dump package level static analysis results.
+
+    :param root: RPM database root
     :param workdir: Working dir to dump the result
     :param rpms: A list of installed RPMs
     :param errata: A list of applicable errata
@@ -75,6 +80,7 @@ def dump_results(workdir, rpms, errata, updates, score=0,
     :param keywords: Keyword list to filter 'important' RHBAs
     :param core_rpms: Core RPMs to filter errata by them
     :param details: Dump details also if True
+    :param paths: A list of template search paths
     """
     rpms_rebuilt = [p for p in rpms if p.get("rebuilt", False)]
     rpms_replaced = [p for p in rpms if p.get("replaced", False)]
@@ -98,6 +104,7 @@ def dump_results(workdir, rpms, errata, updates, score=0,
                                     nps - nus)]))
 
     fleure.utils.json_dump(data, os.path.join(workdir, "summary.json"))
+    fleure.depgraph.dump_depgraph(root, ers, workdir, paths=paths)
 
     # TODO: Keep DRY principle.
     lrpmkeys = [_("name"), _("epoch"), _("version"), _("release"), _("arch")]
@@ -251,7 +258,8 @@ def prepare(root, workdir=None, repos=None, did=None, cachedir=None,
 
 @profile
 def analyze(host, score=0, keywords=ERRATA_KEYWORDS, core_rpms=None,
-            period=None, refdir=None, nevra_keys=NEVRA_KEYS):
+            period=None, refdir=None, nevra_keys=NEVRA_KEYS,
+            paths=fleure.globals.FLEURE_TEMPLATE_PATHS):
     """
     :param host: host object function :function:`prepare` returns
     :param score: CVSS base metrics score
@@ -261,6 +269,7 @@ def analyze(host, score=0, keywords=ERRATA_KEYWORDS, core_rpms=None,
         ex. ("2014-10-01", "2014-11-01")
     :param refdir: A dir holding reference data previously generated to
         compute delta (updates since that data)
+    :param paths: A list of template search paths
     """
     base = host.base
     workdir = host.workdir
@@ -296,7 +305,8 @@ def analyze(host, score=0, keywords=ERRATA_KEYWORDS, core_rpms=None,
 
     LOG.info(_("%s: Analyze and dump results of errata data in %s"),
              host.id, workdir)
-    dump_results(workdir, ips, ers, ups, score, keywords, core_rpms)
+    dump_results(host.root, workdir, ips, ers, ups, score, keywords, core_rpms,
+                 paths=paths)
 
     if period is not None:
         (start_date, end_date) = fleure.datasets.period_to_dates(*period)
@@ -310,7 +320,8 @@ def analyze(host, score=0, keywords=ERRATA_KEYWORDS, core_rpms=None,
             LOG.debug(_("%s: Creating period working dir %s"), host.id, pdir)
             os.makedirs(pdir)
 
-        dump_results(pdir, ips, pes, ups, score, keywords, core_rpms, False)
+        dump_results(host.root, pdir, ips, pes, ups, score, keywords,
+                     core_rpms, False, paths=paths)
 
     if refdir:
         LOG.debug(_("%s [delta]: Analyze delta errata data by refering %s"),
@@ -332,7 +343,8 @@ def analyze(host, score=0, keywords=ERRATA_KEYWORDS, core_rpms=None,
 
         LOG.info(_("%s: Analyze and dump results of delta errata in %s"),
                  host.id, deltadir)
-        dump_results(workdir, ips, ers, ups, score, keywords, core_rpms)
+        dump_results(host.root, workdir, ips, ers, ups, score, keywords,
+                     core_rpms, paths=paths)
 
 
 def set_loglevel(verbosity=0, backend=False):
@@ -357,7 +369,8 @@ def set_loglevel(verbosity=0, backend=False):
 
 def main(root, workdir=None, repos=None, did=None, score=0,
          keywords=ERRATA_KEYWORDS, rpms=CORE_RPMS, period=None,
-         cachedir=None, refdir=None, verbosity=0, backend="dnf"):
+         cachedir=None, refdir=None, verbosity=0, backend="dnf",
+         paths=fleure.globals.FLEURE_TEMPLATE_PATHS):
     """
     :param root: Root dir of RPM db, ex. / (/var/lib/rpm)
     :param workdir: Working dir to save results
@@ -373,12 +386,13 @@ def main(root, workdir=None, repos=None, did=None, score=0,
         compute delta (updates since that data)
     :param verbosity: Verbosity level: 0 (default), 1 (verbose), 2 (debug)
     :param backend: Backend module to use to get updates and errata
+    :param paths: A list of template search paths
     """
     set_loglevel(verbosity)
     host = prepare(root, workdir, repos, did, cachedir, backend)
 
     if host.available:
         LOG.info("Anaylize the host: %s", host.id)
-        analyze(host, score, keywords, rpms, period, refdir)
+        analyze(host, score, keywords, rpms, period, refdir, paths=paths)
 
 # vim:sw=4:ts=4:et:
