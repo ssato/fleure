@@ -1,0 +1,23 @@
+/* vim:sw=2:ts=2:et:ft=dot:
+ *
+ * see: rhel_soe_assessmentkit.hosts._make_group_depgraph_context()
+ * refs:
+ *  - dot(1)
+ *  - http://d.hatena.ne.jp/simply-k/20100727/1280224098
+*/
+digraph {{ name|default("rpm_depgraph_0") }} {
+  stylesheet = "rpmdepgraph.css";
+  overlap = "false" /* or "scale" */; ranksep = 1.5; nodesep = 1.5;
+  node [ fillcolor = "white", color = "steelblue", shape = "point",
+         style = "filled", id = "\N", width = "0.3" ]
+  edge [ color = "gray30", w = "10", len = "1000", /* neato-specific */
+         id = "\T_._\H", weight = "0.1" /* fdp-specific */,
+         arrowsize = "0.6", penwidth = "1.2" ]
+{% if layers %}  layers="{{ layers|join(':') }}";{% endif %}
+{% for node in nodes -%}
+  "{{ node.name }}" [ layer = "{{ node.layers|join(',') }}" ];
+{% endfor %}
+{% for reqd, reqs in edges -%}
+  "{{ reqs }}" -> "{{ reqd }}" [ layer = "visible" ];
+{% endfor %}
+}
