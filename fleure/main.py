@@ -56,7 +56,7 @@ ERRATA_KEYWORDS = ("crash", "panic", "hang", "SEGV", "segmentation fault",
 CORE_RPMS = ("kernel", "glibc", "bash", "openssl", "zlib")
 
 
-def dump_xls(dataset, filepath):
+def _dump_xls(dataset, filepath):
     """XLS dump function"""
     book = tablib.Databook(dataset)
     with open(filepath, 'wb') as out:
@@ -164,7 +164,7 @@ def dump_results(workdir, rpms, errata, updates, score=0,
                                 _("RPMs from other vendors"), rpmdkeys,
                                 lrpmdkeys))
 
-    dump_xls(mds, os.path.join(workdir, "errata_summary.xls"))
+    _dump_xls(mds, os.path.join(workdir, "errata_summary.xls"))
 
     if details:
         dds = [make_dataset(errata, _("Errata Details"),
@@ -178,7 +178,7 @@ def dump_results(workdir, rpms, errata, updates, score=0,
                make_dataset(updates, _("Update RPMs"), rpmkeys, lrpmkeys),
                make_dataset(rpms, _("Installed RPMs"), rpmdkeys, lrpmdkeys)]
 
-        dump_xls(dds, os.path.join(workdir, "errata_details.xls"))
+        _dump_xls(dds, os.path.join(workdir, "errata_details.xls"))
 
 
 def get_backend(backend, backends=None):
