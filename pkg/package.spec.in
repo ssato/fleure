@@ -23,6 +23,7 @@ distributions such like RHEL (primary target) and Fedora.
 
 %package     -n python2-%{srcname}
 Summary:        %{sumtxt}
+Requires:       python-%{srcname}-common
 Requires:       python-beautifulsoup4
 # Available from: https://copr.fedoraproject.org/coprs/ssato/python-anyconfig/
 Requires:       python-anyconfig
@@ -41,6 +42,7 @@ distributions such like RHEL (primary target) and Fedora.
 
 %package     -n python3-%{srcname}
 Summary:        %{sumtxt}
+Requires:       python-%{srcname}-common
 Requires:       python3-beautifulsoup4
 Requires:       python3-anyconfig
 Requires:       python3-anytemplate
@@ -54,29 +56,38 @@ Requires:       rpm-python3
 A package level static analysis tool for systems running RPM-based linux
 distributions such like RHEL (primary target) and Fedora.
 
+%package     -n python-%{srcname}-common
+Summary:        %{srcname} common data files
+
+%description -n python-%{srcname}-common
+Common data files of %{srcname}.
+
 %prep
 %setup -q -n %{srcname}-%{version}
 
 %build
-%py2_build
 %py3_build
+%py2_build
 
 %install
-%py2_install
 %py3_install
+mv $RPM_BUILD_ROOT%{_bindir}/%{srcname}_cli $RPM_BUILD_ROOT%{_bindir}/%{srcname}_cli-3
+%py2_install
+cp $RPM_BUILD_ROOT%{_bindir}/%{srcname}_cli $RPM_BUILD_ROOT%{_bindir}/%{srcname}_cli-2
 
 %files -n python2-%{srcname}
-%license LICENSE
 %doc README.rst
 %{python2_sitelib}/*
-%{_bindir}/%{srcname}_cli-2.7
+%{_bindir}/%{srcname}_cli
+%{_bindir}/%{srcname}_cli-2
 
 %files -n python3-%{srcname}
-%license LICENSE
 %doc README.rst
 %{python3_sitelib}/*
-%{_bindir}/%{srcname}_cli
-%{_bindir}/%{srcname}_cli-3.4
+%{_bindir}/%{srcname}_cli-3
+
+%files -n python-%{srcname}-common
+%{_datadir}/%{srcname}/templates/2/*/*.j2
 
 %changelog
 * Thu Sep 10 2015 Satoru SATOH <ssato@redhat.com> - 0.1-1
