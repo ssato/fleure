@@ -20,12 +20,19 @@
 """
 from __future__ import absolute_import
 
+import anytemplate
+import logging
 import networkx
+import operator
 import os.path
 import yum  # TODO: Remove dependency to yum and switch to dnf.
 
+import fleure.globals
+import fleure.utils
+
 
 _E_ATTRS = dict(weight=1.0, )
+LOG = logging.getLogger(__name__)
 
 
 def yum_list_installed(root=None, cachedir=None, persistdir=None):
@@ -113,5 +120,89 @@ def make_dependency_graph(root, reverse=True, rreqs=None, edge_attrs=None):
 
     return graph
 
+
+def make_group_gv_depgraph_context(root, ers):
+    """
+    Make up context to generate RPM dependency graph w/ graphviz (sfdp) from
+    the RPM database files for given host group.
+
+    :param root: Root dir where 'var/lib/rpm' exists
+    :param ers: List of errata dict, see :func:`analyze_errata` in fleure.main
+
+    :return: { name :: str,
+               groups :: [name :: str,
+                          nodes :: [node :: { id :: Int, name :: str} ]],
+               deps :: [(name_reqd :: str, name_reqs :: str)] }
+    """
+    graph = make_dependency_graph(root)
+
+    # Package name vs. ID map:
+    pmap = dict((n, "node_%d" % i) for i, n in enumerate(sorted(graph)))
+
+    # setup package groups:
+    pgs = [n for n in graph if not graph.predecessors(n)]
+
+    # see :func:`rpmkit.updateinfo.main.analyze_errata`
+    def _list_uns_by_etype(etype="rhsa"):
+        """List update package names by errata type.
+        """
+        return fleure.utils.uniq(t[0] for t in ers[etype]["list_by_packages"])
+
+    def _list_uns_by_sev(sev="critical"):
+        """List update package names by severity of security errata.
+        """
+        return fleure.utils.uniq(u["name"] for u
+                                 in ers["rhsa"]["list_%s_updates" % sev])
+
+    def _mk_ps_g(graph, groups):
+        """Make up package groups.
+        """
+        for name in graph:
+            yield dict(id=pmap[name], name=name,
+                       layers=([grp for grp, ns in groups.iteritems()
+                                if name in ns] + ["visible"]))
+
+    groups = dict(roots=[n for n in pgs if graph.successors(n)],
+                  standalones=[n for n in pgs if not graph.successors(n)],
+                  rhsa=_list_uns_by_etype("rhsa"),
+                  rhba=_list_uns_by_etype("rhba"),
+                  rhea=_list_uns_by_etype("rhea"),
+                  rhsa_cri=_list_uns_by_sev("critical"),
+                  rhsa_imp=_list_uns_by_sev("important"))
+
+    return dict(name="rpm_depgraph_1",
+                layers=sorted(groups.keys() + ["visible"]),
+                nodes=sorted(_mk_ps_g(graph, groups),
+                             key=operator.itemgetter("name")),
+                edges=sorted(graph.edges_iter()))
+
+
+def dump_group_gv_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
+                           paths=fleure.globals.FLEURE_TEMPLATE_PATHS):
+    """
+    Make up context to generate RPM dependency graph w/ graphviz (sfdp) from
+    the RPM database files for given host group.
+
+    :param root: Host group's root dir where 'var/lib/rpm' exists
+    :param ers: List of errata dict, see :func:`analyze_errata` in fleure.main
+    :param workdir: Working dir to dump result
+    :param outname: Output file base name
+    """
+    if workdir is None:
+        workdir = root
+
+    ctx = make_group_gv_depgraph_context(root, ers)
+    fleure.utils.json_dump(ctx, os.path.join(workdir, outname + ".json"))
+
+    output = os.path.join(workdir, outname + ".dot")
+    anytemplate.render_to("rpm_depgraph_gv.dot.j2", ctx, output, paths,
+                          at_engine="jinja2", at_ask_missing=True)
+
+    output2 = os.path.join(workdir, outname + ".svg")
+    cmd_s = "sfdp -Tsvg -o%s %s" % (output2, output)
+    (rcode, out, err) = fleure.utils.run_cmd(cmd_s)
+    if rcode != 0:
+        LOG.warn("Failed to generate a SVG file: in=%s, out=%s, out/err=%s/%s",
+                 output, output2, out, err)
 
 # vim:sw=4:ts=4:et:
