@@ -28,7 +28,8 @@ PACKAGE = "fleure"
 
 FLEURE_SYSCONFDIR = "/etc/%s" % PACKAGE
 FLEURE_DATADIR = "/usr/share/%s" % PACKAGE
-FLEURE_TEMPLATE_PATH = os.path.join(FLEURE_DATADIR, "templates")
+FLEURE_TEMPLATE_PATHS = [os.path.join(FLEURE_DATADIR, "templates/2/%s") % lang
+                         for lang in ("ja", "en")]
 
 LOGGING_FORMAT = "%(asctime)s %(name)s: [%(levelname)s] %(message)s"
 
