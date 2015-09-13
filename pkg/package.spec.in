@@ -26,6 +26,7 @@ Summary:        %{sumtxt}
 Requires:       python-beautifulsoup4
 # Available from: https://copr.fedoraproject.org/coprs/ssato/python-anyconfig/
 Requires:       python-anyconfig
+Requires:       python-anytemplate
 Requires:       python-bunch
 Requires:       python-networkx
 Requires:       python-tablib
@@ -42,6 +43,7 @@ distributions such like RHEL (primary target) and Fedora.
 Summary:        %{sumtxt}
 Requires:       python3-beautifulsoup4
 Requires:       python3-anyconfig
+Requires:       python3-anytemplate
 Requires:       python3-bunch
 Requires:       python3-networkx
 Requires:       python3-tablib
