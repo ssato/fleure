@@ -22,12 +22,15 @@ import os.path
 import os
 import re
 import rpm
+import subprocess
 import yum
 
 try:
     import bsddb
 except ImportError:
     bsddb = None
+
+# from fleure.decorators import async  # TBD
 
 
 LOG = logging.getLogger(__name__)
@@ -104,7 +107,9 @@ def uconcat(xss):
     return uniq(concat(xss))
 
 
-def copen(path, flag='r', encoding="utf-8", **kwargs):
+def copen(path, flag='r', encoding="utf-8"):
+    """An wrapper of codecs.open
+    """
     return codecs.open(path, flag, encoding)
 
 
@@ -125,6 +130,21 @@ def json_dump(data, filepath):
     :param filepath: Output file path
     """
     json.dump(data, copen(filepath, 'w'))
+
+
+# @fleure.decorators.async (TBD)
+def run_cmd(cmd_s, workdir=os.curdir):
+    """
+    Run command asynchronously.
+
+    :param cmd_s: Command string to run
+    :param workdir: Working dir in which cd to
+    """
+    proc = subprocess.Popen(cmd_s, shell=True, cwd=workdir,
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    rcode = proc.wait()
+    (out, err) = proc.communicate()
+    return (rcode, out, err)
 
 
 def _is_bsd_hashdb(dbpath):
