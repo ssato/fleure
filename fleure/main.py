@@ -181,7 +181,7 @@ def dump_results(workdir, rpms, errata, updates, score=0,
         _dump_xls(dds, os.path.join(workdir, "errata_details.xls"))
 
 
-def get_backend(backend, backends=None):
+def _get_backend(backend, backends=None):
     """Get backend.
     """
     if backends is None:
@@ -226,8 +226,8 @@ def prepare(root, workdir=None, repos=None, did=None, cachedir=None,
                  host.id, root)
         return host
 
-    base = get_backend(backend)(host.root, host.repos, workdir=host.workdir,
-                                cachedir=cachedir)
+    base = _get_backend(backend)(host.root, host.repos, workdir=host.workdir,
+                                 cachedir=cachedir)
     base.prepare()
     LOG.debug(_("%s: Initialized backend %s"), host.id, base.name)
     host.base = base
