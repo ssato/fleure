@@ -13,6 +13,7 @@ import datetime
 import optparse
 import os.path
 
+import fleure.globals
 import fleure.main
 import fleure.multihosts
 
@@ -22,7 +23,7 @@ _DEFAULTS = dict(path=None, workdir="/tmp/rk-updateinfo-{}".format(_TODAY),
                  repos=None, multiproc=False, id=None,
                  score=0, keywords=fleure.main.ERRATA_KEYWORDS,
                  rpms=fleure.main.CORE_RPMS, period='', cachedir=None,
-                 refdir=None, backend=fleure.main.DEFAULT_BACKEND,
+                 refdir=None, tpaths=[], backend=fleure.main.DEFAULT_BACKEND,
                  backends=fleure.main.BACKENDS, verbosity=0)
 _USAGE = """\
 %prog [Options...] ROOT
@@ -81,6 +82,9 @@ def option_parser(defaults=None, usage=_USAGE, backends=None):
     psr.add_option("-R", "--refdir",
                    help="Output 'delta' result compared to the data "
                         "in this dir")
+    psr.add_option("-T", "--tpath", action="append", dest="tpaths",
+                   help="Specify additional template path one by one. These "
+                        "paths will have higher priority than default paths.")
     psr.add_option("-v", "--verbose", action="count", dest="verbosity",
                    help="Verbose mode")
     psr.add_option("-D", "--debug", action="store_const", dest="verbosity",
@@ -97,12 +101,14 @@ def main():
     assert os.path.exists(root), "Not found RPM DB Root: %s" % root
 
     period = options.period.split(',') if options.period else None
+    if not options.tpaths:
+        options.tpaths = fleure.globals.FLEURE_TEMPLATE_PATHS
 
     if os.path.exists(os.path.join(root, "var/lib/rpm")):
         fleure.main.main(root, options.workdir, options.repos, options.id,
                          options.score, options.keywords, options.rpms, period,
                          options.cachedir, options.refdir, options.verbosity,
-                         options.backend)
+                         options.backend, paths=options.tpaths)
     else:
         # multihosts mode.
         #
