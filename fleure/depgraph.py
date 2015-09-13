@@ -35,7 +35,7 @@ _E_ATTRS = dict(weight=1.0, )
 LOG = logging.getLogger(__name__)
 
 
-def yum_list_installed(root=None, cachedir=None, persistdir=None):
+def _yum_list_installed(root=None, cachedir=None, persistdir=None):
     """
     List installed packages using an internal API of yum.
 
@@ -88,7 +88,7 @@ def make_requires_dict(root=None, reverse=False, use_yum=True):
 
     assert use_yum, "Not implemented w/o yum yet!"  # Not yet.
 
-    list_installed = yum_list_installed  # Alternative is not available yet.
+    list_installed = _yum_list_installed  # Alternative is not available yet.
     return dict((p.name, list_reqs(p)) for p in list_installed(root))
 
 
@@ -121,7 +121,7 @@ def make_dependency_graph(root, reverse=True, rreqs=None, edge_attrs=None):
     return graph
 
 
-def make_group_gv_depgraph_context(root, ers):
+def _make_depgraph_context(root, ers):
     """
     Make up context to generate RPM dependency graph w/ graphviz (sfdp) from
     the RPM database files for given host group.
@@ -191,7 +191,7 @@ def dump_group_gv_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
     if workdir is None:
         workdir = root
 
-    ctx = make_group_gv_depgraph_context(root, ers)
+    ctx = _make_depgraph_context(root, ers)
     fleure.utils.json_dump(ctx, os.path.join(workdir, outname + ".json"))
 
     output = os.path.join(workdir, outname + ".dot")
