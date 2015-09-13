@@ -177,8 +177,8 @@ def _make_depgraph_context(root, ers):
                 edges=sorted(graph.edges_iter()))
 
 
-def dump_group_gv_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
-                           paths=fleure.globals.FLEURE_TEMPLATE_PATHS):
+def dump_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
+                  paths=fleure.globals.FLEURE_TEMPLATE_PATHS):
     """
     Make up context to generate RPM dependency graph w/ graphviz (sfdp) from
     the RPM database files for given host group.
@@ -187,6 +187,7 @@ def dump_group_gv_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
     :param ers: List of errata dict, see :func:`analyze_errata` in fleure.main
     :param workdir: Working dir to dump result
     :param outname: Output file base name
+    :param paths: A list of template search paths
     """
     if workdir is None:
         workdir = root
