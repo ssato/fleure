@@ -28,7 +28,8 @@ def list_files(tdir):
 
 # TBD:
 data_files = [
-    # ("share/fleure/templates", list_files("data/templates/")),
+    ("share/fleure/templates/2/ja", list_files("data/templates/2/ja/")),
+    ("share/fleure/templates/2/en", list_files("data/templates/2/en/")),
     # (os.path.join(get_python_lib(), "fleure/locale/ja/LC_MESSAGES"),
     # ["fleure/locale/ja/LC_MESSAGES/rpmkit.mo"]),
 ]
