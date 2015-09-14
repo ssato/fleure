@@ -62,7 +62,8 @@ def touch(filepath):
 
 
 def prepare(hosts_datadir, workdir=None, repos=None, cachedir=None,
-            backend=fleure.main.DEFAULT_BACKEND, backends=None):
+            backend=fleure.main.DEFAULT_BACKEND, backends=None,
+            paths=fleure.globals.FLEURE_TEMPLATE_PATHS):
     """
     Scan and collect hosts' basic data (installed rpms list, etc.).
 
@@ -72,6 +73,7 @@ def prepare(hosts_datadir, workdir=None, repos=None, cachedir=None,
     :param cachedir: A dir to save metadata cache of yum repos
     :param backend: Backend module to use to get updates and errata
     :param backends: Backend list
+    :param paths: A list of template search paths
 
     :return: A generator to yield a tuple,
         (host_identity, host_rpmroot or None)
@@ -101,7 +103,7 @@ def prepare(hosts_datadir, workdir=None, repos=None, cachedir=None,
                                       available=False))
         else:
             yield fleure.main.prepare(root, hworkdir, repos, hid, cachedir,
-                                      backend, backends)
+                                      backend, backends, paths=paths)
 
 
 def p2nevra(pkg):
@@ -165,6 +167,7 @@ def main(hosts_datadir, workdir=None, repos=None, score=-1,
         in parallel as much as possible if True
     :param backend: Backend module to use to get updates and errata
     :param backends: Backend list
+    :param paths: A list of template search paths
     """
     if repos is None:
         repos = []
@@ -175,7 +178,7 @@ def main(hosts_datadir, workdir=None, repos=None, score=-1,
 
     fleure.main.set_loglevel(verbosity)
     all_hosts = list(prepare(hosts_datadir, workdir, repos, cachedir, backend,
-                             backends))
+                             backends, paths=paths))
     hosts = [h for h in all_hosts if h.available]
 
     LOG.info(_("Analyze %d/%d hosts"), len(hosts), len(all_hosts))
@@ -192,6 +195,7 @@ def main(hosts_datadir, workdir=None, repos=None, score=-1,
         hsdata = [(h, score, keywords, rpms, period, refdir) for h, _hrest
                   in hset]
 
+        # TODO: pass paths parameter to fleure.main.analyze
         if multiproc:
             pool = multiprocessing.Pool(multiprocessing.cpu_count())
             pool.map(analyze, hsdata)
