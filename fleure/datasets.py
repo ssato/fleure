@@ -25,11 +25,7 @@ import fleure.cveinfo
 from fleure.globals import _
 
 
-LOG = logging.getLogger("fleure")
-
-NEVRA_KEYS = ("name", "epoch", "version", "release", "arch")
-DEFAULT_CVSS_SCORE = 4.0
-TODAY = datetime.datetime.now().strftime("%Y-%m-%d")
+LOG = logging.getLogger(__name__)
 
 
 def _cve_details(cve, cve_cvss_map=None):
@@ -145,7 +141,7 @@ def make_dataset(list_data, title=None, headers=None, lheaders=None):
     return tds
 
 
-def compute_delta(refdir, ers, updates, nevra_keys=NEVRA_KEYS):
+def compute_delta(refdir, ers, updates, nevra_keys=fleure.globals.RPM_KEYS):
     """
     :param refdir: Dir has reference data files: packages.json, errata.json
         and updates.json
@@ -203,7 +199,7 @@ def list_latest_errata_by_updates(ers):
     return [xs[-1] for xs in _sgroupby(ers, ung, itemgetter("issue_date"))]
 
 
-def _cve_socre_ge(cve, score=DEFAULT_CVSS_SCORE, default=False):
+def _cve_socre_ge(cve, score=fleure.globals.CVSS_SCORE, default=False):
     """
     :param cve: A dict contains CVE and CVSS info.
     :param score: Lowest score to select CVEs (float). It's Set to 4.0 (PCIDSS
@@ -229,7 +225,7 @@ def _cve_socre_ge(cve, score=DEFAULT_CVSS_SCORE, default=False):
     return default
 
 
-def higher_score_cve_errata_g(ers, score=DEFAULT_CVSS_SCORE):
+def higher_score_cve_errata_g(ers, score=fleure.globals.CVSS_SCORE):
     """
     :param ers: A list of errata
     :param score: CVSS base metrics score
@@ -409,12 +405,12 @@ def _ymd_to_date(ymd, roundout=False):
     return _round_ymd(int(dic[0]), int_(dic[1]), int_(dic[2]), roundout)
 
 
-def period_to_dates(start_date, end_date=TODAY):
+def period_to_dates(start_date, end_date=fleure.globals.TODAY):
     """
     :param period: Period of errata in format of YYYY[-MM[-DD]],
         ex. ("2014-10-01", "2014-11-01")
 
-    >>> today = _d2i(_ymd_to_date(TODAY, True))
+    >>> today = _d2i(_ymd_to_date(fleure.globals.TODAY, True))
     >>> (20141001, today) == period_to_dates("2014-10-01")
     True
     >>> period_to_dates("2014-10-01", "2014-12-31")

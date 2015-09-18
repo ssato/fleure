@@ -31,6 +31,15 @@ FLEURE_DATADIR = "/usr/share/%s" % PACKAGE
 FLEURE_TEMPLATE_PATHS = [os.path.join(FLEURE_DATADIR, "templates/2/%s") % lang
                          for lang in ("ja", "en")]
 
+RPM_VENDOR = "redhat"
+RPM_KEYS = ("name", "epoch", "version", "release", "arch")
+ERRATA_KEYWORDS = ("crash", "panic", "hang", "SEGV", "segmentation fault",
+                   "data corruption")
+CORE_RPMS = ("kernel", "glibc", "bash", "openssl", "zlib")
+DEFAULT_CVSS_SCORE = 4.0
+
+TODAY = datetime.datetime.now().strftime("%F")
+
 LOGGING_FORMAT = "%(asctime)s %(name)s: [%(levelname)s] %(message)s"
 
 
