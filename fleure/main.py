@@ -21,6 +21,7 @@ import os
 import tablib
 
 import fleure.analysis
+import fleure.config
 import fleure.depgraph
 import fleure.globals
 import fleure.datasets
@@ -28,18 +29,8 @@ import fleure.utils
 import fleure.yumbase
 
 from fleure.globals import _
-from fleure.datasets import make_dataset, NEVRA_KEYS
+from fleure.datasets import make_dataset
 
-
-BACKENDS = dict(yum=fleure.yumbase.Base, )
-DEFAULT_BACKEND = "yum"
-try:
-    import fleure.dnfbase
-
-    BACKENDS["dnf"] = fleure.dnfbase.Base
-    DEFAULT_BACKEND = "dnf"  # Prefer this.
-except ImportError:  # dnf is not available for RHEL, AFAIK.
-    pass
 
 if os.environ.get("FLEURE_MEMORY_DEBUG", False):
     try:
@@ -52,10 +43,6 @@ else:
 
 LOG = logging.getLogger("fleure")
 
-ERRATA_KEYWORDS = ("crash", "panic", "hang", "SEGV", "segmentation fault",
-                   "data corruption")
-CORE_RPMS = ("kernel", "glibc", "bash", "openssl", "zlib")
-
 
 def _dump_xls(dataset, filepath):
     """XLS dump function"""
@@ -64,28 +51,26 @@ def _dump_xls(dataset, filepath):
         out.write(book.xls)
 
 
-def dump_results(root, workdir, rpms, errata, updates, score=0,
-                 keywords=ERRATA_KEYWORDS, core_rpms=None, details=True,
-                 rpmkeys=NEVRA_KEYS,
-                 paths=fleure.globals.FLEURE_TEMPLATE_PATHS, vendor="redhat"):
+def dump_results(host, rpms, errata, updates):
     """
     Dump package level static analysis results.
 
-    :param root: RPM database root
-    :param workdir: Working dir to dump the result
+    :param host: host object function :function:`prepare` returns
     :param rpms: A list of installed RPMs
     :param errata: A list of applicable errata
     :param updates: A list of update RPMs
-    :param score: CVSS base metrics score
-    :param keywords: Keyword list to filter 'important' RHBAs
-    :param core_rpms: Core RPMs to filter errata by them
-    :param details: Dump details also if True
-    :param paths: A list of template search paths
     """
+    keywords = host.errata_keywords
+    core_rpms = host.core_rpms
+    rpmkeys = host.rpmkeys
+    score = host.cvss_min_score
+
     rpms_rebuilt = [p for p in rpms if p.get("rebuilt", False)]
     rpms_replaced = [p for p in rpms if p.get("replaced", False)]
-    rpms_from_others = [p for p in rpms if p.get("origin", '') != vendor]
-    rpms_by_vendor = [p for p in rpms if p.get("origin", '') == vendor and
+    rpms_from_others = [p for p in rpms
+                        if p.get("origin", '') != host.rpm_vendor]
+    rpms_by_vendor = [p for p in rpms
+                      if p.get("origin", '') == host.rpm_vendor and
                       not p.get("rebuilt", False) and
                       not p.get("replaced", False)]
     nps = len(rpms)
@@ -103,9 +88,9 @@ def dump_results(root, workdir, rpms, errata, updates, score=0,
                                    (_("packages not need updates"),
                                     nps - nus)]))
 
-    fleure.utils.json_dump(data, os.path.join(workdir, "summary.json"))
-    fleure.depgraph.dump_depgraph(root, ers, workdir, paths=paths)
-
+    host.save(data, "summary")
+    fleure.depgraph.dump_depgraph(host.root, ers, host.workdir,
+                                  tpaths=host.tpaths)
     # TODO: Keep DRY principle.
     lrpmkeys = [_("name"), _("epoch"), _("version"), _("release"), _("arch")]
 
@@ -171,9 +156,9 @@ def dump_results(root, workdir, rpms, errata, updates, score=0,
                                 _("RPMs from other vendors"), rpmdkeys,
                                 lrpmdkeys))
 
-    _dump_xls(mds, os.path.join(workdir, "errata_summary.xls"))
+    _dump_xls(mds, os.path.join(host.workdir, "errata_summary.xls"))
 
-    if details:
+    if host.details:
         dds = [make_dataset(errata, _("Errata Details"),
                             ("advisory", "type", "severity", "synopsis",
                              "description", "issue_date", "update_date", "url",
@@ -185,71 +170,46 @@ def dump_results(root, workdir, rpms, errata, updates, score=0,
                make_dataset(updates, _("Update RPMs"), rpmkeys, lrpmkeys),
                make_dataset(rpms, _("Installed RPMs"), rpmdkeys, lrpmdkeys)]
 
-        _dump_xls(dds, os.path.join(workdir, "errata_details.xls"))
-
-
-def _get_backend(backend, backends=None):
-    """Get backend.
-    """
-    if backends is None:
-        backends = BACKENDS
-
-    return backends.get(backend, DEFAULT_BACKEND)
+        _dump_xls(dds, os.path.join(host.workdir, "errata_details.xls"))
 
 
 @profile
-def prepare(root, workdir=None, repos=None, did=None, cachedir=None,
-            backend="dnf", nevra_keys=NEVRA_KEYS):
+def prepare(root_or_arc_path, hid=None, **kwargs):
     """
-    :param root: Root dir of RPM db, ex. / (/var/lib/rpm)
-    :param workdir: Working dir to save results
-    :param repos: List of yum repos to get updateinfo data (errata and updtes)
-    :param did: Identity of the data (ex. hostname) or empty str
-    :param cachedir: A dir to save metadata cache of yum repos
-    :param backend: Name of backend to resolve updates and errata
+    :param root_or_arc_path:
+        Path to the root dir of RPM DB files or Archive (tar.xz, tar.gz, zip,
+        etc.) of RPM DB files. Path might be a relative path from current dir.
+    :param hid:
+        Some identification info of the target host where original RPM DB data
+        was collected.
+    :param kwargs:
+        Extra keyword arguments other than `root_or_arc_path` passed to make an
+        instance of :class:`fleure.config.Config`
 
-    :return: A bunch.Bunch object of (Base, workdir, installed_rpms_list)
+    :return: An instance of :class:`fleure.config.Host`
     """
-    root = os.path.abspath(root)  # Ensure it's absolute path.
+    host = fleure.config.Host(root_or_arc_path, hid=hid, **kwargs)
+    host.configure()  # Extract archive, setup root and repos, etc.
 
-    if repos is None:
-        repos = fleure.utils.guess_rhel_repos(root)
-        LOG.info(_("%s: Use guessed repos %s"), did, ', '.join(repos))
-
-    if workdir is None:
-        LOG.info(_("%s: Set workdir to root %s"), did, root)
-        workdir = root
-    else:
-        if not os.path.exists(workdir):
-            LOG.debug(_("%s: Creating working dir %s"), did, workdir)
-            os.makedirs(workdir)
-
-    host = bunch.bunchify(dict(id=did, root=root, workdir=workdir,
-                               repos=repos, available=False,
-                               cachedir=cachedir))
-
-    if not fleure.utils.check_rpmdb_root(root):
-        LOG.warn(_("%s: RPM DB not available and don't analyze %s"),
-                 host.id, root)
+    if not host.has_valid_root():
+        LOG.error("Root dir is not ready. Error was: %s", host.error)
         return host
 
-    base = _get_backend(backend)(host.root, host.repos, workdir=host.workdir,
-                                 cachedir=cachedir)
+    base = host.init_base()
     base.prepare()
-    LOG.debug(_("%s: Initialized backend %s"), host.id, base.name)
-    host.base = base
+    LOG.debug(_("%s: Initialized backend %s"), host.hid, base.name)
 
     LOG.debug(_("%s: Dump Installed RPMs list loaded from %s"),
-              host.id, host.root)
-    host.installed = sorted(host.base.list_installed(),
-                            key=itemgetter(*nevra_keys))
+              host.hid, host.root)
+    host.installed = sorted(base.list_installed(),
+                            key=itemgetter(*host.rpmkeys))
     LOG.info(_("%s: Found %d (rebuilt=%d, replaced=%d) Installed RPMs"),
-             host.id, len(host.installed),
+             host.hid, len(host.installed),
              len([p for p in host.installed if p.get("rebuilt", False)]),
              len([p for p in host.installed if p.get("replaced", False)]))
 
-    fleure.utils.json_dump(dict(data=host.installed, ),
-                           fleure.globals.rpm_list_path(host.workdir))
+    host.save(dict(data=host.installed, ), "packages")
+
     if base.ready():
         host.available = True
 
@@ -257,94 +217,68 @@ def prepare(root, workdir=None, repos=None, did=None, cachedir=None,
 
 
 @profile
-def analyze(host, score=0, keywords=ERRATA_KEYWORDS, core_rpms=None,
-            period=None, refdir=None, nevra_keys=NEVRA_KEYS,
-            paths=fleure.globals.FLEURE_TEMPLATE_PATHS):
+def analyze(host):
     """
     :param host: host object function :function:`prepare` returns
-    :param score: CVSS base metrics score
-    :param keywords: Keyword list to filter 'important' RHBAs
-    :param core_rpms: Core RPMs to filter errata by them
-    :param period: Period of errata in format of YYYY[-MM[-DD]],
-        ex. ("2014-10-01", "2014-11-01")
-    :param refdir: A dir holding reference data previously generated to
-        compute delta (updates since that data)
-    :param paths: A list of template search paths
     """
-    base = host.base
-    workdir = host.workdir
-
+    score = host.cvss_min_score
     timestamp = datetime.datetime.now().strftime("%F %T")
-    metadata = bunch.bunchify(dict(id=host.id, root=host.root,
+    metadata = bunch.bunchify(dict(id=host.hid, root=host.root,
                                    workdir=host.workdir, repos=host.repos,
                                    backend=host.base.name, score=score,
-                                   keywords=keywords,
+                                   keywords=host.errata_keywords,
                                    installed=len(host.installed),
-                                   hosts=[host.id, ],
+                                   hosts=[host.hid, ],
                                    generated=timestamp))
-    LOG.debug(_("%s: Dump metadata for %s"), host.id, host.root)
-    fleure.utils.json_dump(metadata.toDict(),
-                           os.path.join(workdir, "metadata.json"))
+    LOG.debug(_("%s: Dump metadata for %s"), host.hid, host.root)
+    host.save(metadata.toDict(), "metadata")
 
-    ups = fleure.utils.uniq(base.list_updates(), key=itemgetter(*nevra_keys))
-    ers = base.list_errata()
+    ups = fleure.utils.uniq(host.base.list_updates(),
+                            key=itemgetter(*host.rpmkeys))
+    ers = host.base.list_errata()
     ers = fleure.utils.uniq(fleure.datasets.errata_complement_g(ers, ups,
                                                                 score),
                             key=itemgetter("id"), reverse=True)
-    LOG.info(_("%s: %d Errata, %d Update RPMs"), host.id, len(ers), len(ups))
+    LOG.info(_("%s: %d Errata, %d Update RPMs"), host.hid, len(ers), len(ups))
 
-    LOG.debug(_("%s: Dump Errata and Update RPMs list..."), host.id)
-    fleure.utils.json_dump(dict(data=ers, ),
-                           fleure.globals.errata_list_path(workdir))
-    fleure.utils.json_dump(dict(data=ups, ),
-                           fleure.globals.updates_list_path(workdir))
+    LOG.debug(_("%s: Dump Errata and Update RPMs list..."), host.hid)
+    host.save(dict(data=ers, ), "errata")
+    host.save(dict(data=ups, ), "updates")
 
     host.errata = ers
     host.updates = ups
     ips = host.installed
 
     LOG.info(_("%s: Analyze and dump results of errata data in %s"),
-             host.id, workdir)
-    dump_results(host.root, workdir, ips, ers, ups, score, keywords, core_rpms,
-                 paths=paths)
+             host.hid, host.workdir)
+    dump_results(host, ips, ers, ups)
 
-    if period is not None:
-        (start_date, end_date) = fleure.datasets.period_to_dates(*period)
+    if host.period is not None:
+        (start_date, end_date) = fleure.datasets.period_to_dates(*host.period)
         LOG.info(_("%s: Analyze errata in period: %s ~ %s"),
-                 host.id, start_date, end_date)
+                 host.hid, start_date, end_date)
         pes = [e for e in ers
                if fleure.datasets.errata_in_period(e, start_date, end_date)]
 
-        pdir = os.path.join(workdir, "%s_%s" % (start_date, end_date))
+        pdir = os.path.join(host.workdir, "%s_%s" % (start_date, end_date))
         if not os.path.exists(pdir):
-            LOG.debug(_("%s: Creating period working dir %s"), host.id, pdir)
+            LOG.debug(_("%s: Creating period working dir %s"), host.hid, pdir)
             os.makedirs(pdir)
 
-        dump_results(host.root, pdir, ips, pes, ups, score, keywords,
-                     core_rpms, False, paths=paths)
+        dump_results(host, ips, pes, ups)
 
-    if refdir:
+    if host.refdir:
         LOG.debug(_("%s [delta]: Analyze delta errata data by refering %s"),
-                  host.id, refdir)
-        (ers, ups) = fleure.datasets.compute_delta(refdir, ers, ups)
-        LOG.info(_("%s [delta]: %d Errata, %d Update RPMs"), host.id,
+                  host.hid, host.refdir)
+        (ers, ups) = fleure.datasets.compute_delta(host.refdir, ers, ups)
+        LOG.info(_("%s [delta]: %d Errata, %d Update RPMs"), host.hid,
                  len(ers), len(ups))
 
-        deltadir = os.path.join(workdir, "delta")
-        if not os.path.exists(deltadir):
-            LOG.debug(_("%s: Creating delta working dir %s"),
-                      host.id, deltadir)
-            os.makedirs(deltadir)
+        host.save(dict(data=ers, ), "errata", subdir="delta")
+        host.save(dict(data=ups, ), "updates", subdir="delta")
 
-        fleure.utils.json_dump(dict(data=ers, ),
-                               fleure.globals.errata_list_path(deltadir))
-        fleure.utils.json_dump(dict(data=ups, ),
-                               fleure.globals.updates_list_path(deltadir))
-
-        LOG.info(_("%s: Analyze and dump results of delta errata in %s"),
-                 host.id, deltadir)
-        dump_results(host.root, workdir, ips, ers, ups, score, keywords,
-                     core_rpms, paths=paths)
+        LOG.info(_("%s: Analyze and dump results of delta errata"), host.hid)
+        dump_results(host, ips, ers, ups)
 
 
 def set_loglevel(verbosity=0, backend=False):
@@ -367,32 +301,24 @@ def set_loglevel(verbosity=0, backend=False):
     fleure.dnfbase.LOG.setLevel(llvl)
 
 
-def main(root, workdir=None, repos=None, did=None, score=0,
-         keywords=ERRATA_KEYWORDS, rpms=CORE_RPMS, period=None,
-         cachedir=None, refdir=None, verbosity=0, backend="dnf",
-         paths=fleure.globals.FLEURE_TEMPLATE_PATHS):
+def main(root_or_arc_path, hid=None, verbosity=0, **kwargs):
     """
-    :param root: Root dir of RPM db, ex. / (/var/lib/rpm)
-    :param workdir: Working dir to save results
-    :param repos: List of yum repos to get updateinfo data (errata and updtes)
-    :param did: Identity of the data (ex. hostname) or empty str
-    :param score: CVSS base metrics score
-    :param keywords: Keyword list to filter 'important' RHBAs
-    :param rpms: Core RPMs to filter errata by them
-    :param period: Period of errata in format of YYYY[-MM[-DD]],
-        ex. ("2014-10-01", "2014-11-01")
-    :param cachedir: A dir to save metadata cache of yum repos
-    :param refdir: A dir holding reference data previously generated to
-        compute delta (updates since that data)
+    :param root_or_arc_path:
+        Path to the root dir of RPM DB files or Archive (tar.xz, tar.gz, zip,
+        etc.) of RPM DB files. Path might be a relative path from current dir.
+    :param hid:
+        Some identification info of the target host where original RPM DB data
+        was collected.
     :param verbosity: Verbosity level: 0 (default), 1 (verbose), 2 (debug)
-    :param backend: Backend module to use to get updates and errata
-    :param paths: A list of template search paths
+    :param kwargs:
+        Extra keyword arguments other than `root_or_arc_path` passed to make an
+        instance of :class:`fleure.config.Config`
     """
     set_loglevel(verbosity)
-    host = prepare(root, workdir, repos, did, cachedir, backend)
+    host = prepare(root_or_arc_path, hid, **kwargs)
 
     if host.available:
-        LOG.info("Anaylize the host: %s", host.id)
-        analyze(host, score, keywords, rpms, period, refdir, paths=paths)
+        LOG.info("Anaylize the host: %s", host.hid)
+        analyze(host)
 
 # vim:sw=4:ts=4:et:
