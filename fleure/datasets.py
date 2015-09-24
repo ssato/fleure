@@ -199,7 +199,7 @@ def list_latest_errata_by_updates(ers):
     return [xs[-1] for xs in _sgroupby(ers, ung, itemgetter("issue_date"))]
 
 
-def _cve_socre_ge(cve, score=fleure.globals.CVSS_SCORE, default=False):
+def _cve_socre_ge(cve, score=0, default=False):
     """
     :param cve: A dict contains CVE and CVSS info.
     :param score: Lowest score to select CVEs (float). It's Set to 4.0 (PCIDSS
@@ -225,7 +225,7 @@ def _cve_socre_ge(cve, score=fleure.globals.CVSS_SCORE, default=False):
     return default
 
 
-def higher_score_cve_errata_g(ers, score=fleure.globals.CVSS_SCORE):
+def higher_score_cve_errata_g(ers, score=0):
     """
     :param ers: A list of errata
     :param score: CVSS base metrics score
