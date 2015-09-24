@@ -151,6 +151,9 @@ class Host(bunch.Bunch):
 
         self.tpaths = [_normpath(p) for p in self["tpaths"]]
         self.repos = repos
+
+        # These might be initialized later.
+        self.base = None
         self.available = False
         self.errors = []
 
