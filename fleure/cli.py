@@ -14,17 +14,20 @@ import optparse
 import os.path
 
 import fleure.globals
+import fleure.config
 import fleure.main
 import fleure.multihosts
 
 
 _TODAY = datetime.datetime.now().strftime("%F")
 _DEFAULTS = dict(path=None, workdir="/tmp/rk-updateinfo-{}".format(_TODAY),
-                 repos=None, multiproc=False, id=None,
-                 score=0, keywords=fleure.main.ERRATA_KEYWORDS,
-                 rpms=fleure.main.CORE_RPMS, period='', cachedir=None,
-                 refdir=None, tpaths=[], backend=fleure.main.DEFAULT_BACKEND,
-                 backends=fleure.main.BACKENDS, verbosity=0)
+                 repos=None, multiproc=False, hid=None,
+                 score=fleure.globals.DEFAULT_CVSS_SCORE,
+                 keywords=fleure.globals.ERRATA_KEYWORDS,
+                 rpms=fleure.globals.CORE_RPMS,
+                 period='', cachedir=None, refdir=None, tpaths=[],
+                 backend=fleure.config.DEFAULT_BACKEND,
+                 backends=fleure.config.BACKENDS, verbosity=0)
 _USAGE = """\
 %prog [Options...] ROOT
 
@@ -33,17 +36,14 @@ _USAGE = """\
                  [multihosts mode]"""
 
 
-def option_parser(defaults=None, usage=_USAGE, backends=None):
+def parse_args():
     """
-    Option parser.
+    Parse arguments.
     """
-    if defaults is None:
-        defaults = _DEFAULTS
+    defaults = _DEFAULTS
+    backends = defaults["backends"]
 
-    if backends is None:
-        backends = defaults["backends"]
-
-    psr = optparse.OptionParser(usage)
+    psr = optparse.OptionParser(_USAGE)
     psr.set_defaults(**defaults)
 
     psr.add_option("-w", "--workdir", help="Working dir [%default]")
@@ -54,7 +54,7 @@ def option_parser(defaults=None, usage=_USAGE, backends=None):
                         "are not given by this option, repos are guess from "
                         "data in RPM DBs automatically, and please not that "
                         "any other repos are disabled if this option was set.")
-    psr.add_option("-I", "--id", help="Data ID [None]")
+    psr.add_option("-I", "--hid", help="Host (Data) ID [None]")
     # TODO: Disabled until issue of yum vs. multiprocessing module is fixed.
     # p.add_option("-M", "--multiproc", action="store_true",
     #             help="Specify this option if you want to analyze data "
@@ -89,13 +89,14 @@ def option_parser(defaults=None, usage=_USAGE, backends=None):
                    help="Verbose mode")
     psr.add_option("-D", "--debug", action="store_const", dest="verbosity",
                    const=2, help="Debug mode (same as -vv)")
-    return psr
+
+    return psr.parse_args()
 
 
 def main():
     """Cli main.
     """
-    (options, args) = option_parser().parse_args()
+    (options, args) = parse_args()
 
     root = args[0] if args else raw_input("Host[s] data dir (root) > ")
     assert os.path.exists(root), "Not found RPM DB Root: %s" % root
@@ -104,21 +105,20 @@ def main():
     if not options.tpaths:
         options.tpaths = fleure.globals.FLEURE_TEMPLATE_PATHS
 
+    cnf = dict(workdir=options.workdir, cachedir=options.cachedir,
+               repos=options.repos, verbosity=options.verbosity,
+               cvss_min_score=options.score, errata_keywords=options.keywords,
+               core_rpms=options.rpms, period=period, refdir=options.refdir,
+               backend=options.backend, tpaths=options.tpaths)
+
+    fleure.globals.LOGGER.warn("cnf=%s", str(cnf))
     if os.path.exists(os.path.join(root, "var/lib/rpm")):
-        fleure.main.main(root, options.workdir, options.repos, options.id,
-                         options.score, options.keywords, options.rpms, period,
-                         options.cachedir, options.refdir, options.verbosity,
-                         options.backend, paths=options.tpaths)
+        fleure.main.main(root, hid=options.hid, **cnf)
     else:
-        # multihosts mode.
-        #
-        # TODO: multiproc mode is disabled and options.multiproc is not passed
+        # NOTE: multiproc mode is disabled and options.multiproc is not passed
         # to RUMS.main until the issue of yum that its thread locks conflict w/
         # multiprocessing module is fixed.
-        fleure.multihosts.main(root, options.workdir, options.repos,
-                               options.score, options.keywords, options.rpms,
-                               period, options.cachedir, options.refdir,
-                               options.verbosity, options.backend)
+        fleure.multihosts.main(root, **cnf)
 
 if __name__ == '__main__':
     main()

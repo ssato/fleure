@@ -61,19 +61,12 @@ def touch(filepath):
     open(filepath, 'w').write()
 
 
-def prepare(hosts_datadir, workdir=None, repos=None, cachedir=None,
-            backend=fleure.main.DEFAULT_BACKEND, backends=None,
-            paths=fleure.globals.FLEURE_TEMPLATE_PATHS):
+def prepare(hosts_datadir, workdir=None, **kwargs):
     """
     Scan and collect hosts' basic data (installed rpms list, etc.).
 
     :param hosts_datadir: Dir in which rpm db roots of hosts exist
     :param workdir: Working dir to save results
-    :param repos: List of yum repos to get updateinfo data (errata and updtes)
-    :param cachedir: A dir to save metadata cache of yum repos
-    :param backend: Backend module to use to get updates and errata
-    :param backends: Backend list
-    :param paths: A list of template search paths
 
     :return: A generator to yield a tuple,
         (host_identity, host_rpmroot or None)
@@ -86,12 +79,6 @@ def prepare(hosts_datadir, workdir=None, repos=None, cachedir=None,
             LOG.debug(_("Creating working dir: %s"), workdir)
             os.makedirs(workdir)
 
-    if backends is None:
-        backends = fleure.main.BACKENDS
-
-    if repos is None:
-        repos = []
-
     for hid, root in hosts_rpmroot_g(hosts_datadir):
         hworkdir = os.path.join(workdir, hid)
         if not hworkdir:
@@ -99,11 +86,10 @@ def prepare(hosts_datadir, workdir=None, repos=None, cachedir=None,
 
         if root is None:
             touch(os.path.join(hworkdir, "RPMDB_NOT_AVAILABLE"))
-            yield bunch.bunchify(dict(id=hid, workdir=hworkdir,
-                                      available=False))
+            yield bunch.Bunch(hid=hid, workdir=hworkdir, available=False)
         else:
-            yield fleure.main.prepare(root, hworkdir, repos, hid, cachedir,
-                                      backend, backends, paths=paths)
+            yield fleure.main.prepare(root, hid=hid, workdir=hworkdir,
+                                      **kwargs)
 
 
 def p2nevra(pkg):
@@ -122,9 +108,9 @@ def mk_symlinks_to_ref(href, hsrest):
     orgdir = os.path.abspath(os.curdir)
     for hst in hsrest:
         os.chdir(hst.workdir)
-        href_workdir = os.path.join('..', href.id)  # TODO: Keep consistency.
+        href_workdir = os.path.join('..', href.hid)  # TODO: Keep consistency.
         LOG.info(_("%s: Make symlinks to results in %s/"),
-                 hst.id, href_workdir)
+                 hst.hid, href_workdir)
         for src in glob.glob(os.path.join(href_workdir, '*.*')):
             dst = os.path.basename(src)
             if not os.path.exists(dst):
@@ -134,7 +120,7 @@ def mk_symlinks_to_ref(href, hsrest):
         metadatafile = os.path.join(href_workdir, "metadata.json")
         shutil.copy2(metadatafile, metadatafile + ".save")
         metadata = fleure.utils.json_load(metadatafile)
-        metadata["hosts"].append(hst.id)
+        metadata["hosts"].append(hst.hid)
         fleure.utils.json_dump(metadata, metadatafile)
 
         os.chdir(orgdir)
@@ -146,39 +132,18 @@ def analyze(args):
     fleure.main.analyze(*args)
 
 
-def main(hosts_datadir, workdir=None, repos=None, score=-1,
-         keywords=fleure.main.ERRATA_KEYWORDS, rpms=None, period=None,
-         cachedir=None, refdir=None, verbosity=0, multiproc=False,
-         backend=fleure.main.DEFAULT_BACKEND, backends=None):
+def main(hosts_datadir, workdir=None, verbosity=0, multiproc=False, **kwargs):
     """
-    :param hosts_datadir: Dir in which rpm db roots of hosts exist
+    :param hosts_datadir:
+        Path to dir in which rpm db roots or its archive of hosts exist
+
     :param workdir: Working dir to save results
-    :param repos: List of yum repos to get updateinfo data (errata and updtes)
-    :param score: CVSS base metrics score
-    :param keywords: Keyword list to filter 'important' RHBAs
-    :param rpms: Core RPMs to filter errata by them
-    :param period: Period of errata in format of YYYY[-MM[-DD]],
-        ex. ("2014-10-01", "2014-11-01")
-    :param cachedir: A dir to save metadata cache of yum repos
-    :param refdir: A dir holding reference data previously generated to
-        compute delta (updates since that data)
     :param verbosity: Verbosity level: 0 (default), 1 (verbose), 2 (debug)
     :param multiproc: Utilize multiprocessing module to compute results
         in parallel as much as possible if True
-    :param backend: Backend module to use to get updates and errata
-    :param backends: Backend list
-    :param paths: A list of template search paths
     """
-    if repos is None:
-        repos = []
-    if rpms is None:
-        rpms = []
-    if backends is None:
-        backends = fleure.main.BACKENDS
-
     fleure.main.set_loglevel(verbosity)
-    all_hosts = list(prepare(hosts_datadir, workdir, repos, cachedir, backend,
-                             backends, paths=paths))
+    all_hosts = list(prepare(hosts_datadir, workdir=workdir, **kwargs))
     hosts = [h for h in all_hosts if h.available]
 
     LOG.info(_("Analyze %d/%d hosts"), len(hosts), len(all_hosts))
@@ -192,22 +157,20 @@ def main(hosts_datadir, workdir=None, repos=None, score=-1,
 
     for hss in his:
         hset = [(hs[0], hs[1:]) for hs in hss]
-        hsdata = [(h, score, keywords, rpms, period, refdir) for h, _hrest
-                  in hset]
+        hsdata = [hs[0] for hs in hset]
 
-        # TODO: pass paths parameter to fleure.main.analyze
         if multiproc:
             pool = multiprocessing.Pool(multiprocessing.cpu_count())
-            pool.map(analyze, hsdata)
+            pool.map(fleure.main.analyze, hsdata)
         else:
-            for args in hsdata:
-                analyze(args)
+            for host in hsdata:
+                fleure.main.analyze(host)
 
         for hid, hsrest in hset:
             if hsrest:
                 LOG.info(_("Skip to analyze %s as its installed RPMs are "
                            "exactly same as %s's"),
-                         ','.join(x.id for x in hsrest), hid)
+                         ','.join(x.hid for x in hsrest), hid)
                 mk_symlinks_to_ref(hid, hsrest)
 
 # vim:sw=4:ts=4:et:
