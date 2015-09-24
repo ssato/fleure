@@ -178,7 +178,7 @@ def _make_depgraph_context(root, ers):
 
 
 def dump_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
-                  paths=fleure.globals.FLEURE_TEMPLATE_PATHS):
+                  tpaths=fleure.globals.FLEURE_TEMPLATE_PATHS):
     """
     Make up context to generate RPM dependency graph w/ graphviz (sfdp) from
     the RPM database files for given host group.
@@ -187,7 +187,7 @@ def dump_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
     :param ers: List of errata dict, see :func:`analyze_errata` in fleure.main
     :param workdir: Working dir to dump result
     :param outname: Output file base name
-    :param paths: A list of template search paths
+    :param tpaths: A list of template search paths
     """
     if workdir is None:
         workdir = root
@@ -196,11 +196,11 @@ def dump_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
     fleure.utils.json_dump(ctx, os.path.join(workdir, outname + ".json"))
 
     output = os.path.join(workdir, outname + ".dot")
-    anytemplate.render_to("rpm_depgraph_gv.dot.j2", ctx, output, paths,
-                          at_engine="jinja2", at_ask_missing=True)
+    opts = dict(at_paths=tpaths, at_engine="jinja2", at_ask_missing=True)
+    anytemplate.render_to("rpm_depgraph_gv.dot.j2", ctx, output, **opts)
     anytemplate.render_to("rpm_depgraph_gv.css.j2", ctx,
                           os.path.join(workdir, outname + ".css"),
-                          paths, at_engine="jinja2", at_ask_missing=True)
+                          **opts)
 
     output2 = os.path.join(workdir, outname + ".svg")
     cmd_s = "sfdp -Tsvg -o%s %s" % (output2, output)
