@@ -10,19 +10,22 @@ from __future__ import absolute_import
 
 import bunch
 import os.path
+import subprocess
+import tempfile
 import uuid
 
 import fleure.globals
+import fleure.utils
 import fleure.yumbase
 
 
-_BACKENDS = dict(yum=fleure.yumbase.Base, )
-_DEFAULT_BACKEND = "yum"
+BACKENDS = dict(yum=fleure.yumbase.Base, )
+DEFAULT_BACKEND = "yum"
 try:
     import fleure.dnfbase
 
-    _BACKENDS["dnf"] = fleure.dnfbase.Base
-    _DEFAULT_BACKEND = "dnf"  # Prefer this.
+    BACKENDS["dnf"] = fleure.dnfbase.Base
+    DEFAULT_BACKEND = "dnf"  # Prefer this.
 except ImportError:  # dnf is not available for RHEL, AFAIK.
     pass
 
@@ -49,8 +52,48 @@ def _normpath(path):
     return os.path.normpath(os.path.abspath(path))
 
 
-class Config(bunch.Bunch):
-    """Config object.
+_EXTRACT_ARCHIVE = """
+tout=10
+timeout $tout tar xvf {arc} -C {workdir}/ 1>&2; rc=$?
+if $rc -ne 0; then  # Try unzip:
+    timeout $tout unzip {arc} -d {workdir}/ 1>&2; rc=$?
+fi
+if $rc -eq 0; then
+    root=$(find ${workdir}/ -type f -name 'Packages')/../../../../
+    echo $root
+else
+    echo "Failed to extract the archive: {arc}" > /dev/stderr
+fi
+"""
+
+
+def _setup_root(root_or_arc_path, workdir):
+    """
+    Setup root dir if given `root_or_arc_path` is an archive.
+
+    :param root_or_arc_path:
+        Path to the root dir of RPM DB files or Archive (tar.xz, tar.gz, zip,
+        etc.) of RPM DB files. Path might be a relative path from current dir.
+    :param workdir: Working dir to keep temporal files and save results
+
+    :return: A tuple of (Root_path, Error_message | None)
+    """
+    if os.path.isdir(root_or_arc_path):
+        return (root_or_arc_path, None)
+
+    try:
+        cmd_s = _EXTRACT_ARCHIVE.format(arc=root_or_arc_path, workdir=workdir)
+        proc = subprocess.Popen(cmd_s, shell=True, stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE)
+        (out, err) = proc.communicate()
+        return (out.rstrip(), err)
+
+    except subprocess.CalledProcessError as exc:
+        return (None, str(exc))
+
+
+class Host(bunch.Bunch):
+    """Object holding common configuration and host specific data.
     """
     # initialized some of configurations:
     sysconfdir = fleure.globals.FLEURE_SYSCONFDIR
@@ -63,12 +106,11 @@ class Config(bunch.Bunch):
     details = True
     cvss_min_score = 0
 
-    backend = _DEFAULT_BACKEND
-    backends = _BACKENDS
+    backend = DEFAULT_BACKEND
+    backends = BACKENDS
 
-    def __init__(self, root_or_arc_path, hostname=None, workdir=None,
-                 cachedir=None, repos=None, period=None, refdir=None,
-                 **kwargs):
+    def __init__(self, root_or_arc_path, hid=None, workdir=None, cachedir=None,
+                 repos=None, period=None, refdir=None, **kwargs):
         """
         Initialize some lazy configurations.
 
@@ -76,9 +118,8 @@ class Config(bunch.Bunch):
             Path to the root dir of RPM DB files or Archive (tar.xz, tar.gz,
             zip, etc.) of RPM DB files. Path might be a relative path from
             current dir.
-        :param hostname:
-            Name of the host in which the RPM DB are collected or some ID
-            distiguish from others.
+        :param hid:
+            ID such as name of the host where the RPM DB are collected
         :param workdir: Working dir to keep temporal files and save results
         :param cachedir: Dir to save cache files
         :param repos:
@@ -91,21 +132,85 @@ class Config(bunch.Bunch):
             A dir holding reference data previously generated to compute delta,
             updates since that data generated.
         """
-        super(Config, self).__init__(root_or_arc_path=root_or_arc_path,
-                                     repos=repos, period=period, refdir=refdir,
-                                     **kwargs)
+        super(Host, self).__init__(root_or_arc_path=root_or_arc_path,
+                                   repos=repos, period=period, refdir=refdir,
+                                   **kwargs)
 
         if os.path.isdir(root_or_arc_path):
             self.root = _normpath(root_or_arc_path)
         else:
             self.root = None
 
-        self.hostname = str(uuid.uuid1()) if hostname is None else hostname
+        self.hid = str(uuid.uuid1()) if hid is None else hid
         self.workdir = self.root if workdir is None else _normpath(workdir)
 
         if cachedir is None:
             self.cachedir = os.path.join(self.root, "var/cache")
         else:
             self.cachedir = _normpath(cachedir)
+
+        self.tpaths = [_normpath(p) for p in self["tpaths"]]
+        self.repos = repos
+        self.available = False
+        self.errors = []
+
+    def __str__(self):
+        return self.toJSON(indent=2)
+
+    def configure(self):
+        """
+        Setup root, etc.
+        """
+        if self.root is None:
+            if self.workdir is None:
+                self.workdir = tempfile.mkdtemp(prefix="fleure-tmp-")
+
+            (self.root, err) = _setup_root(self.root_or_arc_path, self.workdir)
+            if err:
+                self.errors.append(err)
+                return
+
+        if not fleure.utils.check_rpmdb_root(self.root):
+            self.errors.append("Invalid RPM DBs: " + self.root)
+            return
+
+        if self.repos is None:
+            self.repos = fleure.utils.guess_rhel_repos(self.root)
+
+        if not os.path.exists(self.workdir):
+            os.makedirs(self.workdir)
+
+    def has_valid_root(self):
+        """
+        Is root setup and ready?
+        """
+        return self.root is not None and not self.errors
+
+    def init_base(self):
+        """
+        Inialized yum/dnf base object.
+        """
+        assert self.has_valid_root(), "Initialize root at first!"
+
+        backend = self.backends.get(self.backend)
+        self.base = backend(self.root, self.repos, workdir=self.workdir,
+                            cachedir=self.cachedir)
+        return self.base
+
+    def save(self, obj, name, subdir=None):
+        """
+        :param obj: Object to save
+        :param name: File base name to save
+        :param subdir: Sub directory relative to workdir
+        """
+        if subdir is None:
+            filepath = os.path.join(self.workdir, "%s.json" % name)
+        else:
+            filepath = os.path.join(self.workdir, subdir, "%s.json" % name)
+
+        if not os.path.exists(os.path.dirname(filepath)):
+            os.makedirs(os.path.dirname(filepath))
+
+        fleure.utils.json_dump(obj, filepath)
 
 # vim:sw=4:ts=4:et:
