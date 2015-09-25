@@ -111,7 +111,6 @@ def main():
                core_rpms=options.rpms, period=period, refdir=options.refdir,
                backend=options.backend, tpaths=options.tpaths)
 
-    fleure.globals.LOGGER.warn("cnf=%s", str(cnf))
     if os.path.exists(os.path.join(root, "var/lib/rpm")):
         fleure.main.main(root, hid=options.hid, **cnf)
     else:
