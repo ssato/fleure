@@ -32,6 +32,12 @@ FLEURE_DATADIR = "/usr/share/%s" % PACKAGE
 FLEURE_TEMPLATE_PATHS = [os.path.join(FLEURE_DATADIR, "templates/2/%s") % lang
                          for lang in ("ja", "en")]
 
+RPMDB_SUBDIR = "var/lib/rpm"
+
+# It may depends on the versions of rpm:
+RPMDB_FILENAMES = ("Packages", "Basenames", "Dirnames", "Installtid", "Name",
+                   "Obsoletename", "Providename", "Requirename")
+
 RPM_VENDOR = "redhat"
 RPM_KEYS = ("name", "epoch", "version", "release", "arch")
 ERRATA_KEYWORDS = ("crash", "panic", "hang", "SEGV", "segmentation fault",
