@@ -36,7 +36,7 @@ def setup_workdir():
     True
     >>> os.rmdir(workdir)
     """
-    return tempfile.mkdtemp(dir="/tmp", prefix="python-anyconfig-tests-")
+    return tempfile.mkdtemp(dir="/tmp", prefix="python-fleure-tests-")
 
 
 def cleanup_workdir(workdir):
