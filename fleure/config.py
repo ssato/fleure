@@ -53,13 +53,15 @@ def _normpath(path):
 
 
 _EXTRACT_ARCHIVE = """
-tout=10
-timeout $tout tar xvf {arc} -C {workdir}/ 1>&2; rc=$?
-if $rc -ne 0; then  # Try unzip:
+tout=30
+test -d {workdir} || mkdir -p {workdir}
+timeout $tout tar xf {arc} -C {workdir}/ 1>&2; rc=$?
+if test $rc -ne 0; then  # Try unzip:
     timeout $tout unzip {arc} -d {workdir}/ 1>&2; rc=$?
 fi
-if $rc -eq 0; then
-    root=$(find ${workdir}/ -type f -name 'Packages')/../../../../
+if test $rc -eq 0; then
+    root=$(find {workdir}/ -type f -name 'Packages' | \
+           sed -nr 's!/var/lib/rpm/Packages!!p')
     echo $root
 else
     echo "Failed to extract the archive: {arc}" > /dev/stderr
@@ -67,7 +69,7 @@ fi
 """
 
 
-def _setup_root(root_or_arc_path, workdir):
+def setup_root(root_or_arc_path, workdir):
     """
     Setup root dir if given `root_or_arc_path` is an archive.
 
@@ -168,7 +170,7 @@ class Host(bunch.Bunch):
             if self.workdir is None:
                 self.workdir = tempfile.mkdtemp(prefix="fleure-tmp-")
 
-            (self.root, err) = _setup_root(self.root_or_arc_path, self.workdir)
+            (self.root, err) = setup_root(self.root_or_arc_path, self.workdir)
             if err:
                 self.errors.append(err)
                 return
