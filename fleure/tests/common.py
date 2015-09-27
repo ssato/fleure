@@ -3,6 +3,7 @@
 #
 # pylint: disable=missing-docstring
 import os.path
+import os
 import tempfile
 
 import anyconfig.compat
@@ -90,5 +91,21 @@ def to_bytes(astr):
 
 def is_rhel_or_fedora(relfile="/etc/redhat-release"):
     return os.path.exists(relfile)
+
+
+class Chdir(object):
+
+    def __init__(self, chdir=None):
+        self.orgdir = os.path.abspath(os.curdir)
+        self.chdir = self.orgdir if chdir is None else chdir
+        self.need_chdir = self.orgdir != self.chdir
+
+    def __enter__(self, *args):
+        if self.need_chdir:
+            os.chdir(self.chdir)
+
+    def __exit__(self, *args):
+        if self.need_chdir:
+            os.chdir(self.orgdir)
 
 # vim:sw=4:ts=4:et:
