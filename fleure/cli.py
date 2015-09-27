@@ -10,6 +10,7 @@
 from __future__ import absolute_import
 
 import datetime
+import logging
 import optparse
 import os.path
 
@@ -19,9 +20,10 @@ import fleure.main
 import fleure.multihosts
 
 
+LOG = logging.getLogger(__name__)
 _TODAY = datetime.datetime.now().strftime("%F")
-_DEFAULTS = dict(path=None, workdir="/tmp/rk-updateinfo-{}".format(_TODAY),
-                 repos=None, multiproc=False, hid=None,
+_DEFAULTS = dict(path=None, workdir="/tmp/fleure-{}".format(_TODAY),
+                 repos=None, imultiproc=False, hid=None, multihost=False,
                  score=fleure.globals.DEFAULT_CVSS_SCORE,
                  keywords=fleure.globals.ERRATA_KEYWORDS,
                  rpms=fleure.globals.CORE_RPMS,
@@ -37,8 +39,7 @@ _USAGE = """\
 
 
 def parse_args():
-    """
-    Parse arguments.
+    """Parse arguments.
     """
     defaults = _DEFAULTS
     backends = defaults["backends"]
@@ -55,6 +56,7 @@ def parse_args():
                         "data in RPM DBs automatically, and please not that "
                         "any other repos are disabled if this option was set.")
     psr.add_option("-I", "--hid", help="Host (Data) ID [None]")
+    psr.add_option("-M", "--multihost", help="Multihost mode")
     # TODO: Disabled until issue of yum vs. multiprocessing module is fixed.
     # p.add_option("-M", "--multiproc", action="store_true",
     #             help="Specify this option if you want to analyze data "
@@ -112,12 +114,16 @@ def main():
                backend=options.backend, tpaths=options.tpaths)
 
     if os.path.exists(os.path.join(root, "var/lib/rpm")):
-        fleure.main.main(root, hid=options.hid, **cnf)
-    else:
+        options.multihost = False
+        LOG.info("Found a data of single host. Switch backed to single host mode.")
+
+    if options.multihost:
         # NOTE: multiproc mode is disabled and options.multiproc is not passed
         # to RUMS.main until the issue of yum that its thread locks conflict w/
         # multiprocessing module is fixed.
         fleure.multihosts.main(root, **cnf)
+    else:
+        fleure.main.main(root, hid=options.hid, **cnf)
 
 if __name__ == '__main__':
     main()
