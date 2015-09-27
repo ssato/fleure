@@ -45,8 +45,7 @@ class Test00(unittest.TestCase):
 
         tpath = os.path.join(self.workdir, txz)
         (out, err) = TT.setup_root(tpath, self.workdir)
-        print "out=%s, err=%s" % (out, err)
-        self.assertEquals(out, self.workdir)
+        self.assertEquals(out, self.workdir, err)
 
     def test_24_setup_root__zip_archive(self):
         txz = "rpmdb.zip"
@@ -58,7 +57,6 @@ class Test00(unittest.TestCase):
 
         tpath = os.path.join(self.workdir, txz)
         (out, err) = TT.setup_root(tpath, self.workdir)
-        print "out=%s, err=%s" % (out, err)
-        self.assertEquals(out, self.workdir)
+        self.assertEquals(out, self.workdir, err)
 
 # vim:sw=4:ts=4:et:
