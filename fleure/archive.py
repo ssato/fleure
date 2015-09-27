@@ -27,17 +27,17 @@ import fleure.globals
 LOG = logging.getLogger(__name__)
 
 
-def _is_bad_path(filepath, prefix=None, check_stat=False):
+def _is_bad_path(filepath, prefix=None, stat=False):
     """
     Is `filepath` a bad path, that is, contains '..', starting with '/', etc?
 
     :param filepath: File path
     :param prefix: Prefix of file path expected to check more strictly
-    :param check_stat: Check path with stat(2)
+    :param stat: Check path with *stat(2)
 
     >>> _is_bad_path("")
     True
-    >>> _is_bad_path("var/lib/rpm/../../../etc/passwd")
+    >>> _is_bad_path("var/lib/rpm/../../../etc/passwd", "var/lib/rpm")
     True
     >>> _is_bad_path("/var/lib/rpm/Packages")
     True
@@ -45,22 +45,30 @@ def _is_bad_path(filepath, prefix=None, check_stat=False):
     False
     >>> _is_bad_path("var/lib/rpm/Packages", "var/lib/rpm/")
     False
+    >>> _is_bad_path("/var/lib/rpm/Packages", "/var/lib/rpm")
+    False
     >>> _is_bad_path("lib/rpm/Packages", "var/lib/rpm/")
     True
     """
     if not filepath:
         return True
 
-    if prefix is not None:
-        return not filepath.startswith(prefix)
-
-    if check_stat:
+    if stat:
         if os.path.islink(filepath):
             return True
 
         filepath = os.path.realpath(filepath)
 
-    return filepath.startswith('/') or ".." in filepath
+        if prefix is None:
+            prefix = os.path.abspath(os.curdir)
+
+        return not filepath.startswith(prefix)
+    else:
+        filepath = os.path.normpath(filepath)
+        if prefix is None:
+            return filepath.startswith('/')
+        else:
+            return not filepath.startswith(prefix)
 
 
 def _subproc_communicate(cmd_s):
@@ -111,7 +119,7 @@ def safe_untar(arcfile, destdir, files=None):
             errors.append(err + ": " + filepath)
         else:
             path = os.path.join(destdir, filepath)
-            if os.path.isfile(path) and _is_bad_path(path, check_stat=True):
+            if os.path.isfile(path) and _is_bad_path(filepath, stat=True):
                 os.remove(path)
                 errors.append("Removed as a link: {}".format(filepath))
 
@@ -140,7 +148,7 @@ def safe_unzip(arcfile, destdir, files=None):
     errors = []
     with zipfile.ZipFile(arcfile) as zipf:
         for filepath in zipf.namelist():
-            if filepath not in files:
+            if files and filepath not in files:
                 LOG.info("Skip %s as not in the list", filepath)
                 continue
 
@@ -151,7 +159,7 @@ def safe_unzip(arcfile, destdir, files=None):
             zipf.extract(filepath, path=destdir)
 
             path = os.path.join(destdir, filepath)
-            if _is_bad_path(path, check_stat=True):
+            if _is_bad_path(filepath, stat=True):
                 os.remove(path)
                 errors.append("Found a link and removed: {}".format(filepath))
 
@@ -198,9 +206,9 @@ def extract_rpmdb_archive(arc_path, root=None):
     if not os.path.exists(rpmdbdir):
         os.makedirs(rpmdbdir)
 
-    rpmdbfiles = [os.path.join(fleure.globals.RPMDB_SUBDIR, fn) for fn
-                  in fleure.globals.RPMDB_FILENAMES]
-    print rpmdbfiles
-    return (root, _exract_fnc(arc_path)(arc_path, root, rpmdbfiles))
+    prefix = fleure.globals.RPMDB_SUBDIR
+    files = [os.path.join(prefix, fn) for fn in fleure.globals.RPMDB_FILENAMES]
+
+    return (root, _exract_fnc(arc_path)(arc_path, root, files))
 
 # vim:sw=4:ts=4:et:
