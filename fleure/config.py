@@ -102,7 +102,7 @@ class Host(bunch.Bunch):
     sysdatadir = fleure.globals.FLEURE_DATADIR
     tpaths = fleure.globals.FLEURE_TEMPLATE_PATHS
     rpmkeys = fleure.globals.RPM_KEYS
-    eratta_keywords = fleure.globals.ERRATA_KEYWORDS
+    errata_keywords = fleure.globals.ERRATA_KEYWORDS
     core_rpms = fleure.globals.CORE_RPMS
     rpm_vendor = fleure.globals.RPM_VENDOR
     details = True
@@ -152,7 +152,7 @@ class Host(bunch.Bunch):
         else:
             self.cachedir = _normpath(cachedir)
 
-        self.tpaths = [_normpath(p) for p in self["tpaths"]]
+        self.tpaths = [_normpath(p) for p in self.get("tpaths", Host.tpaths)]
         self.repos = repos
 
         # These might be initialized later.
