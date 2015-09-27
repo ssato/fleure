@@ -27,13 +27,23 @@ import fleure.globals
 LOG = logging.getLogger(__name__)
 
 
-def _is_bad_path(filepath, prefix=None, stat=False):
+def _is_link(filepath):
+    """
+    :param filepath: Path to a file to check
+    :return: True if `filepath` is a symlink or hardlink
+    """
+    if os.path.islink(filepath) or os.lstat(filepath).st_nlink > 1:
+        return True
+
+    return False
+
+
+def _is_bad_path(filepath, prefix=None):
     """
     Is `filepath` a bad path, that is, contains '..', starting with '/', etc?
 
     :param filepath: File path
     :param prefix: Prefix of file path expected to check more strictly
-    :param stat: Check path with *stat(2)
 
     >>> _is_bad_path("")
     True
@@ -53,22 +63,11 @@ def _is_bad_path(filepath, prefix=None, stat=False):
     if not filepath:
         return True
 
-    if stat:
-        if os.path.islink(filepath):
-            return True
-
-        filepath = os.path.realpath(filepath)
-
-        if prefix is None:
-            prefix = os.path.abspath(os.curdir)
-
-        return not filepath.startswith(prefix)
+    filepath = os.path.normpath(filepath)
+    if prefix is None:
+        return filepath.startswith('/')
     else:
-        filepath = os.path.normpath(filepath)
-        if prefix is None:
-            return filepath.startswith('/')
-        else:
-            return not filepath.startswith(prefix)
+        return not filepath.startswith(prefix)
 
 
 def _subproc_communicate(cmd_s):
@@ -85,6 +84,22 @@ def _subproc_communicate(cmd_s):
 
     except subprocess.CalledProcessError as exc:
         return (None, str(exc))
+
+
+def _remove_if_bad_file(filepath, prefix=None):
+    """
+    :param filepath: Absolute path to the file may be removed
+    :param prefix: Expected prefix of file path
+    :return: Error message or None (no need to remove it)
+    """
+    if not os.path.isfile(filepath):
+        return None
+
+    if _is_bad_path(filepath, prefix) or _is_link(filepath):
+        os.remove(filepath)
+        return "Removed as a link or refering unexpected path: " + filepath
+
+    return None
 
 
 def safe_untar(arcfile, destdir, files=None):
@@ -107,21 +122,22 @@ def safe_untar(arcfile, destdir, files=None):
     if err:
         return [err]
 
-    if files is None:  # TBD: call _is_bad_path with prefix='var/lib/rpm'.
+    if files is None:
         files = [f for f in out.splitlines() if not _is_bad_path(f)]
 
     errors = []
     for filepath in files:
-        cmd_s = "timeout 30 tar --get -C {}/ -f {} {}".format(destdir, arcfile,
+        cmd_s = "timeout 60 tar --get -C {}/ -f {} {}".format(destdir, arcfile,
                                                               filepath)
         (out, err) = _subproc_communicate(cmd_s)
         if err:
             errors.append(err + ": " + filepath)
-        else:
-            path = os.path.join(destdir, filepath)
-            if os.path.isfile(path) and _is_bad_path(filepath, stat=True):
-                os.remove(path)
-                errors.append("Removed as a link: {}".format(filepath))
+            continue
+
+        path = os.path.join(destdir, filepath)
+        err = _remove_if_bad_file(path, destdir)
+        if err:
+            errors.append(err)
 
     return errors
 
@@ -159,9 +175,9 @@ def safe_unzip(arcfile, destdir, files=None):
             zipf.extract(filepath, path=destdir)
 
             path = os.path.join(destdir, filepath)
-            if _is_bad_path(filepath, stat=True):
-                os.remove(path)
-                errors.append("Found a link and removed: {}".format(filepath))
+            err = _remove_if_bad_file(path, destdir)
+            if err:
+                errors.append(err)
 
     return errors
 

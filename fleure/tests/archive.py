@@ -2,7 +2,7 @@
 # Copyright (C) 2015 Satoru SATOH <ssato at redhat.com>
 # License: GPLv3+
 #
-# pylint: disable=missing-docstring, protected-access
+# pylint: disable=missing-docstring, protected-access, invalid-name
 from __future__ import absolute_import
 
 import os.path
@@ -26,63 +26,81 @@ class Test00(unittest.TestCase):
     def tearDown(self):
         fleure.tests.common.cleanup_workdir(self.workdir)
 
-    def test_10__is_bad_path(self):
+    def test_10__is_link__symlink(self):
         thisfile = os.path.abspath(__file__)
         symlink = os.path.join(self.workdir, "symlink")
 
         os.symlink(thisfile, symlink)
-        self.assertTrue(TT._is_bad_path(symlink, stat=True))
+        self.assertTrue(TT._is_link(symlink))
 
-        # hdlink = os.path.join(self.workdir, "hardlink")
-        # It cannot be created as it should be a cross-device link:
-        # os.link(thisfile, hdlink)
-        # self.assertTrue(TT._is_bad_path(hdlink, **opts))
+    def test_12__is_link__hardlink(self):
+        orgfile = "org.txt"
+        hdlink = "link.txt"
 
-    def test_20__subproc_communicate__success(self):
+        with fleure.tests.common.Chdir(self.workdir):
+            open(orgfile, 'w').write("Hello\n")
+            os.link(orgfile, hdlink)
+
+        hdlink = os.path.join(self.workdir, hdlink)
+        orgfile = os.path.join(self.workdir, orgfile)
+
+        self.assertTrue(TT._is_link(hdlink))
+        # self.assertFalse(TT._is_link(orgfile))  # Cannot distinguish it.
+
+    def test_20__is_bad_path(self):
+        pass
+
+    def test_30__subproc_communicate__success(self):
         self.assertTrue(TT._subproc_communicate(":")[1] is None)
         self.assertEquals(TT._subproc_communicate("echo OK")[0], "OK\n")
 
-    def test_30_safe_untar(self):
+    def test_40_safe_untar(self):
         thisfile = os.path.abspath(__file__)
-        arcfile = os.path.join(self.workdir, "test.tar.xz")
+        otherfile = "aaa.txt"
+        arcfile = "test.tar.xz"
+
+        with fleure.tests.common.Chdir(self.workdir):
+            TT._subproc_communicate("ln -s %s ." % thisfile)
+            touch(otherfile)
+            TT._subproc_communicate("tar --xz -cvf %s ." % arcfile)
+
         destdir = os.path.join(self.workdir, "out")
-        otherfile = os.path.join(self.workdir, "aaa.txt")
-
         os.makedirs(destdir)
-        os.chdir(self.workdir)
 
-        TT._subproc_communicate("ln -s %s ." % thisfile)
-        touch(otherfile)
-        TT._subproc_communicate("tar --xz -cvf %s ." % arcfile)
-
-        TT.safe_untar(arcfile, destdir)
+        TT.safe_untar(os.path.join(self.workdir, arcfile), destdir)
 
         filepath = os.path.join(destdir, os.path.basename(thisfile))
+        otherpath = os.path.join(destdir, otherfile)
+
+        self.assertTrue(os.path.exists(otherpath))
+        self.assertTrue(os.path.isfile(otherpath))
         self.assertFalse(os.path.exists(filepath))
         self.assertFalse(os.path.isfile(filepath))
-        self.assertTrue(os.path.exists(otherfile))
-        self.assertTrue(os.path.isfile(otherfile))
 
-    def test_40_safe_unzip(self):
+    def test_50_safe_unzip(self):
         thisfile = os.path.abspath(__file__)
-        arcfile = os.path.join(self.workdir, "test.zip")
+        otherfile = "aaa.txt"
+        arcfile = "test.zip"
+
+        with fleure.tests.common.Chdir(self.workdir):
+            TT._subproc_communicate("ln -s %s ." % thisfile)
+            touch(otherfile)
+            TT._subproc_communicate("zip -ry %s ." % arcfile)
+
         destdir = os.path.join(self.workdir, "out")
-        otherfile = os.path.join(self.workdir, "aaa.txt")
-
         os.makedirs(destdir)
-        os.chdir(self.workdir)
 
-        TT._subproc_communicate("ln -s %s ." % thisfile)
-        touch(otherfile)
-        TT._subproc_communicate("zip -r %s ." % arcfile)
-
-        TT.safe_unzip(arcfile, destdir)
+        TT.safe_unzip(os.path.join(self.workdir, arcfile), destdir)
 
         filepath = os.path.join(destdir, os.path.basename(thisfile))
-        self.assertFalse(os.path.exists(filepath))
-        self.assertFalse(os.path.isfile(filepath))
-        self.assertTrue(os.path.exists(otherfile))
-        self.assertTrue(os.path.isfile(otherfile))
+        otherpath = os.path.join(destdir, otherfile)
+
+        self.assertTrue(os.path.exists(otherpath))
+        self.assertTrue(os.path.isfile(otherpath))
+        # Note: It looks like zipfile.extrat don't extract symlink as it is.
+        # self.assertFalse(os.path.exists(filepath))
+        # self.assertFalse(os.path.isfile(filepath))
+        self.assertTrue(os.path.exists(filepath))
 
 
 class Test10(unittest.TestCase):
