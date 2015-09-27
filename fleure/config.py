@@ -147,7 +147,8 @@ class Host(bunch.Bunch):
         self.workdir = self.root if workdir is None else _normpath(workdir)
 
         if cachedir is None:
-            self.cachedir = os.path.join(self.root, "var/cache")
+            if self.root is not None:
+                self.cachedir = os.path.join(self.root, "var/cache")
         else:
             self.cachedir = _normpath(cachedir)
 
@@ -171,6 +172,7 @@ class Host(bunch.Bunch):
                 self.workdir = tempfile.mkdtemp(prefix="fleure-tmp-")
 
             (self.root, err) = setup_root(self.root_or_arc_path, self.workdir)
+            self.cachedir = os.path.join(self.root, "var/cache")
             if err:
                 self.errors.append(err)
                 return
