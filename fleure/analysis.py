@@ -272,6 +272,7 @@ def analyze_errata(ers, score=fleure.globals.DEFAULT_CVSS_SCORE,
     rhba_data["list_higher_cvss_updates"] = us_of_rhba_by_score
 
     return dict(rhsa=rhsa_data,
+                rhba=rhba_data,
                 rhea=dict(list=rhea,
                           list_by_packages=list_update_errata_pairs(rhea)),
                 rate_by_type=[("Security", len(rhsa)),
