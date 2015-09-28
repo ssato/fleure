@@ -170,6 +170,75 @@ def list_updates_by_num_of_errata(uess):
                   reverse=True)
 
 
+def analyze_rhsa(rhsa):
+    """
+    Compute and return statistics of RHSAs from some view points.
+
+    :param rhsa: A list of security errata (RHSA) dicts
+    :return: RHSA analized data and metrics
+    """
+    cri_rhsa = [e for e in rhsa if e["severity"] == "Critical"]
+    imp_rhsa = [e for e in rhsa if e["severity"] == "Important"]
+
+    rhsa_rate_by_sev = [("Critical", len(cri_rhsa)),
+                        ("Important", len(imp_rhsa)),
+                        ("Moderate",
+                         len([e for e in rhsa
+                              if e["severity"] == "Moderate"])),
+                        ("Low",
+                         len([e for e in rhsa
+                              if e["severity"] == "Low"]))]
+
+    rhsa_ues = list_update_errata_pairs(rhsa)
+    _ups_by_nes = lambda es: \
+        list_updates_by_num_of_errata(list_update_errata_pairs(es))
+
+    return {'list': rhsa,
+            'list_critical': cri_rhsa,
+            'list_important': imp_rhsa,
+            'list_latest_critical': list_latest_errata_by_updates(cri_rhsa),
+            'list_latest_important': list_latest_errata_by_updates(imp_rhsa),
+            'list_critical_updates': list_updates_from_errata(cri_rhsa),
+            'list_important_updates': list_updates_from_errata(imp_rhsa),
+            'rate_by_sev': rhsa_rate_by_sev,
+            'list_n_by_pnames': list_updates_by_num_of_errata(rhsa_ues),
+            'list_n_cri_by_pnames': _ups_by_nes(cri_rhsa),
+            'list_n_imp_by_pnames': _ups_by_nes(imp_rhsa),
+            'list_by_packages': rhsa_ues}
+
+
+def analyze_rhba(rhba, keywords=fleure.globals.ERRATA_KEYWORDS,
+                 core_rpms=fleure.globals.CORE_RPMS):
+    """
+    Compute and return statistics of RHBAs from some view points.
+
+    :param rhba: A list of bug errata (RHBA) dicts
+    :param keywords: Keyword list to filter 'important' RHBAs
+    :param core_rpms: Core RPMs to filter errata by them
+    :return: RHSA analized data and metrics
+    """
+    kfn = lambda e: (len(e.get("keywords", [])), e["issue_date"],
+                     e["update_names"])
+    rhba_by_kwds = sorted(errata_of_keywords_g(rhba, keywords),
+                          key=kfn, reverse=True)
+    rhba_of_core_rpms_by_kwds = \
+        sorted(errata_of_rpms_g(rhba_by_kwds, core_rpms),
+               key=kfn, reverse=True)
+    rhba_of_rpms = sorted(errata_of_rpms_g(rhba, core_rpms),
+                          key=itemgetter("update_names"), reverse=True)
+    latest_rhba_of_rpms = list_latest_errata_by_updates(rhba_of_rpms)
+    rhba_ues = list_update_errata_pairs(rhba)
+
+    return {'list': rhba,
+            'list_by_kwds': rhba_by_kwds,
+            'list_of_core_rpms': rhba_of_rpms,
+            'list_latests_of_core_rpms': latest_rhba_of_rpms,
+            'list_by_kwds_of_core_rpms': rhba_of_core_rpms_by_kwds,
+            'list_updates_by_kwds': list_updates_from_errata(rhba_by_kwds),
+            'list_n_by_pnames': list_updates_by_num_of_errata(rhba_ues),
+            'list_by_packages': rhba_ues}
+
+
 def analyze_errata(ers, score=fleure.globals.DEFAULT_CVSS_SCORE,
                    keywords=fleure.globals.ERRATA_KEYWORDS,
                    core_rpms=fleure.globals.CORE_RPMS):
@@ -181,32 +250,15 @@ def analyze_errata(ers, score=fleure.globals.DEFAULT_CVSS_SCORE,
     :param core_rpms: Core RPMs to filter errata by them
     """
     rhsa = [e for e in ers if e["advisory"][2] == 'S']
-    cri_rhsa = [e for e in rhsa if e.get("severity") == "Critical"]
-    imp_rhsa = [e for e in rhsa if e.get("severity") == "Important"]
-    latest_cri_rhsa = list_latest_errata_by_updates(cri_rhsa)
-    latest_imp_rhsa = list_latest_errata_by_updates(imp_rhsa)
-
-    us_of_cri_rhsa = list_updates_from_errata(cri_rhsa)
-    us_of_imp_rhsa = list_updates_from_errata(imp_rhsa)
-
     rhba = [e for e in ers if e["advisory"][2] == 'B']
+    rhea = [e for e in ers if e["advisory"][2] == 'E']
 
-    kfn = lambda e: (len(e.get("keywords", [])), e["issue_date"],
-                     e["update_names"])
-    rhba_by_kwds = sorted(errata_of_keywords_g(rhba, keywords),
-                          key=kfn, reverse=True)
-    rhba_of_core_rpms_by_kwds = \
-        sorted(errata_of_rpms_g(rhba_by_kwds, core_rpms),
-               key=kfn, reverse=True)
-    rhba_of_rpms = sorted(errata_of_rpms_g(rhba, core_rpms),
-                          key=itemgetter("update_names"), reverse=True)
-    latest_rhba_of_rpms = list_latest_errata_by_updates(rhba_of_rpms)
+    rhsa_data = analyze_rhsa(rhsa)
+    rhba_data = analyze_rhba(rhba, keywords, core_rpms)
 
     if score > 0:
         hsce_fn = fleure.datasets.higher_score_cve_errata_g
-        rhsa_by_score = list(hsce_fn(rhsa, score))
         rhba_by_score = list(hsce_fn(rhba, score))
-        us_of_rhsa_by_score = list_updates_from_errata(rhsa_by_score)
         us_of_rhba_by_score = list_updates_from_errata(rhba_by_score)
     else:
         rhsa_by_score = []
@@ -214,51 +266,12 @@ def analyze_errata(ers, score=fleure.globals.DEFAULT_CVSS_SCORE,
         us_of_rhsa_by_score = []
         us_of_rhba_by_score = []
 
-    us_of_rhba_by_kwds = list_updates_from_errata(rhba_by_kwds)
+    rhsa_data["list_higher_cvss_score"] = rhsa_by_score
+    rhba_data["list_higher_cvss_score"] = rhba_by_score
+    rhsa_data["list_higher_cvss_updates"] = us_of_rhsa_by_score
+    rhba_data["list_higher_cvss_updates"] = us_of_rhba_by_score
 
-    rhea = [e for e in ers if e["advisory"][2] == 'E']
-
-    rhsa_rate_by_sev = [("Critical", len(cri_rhsa)),
-                        ("Important", len(imp_rhsa)),
-                        ("Moderate",
-                         len([e for e in rhsa
-                              if e.get("severity") == "Moderate"])),
-                        ("Low",
-                         len([e for e in rhsa
-                              if e.get("severity") == "Low"]))]
-
-    rhsa_ues = list_update_errata_pairs(rhsa)
-    rhba_ues = list_update_errata_pairs(rhba)
-    n_rhsa_by_pns = list_updates_by_num_of_errata(rhsa_ues)
-    n_rhba_by_pns = list_updates_by_num_of_errata(rhba_ues)
-
-    _ups_by_nes = lambda es: \
-        list_updates_by_num_of_errata(list_update_errata_pairs(es))
-
-    return dict(rhsa=dict(list=rhsa,
-                          list_critical=cri_rhsa,
-                          list_important=imp_rhsa,
-                          list_latest_critical=latest_cri_rhsa,
-                          list_latest_important=latest_imp_rhsa,
-                          list_higher_cvss_score=rhsa_by_score,
-                          list_critical_updates=us_of_cri_rhsa,
-                          list_important_updates=us_of_imp_rhsa,
-                          list_higher_cvss_updates=us_of_rhsa_by_score,
-                          rate_by_sev=rhsa_rate_by_sev,
-                          list_n_by_pnames=n_rhsa_by_pns,
-                          list_n_cri_by_pnames=_ups_by_nes(cri_rhsa),
-                          list_n_imp_by_pnames=_ups_by_nes(imp_rhsa),
-                          list_by_packages=rhsa_ues),
-                rhba=dict(list=rhba,
-                          list_by_kwds=rhba_by_kwds,
-                          list_of_core_rpms=rhba_of_rpms,
-                          list_latests_of_core_rpms=latest_rhba_of_rpms,
-                          list_by_kwds_of_core_rpms=rhba_of_core_rpms_by_kwds,
-                          list_higher_cvss_score=rhba_by_score,
-                          list_updates_by_kwds=us_of_rhba_by_kwds,
-                          list_higher_cvss_updates=us_of_rhba_by_score,
-                          list_n_by_pnames=n_rhba_by_pns,
-                          list_by_packages=rhba_ues),
+    return dict(rhsa=rhsa_data,
                 rhea=dict(list=rhea,
                           list_by_packages=list_update_errata_pairs(rhea)),
                 rate_by_type=[("Security", len(rhsa)),
