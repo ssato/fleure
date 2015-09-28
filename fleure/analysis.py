@@ -110,7 +110,6 @@ def list_updates_by_num_of_errata(ers):
     """
     unes = fleure.utils.uconcat([(u, e["advisory"]) for u in e["update_names"]]
                                 for e in ers)
-
     u_ues_s = [(u, list(g)) for u, g in itertools.groupby(unes, itemgetter(0))]
     return sorted(((u, len(ues)) for u, ues in u_ues_s), key=itemgetter(1),
                   reverse=True)
@@ -196,7 +195,6 @@ def analyze_errata(ers, score=fleure.globals.DEFAULT_CVSS_SCORE,
     n_rhsa_by_pns = list_updates_by_num_of_errata(rhsa)
     n_cri_rhsa_by_pns = list_updates_by_num_of_errata(cri_rhsa)
     n_imp_rhsa_by_pns = list_updates_by_num_of_errata(imp_rhsa)
-
     n_rhba_by_pns = list_updates_by_num_of_errata(rhba)
 
     return dict(rhsa=dict(list=rhsa,
