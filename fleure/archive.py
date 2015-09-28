@@ -17,11 +17,11 @@ from __future__ import absolute_import
 import logging
 import os.path
 import os
-import subprocess
 import tempfile
 import zipfile
 
 import fleure.globals
+import fleure.utils
 
 
 LOG = logging.getLogger(__name__)
@@ -70,22 +70,6 @@ def _is_bad_path(filepath, prefix=None):
         return not filepath.startswith(prefix)
 
 
-def _subproc_communicate(cmd_s):
-    """
-    An wrapper of :func:`subprocess.Popen.communicate`.
-
-    :param cmd_s: Command string to run
-    """
-    try:
-        proc = subprocess.Popen(cmd_s, shell=True, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
-        (out, err) = proc.communicate()
-        return (None, err) if err else (out, None)
-
-    except subprocess.CalledProcessError as exc:
-        return (None, str(exc))
-
-
 def _remove_if_bad_file(filepath, prefix=None):
     """
     :param filepath: Absolute path to the file may be removed
@@ -118,9 +102,10 @@ def safe_untar(arcfile, destdir, files=None):
 
     :return: A list of error messages if something goes wrong or []
     """
-    (out, err) = _subproc_communicate("timeout 30 tar --list -f " + arcfile)
-    if err:
-        return [err]
+    cmd_s = "timeout 30 tar --list -f " + arcfile
+    (rcode, out, err) = fleure.utils.subproc_call(cmd_s)
+    if rcode != 0:
+        return [err or "Failed to list files in tar: %s" % arcfile]
 
     if files is None:
         files = [f for f in out.splitlines() if not _is_bad_path(f)]
@@ -129,8 +114,9 @@ def safe_untar(arcfile, destdir, files=None):
     for filepath in files:
         cmd_s = "timeout 60 tar --get -C {}/ -f {} {}".format(destdir, arcfile,
                                                               filepath)
-        (out, err) = _subproc_communicate(cmd_s)
-        if err:
+        (rcode, out, err) = fleure.utils.subproc_call(cmd_s)
+        if rcode != 0:
+            err = err or "Failed to extract from " + arcfile
             errors.append(err + ": " + filepath)
             continue
 
