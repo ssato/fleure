@@ -191,24 +191,6 @@ def _cve_socre_ge(cve, score=0, default=False):
     return default
 
 
-def higher_score_cve_errata_g(ers, score=0):
-    """
-    :param ers: A list of errata
-    :param score: CVSS base metrics score
-    """
-    for ert in ers:
-        # NOTE: Skip older CVEs do not have CVSS base metrics and score.
-        cves = [c for c in ert.get("cves", []) if "score" in c]
-        if cves and any(_cve_socre_ge(cve, score) for cve in cves):
-            cvsses_s = ", ".join("{cve} ({score}, {metrics})".format(**c)
-                                 for c in cves)
-            cves_s = ", ".join("{cve} ({url})".format(**c) for c in cves)
-            ert["cvsses_s"] = cvsses_s
-            ert["cves_s"] = cves_s
-
-            yield ert
-
-
 def _errata_to_int(errata):
     """
     Generate an int represents an errata to used as comparison key.

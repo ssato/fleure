@@ -16,7 +16,6 @@ import nltk
 import tablib
 
 import fleure.globals
-import fleure.datasets
 import fleure.utils
 
 from fleure.globals import _
@@ -239,6 +238,24 @@ def analyze_rhba(rhba, keywords=fleure.globals.ERRATA_KEYWORDS,
             'list_by_packages': rhba_ues}
 
 
+def higher_score_cve_errata_g(ers, score=0):
+    """
+    :param ers: A list of errata
+    :param score: CVSS base metrics score
+    """
+    for ert in ers:
+        # NOTE: Skip older CVEs do not have CVSS base metrics and score.
+        cves = [c for c in ert.get("cves", []) if "score" in c]
+        if cves and any(_cve_socre_ge(cve, score) for cve in cves):
+            cvsses_s = ", ".join("{cve} ({score}, {metrics})".format(**c)
+                                 for c in cves)
+            cves_s = ", ".join("{cve} ({url})".format(**c) for c in cves)
+            ert["cvsses_s"] = cvsses_s
+            ert["cves_s"] = cves_s
+
+            yield ert
+
+
 def analyze_errata(ers, score=fleure.globals.DEFAULT_CVSS_SCORE,
                    keywords=fleure.globals.ERRATA_KEYWORDS,
                    core_rpms=fleure.globals.CORE_RPMS):
@@ -257,8 +274,7 @@ def analyze_errata(ers, score=fleure.globals.DEFAULT_CVSS_SCORE,
     rhba_data = analyze_rhba(rhba, keywords, core_rpms)
 
     if score > 0:
-        hsce_fn = fleure.datasets.higher_score_cve_errata_g
-        rhba_by_score = list(hsce_fn(rhba, score))
+        rhba_by_score = list(higher_score_cve_errata_g(rhba, score))
         us_of_rhba_by_score = list_updates_from_errata(rhba_by_score)
     else:
         rhsa_by_score = []
