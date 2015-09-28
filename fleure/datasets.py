@@ -165,32 +165,6 @@ def compute_delta(refdir, ers, updates, nevra_keys=fleure.globals.RPM_KEYS):
              if (u[k] for k in nevra_keys) not in ref_nevras])
 
 
-def _cve_socre_ge(cve, score=0, default=False):
-    """
-    :param cve: A dict contains CVE and CVSS info.
-    :param score: Lowest score to select CVEs (float). It's Set to 4.0 (PCIDSS
-        limit) by default:
-
-        * NVD Vulnerability Severity Ratings: http://nvd.nist.gov/cvss.cfm
-        * PCIDSS: https://www.pcisecuritystandards.org
-
-    :param default: Default value if failed to get CVSS score to compare with
-        given score
-
-    :return: True if given CVE's socre is greater or equal to given score.
-    """
-    if "score" not in cve:
-        LOG.warn(_("CVE %(cve)s lacks of CVSS base metrics and score"), cve)
-        return default
-    try:
-        return float(cve["score"]) >= float(score)
-    except (KeyError, ValueError):
-        LOG.warn(_("Failed to compare CVE's score: %s, score=%.1f"),
-                 str(cve), score)
-
-    return default
-
-
 def _errata_to_int(errata):
     """
     Generate an int represents an errata to used as comparison key.
