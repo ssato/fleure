@@ -10,11 +10,11 @@ from __future__ import absolute_import
 
 import bunch
 import os.path
-import subprocess
 import tempfile
 import uuid
 
 import fleure.globals
+import fleure.archive
 import fleure.utils
 import fleure.yumbase
 
@@ -50,48 +50,6 @@ def _normpath(path):
         path = os.path.expanduser(path)
 
     return os.path.normpath(os.path.abspath(path))
-
-
-_EXTRACT_ARCHIVE = """
-tout=30
-test -d {workdir} || mkdir -p {workdir}
-timeout $tout tar xf {arc} -C {workdir}/ 1>&2; rc=$?
-if test $rc -ne 0; then  # Try unzip:
-    timeout $tout unzip {arc} -d {workdir}/ 1>&2; rc=$?
-fi
-if test $rc -eq 0; then
-    root=$(find {workdir}/ -type f -name 'Packages' | \
-           sed -nr 's!/var/lib/rpm/Packages!!p')
-    echo $root
-else
-    echo "Failed to extract the archive: {arc}" > /dev/stderr
-fi
-"""
-
-
-def setup_root(root_or_arc_path, workdir):
-    """
-    Setup root dir if given `root_or_arc_path` is an archive.
-
-    :param root_or_arc_path:
-        Path to the root dir of RPM DB files or Archive (tar.xz, tar.gz, zip,
-        etc.) of RPM DB files. Path might be a relative path from current dir.
-    :param workdir: Working dir to keep temporal files and save results
-
-    :return: A tuple of (Root_path, Error_message | None)
-    """
-    if os.path.isdir(root_or_arc_path):
-        return (root_or_arc_path, None)
-
-    try:
-        cmd_s = _EXTRACT_ARCHIVE.format(arc=root_or_arc_path, workdir=workdir)
-        proc = subprocess.Popen(cmd_s, shell=True, stdin=subprocess.PIPE,
-                                stdout=subprocess.PIPE)
-        (out, err) = proc.communicate()
-        return (out.rstrip(), err)
-
-    except subprocess.CalledProcessError as exc:
-        return (None, str(exc))
 
 
 class Host(bunch.Bunch):
@@ -171,11 +129,14 @@ class Host(bunch.Bunch):
             if self.workdir is None:
                 self.workdir = tempfile.mkdtemp(prefix="fleure-tmp-")
 
-            (self.root, err) = setup_root(self.root_or_arc_path, self.workdir)
-            self.cachedir = os.path.join(self.root, "var/cache")
+            _extract_fn = fleure.archive.extract_rpmdb_archive
+            (root, err) = _extract_fn(self.root_or_arc_path, self.workdir)
             if err:
                 self.errors.append(err)
                 return
+
+            self.root = root
+            self.cachedir = os.path.join(self.root, "var/cache")
 
         if not fleure.utils.check_rpmdb_root(self.root):
             self.errors.append("Invalid RPM DBs: " + self.root)
