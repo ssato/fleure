@@ -38,9 +38,9 @@ def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
         A generator to yield errata of which description contains any of
         given keywords
 
-    >>> ert0 = dict(advisory="RHSA-2015:XXX1",  # +NORMALIZE_WHITESPACE
+    >>> ert0 = dict(advisory="RHSA-2015:XXX1",
     ...             description="system hangs, or crash...")
-    >>> ert1 = dict(advisory="RHEA-2015:XXX2",  # +NORMALIZE_WHITESPACE
+    >>> ert1 = dict(advisory="RHEA-2015:XXX2",
     ...             description="some enhancement and changes")
     >>> ers = list(errata_of_keywords_g([ert0, ert1], ("hang", "crash")))
     >>> ert0 in ers
@@ -76,9 +76,9 @@ def errata_of_rpms_g(ers, rpms=fleure.globals.CORE_RPMS):
     :param rpms: A list of RPM names to select relevant errata
     :return: A generator to yield errata relevant to any of given RPM names
 
-    >>> ert0 = dict(advisory="RHSA-2015:XXX1",  # +NORMALIZE_WHITESPACE
+    >>> ert0 = dict(advisory="RHSA-2015:XXX1",
     ...             update_names=["kernel", "tzdata"])
-    >>> ert1 = dict(advisory="RHSA-2015:XXX2",  # +NORMALIZE_WHITESPACE
+    >>> ert1 = dict(advisory="RHSA-2015:XXX2",
     ...             update_names=["glibc", "tzdata"])
     >>> ers = errata_of_rpms_g([ert0, ert1], ("kernel", ))
     >>> ert0 in ers
@@ -91,19 +91,28 @@ def errata_of_rpms_g(ers, rpms=fleure.globals.CORE_RPMS):
             yield ert
 
 
-def list_num_of_es_for_updates(ers):
+def list_updates_groupby_nerrata(ers):
     """
     List number of specific type of errata for each package names.
 
-    :param ers: List of reference errata of specific type (and severity)
+    :param ers: A list of errata
     :return: [(package_name :: str, num_of_relevant_errata :: Int)]
-    """
-    unes = fleure.utils.uconcat([(u["name"], e) for u in e["updates"]] for e
-                                in ers)
-    uess = [(k, [ue[1]["advisory"] for ue in g]) for k, g in
-            itertools.groupby(unes, itemgetter(0))]
 
-    return sorted(((un, len(ers)) for un, ers in uess), key=itemgetter(1),
+    >>> er0 = {'advisory': u'RHSA-2015:1623',
+    ...        'update_names': ['kernel-headers', 'kernel']}
+    >>> er1 = {'advisory': 'RHSA-2015:1513',
+    ...        'update_names': ['bind-utils']}
+    >>> er2 = {'advisory': 'RHSA-2015:1081',
+    ...        'update_names': ['kernel-headers', 'kernel']}
+    >>> list_updates_groupby_nerrata([er0, er1, er2])
+    [('kernel', 2), ('kernel-headers', 2), ('bind-utils', 1)]
+    >>>
+    """
+    unes = fleure.utils.uconcat([(u, e["advisory"]) for u in e["update_names"]]
+                                for e in ers)
+
+    u_ues_s = [(u, list(g)) for u, g in itertools.groupby(unes, itemgetter(0))]
+    return sorted(((u, len(ues)) for u, ues in u_ues_s), key=itemgetter(1),
                   reverse=True)
 
 
@@ -155,7 +164,7 @@ def analyze_errata(ers, score=fleure.globals.DEFAULT_CVSS_SCORE,
     rhba_of_core_rpms_by_kwds = \
         sorted(errata_of_rpms_g(rhba_by_kwds, core_rpms),
                key=kfn, reverse=True)
-    rhba_of_rpms = sorted(errata_of_rpms_g(rhba, core_rpms,
+    rhba_of_rpms = sorted(errata_of_rpms_g(rhba, core_rpms),
                           key=itemgetter("update_names"), reverse=True)
     latest_rhba_of_rpms = list_latest_errata_by_updates(rhba_of_rpms)
 
@@ -184,11 +193,11 @@ def analyze_errata(ers, score=fleure.globals.DEFAULT_CVSS_SCORE,
                          len([e for e in rhsa
                               if e.get("severity") == "Low"]))]
 
-    n_rhsa_by_pns = list_num_of_es_for_updates(rhsa)
-    n_cri_rhsa_by_pns = list_num_of_es_for_updates(cri_rhsa)
-    n_imp_rhsa_by_pns = list_num_of_es_for_updates(imp_rhsa)
+    n_rhsa_by_pns = list_updates_groupby_nerrata(rhsa)
+    n_cri_rhsa_by_pns = list_updates_groupby_nerrata(cri_rhsa)
+    n_imp_rhsa_by_pns = list_updates_groupby_nerrata(imp_rhsa)
 
-    n_rhba_by_pns = list_num_of_es_for_updates(rhba)
+    n_rhba_by_pns = list_updates_groupby_nerrata(rhba)
 
     return dict(rhsa=dict(list=rhsa,
                           list_critical=cri_rhsa,
