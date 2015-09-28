@@ -4,7 +4,7 @@
 # Copyright (C) 2013 - 2015 Red Hat, Inc.
 # License: AGPLv3+
 #
-# pylint: disable=too-many-arguments,too-many-locals,no-member
+# pylint: disable=too-many-locals,no-member
 """Fleure's main module
 """
 from __future__ import absolute_import
