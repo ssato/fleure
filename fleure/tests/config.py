@@ -8,7 +8,6 @@ from __future__ import absolute_import
 import os
 import os.path
 import shutil
-import subprocess
 import unittest
 
 import fleure.config as TT
@@ -16,7 +15,25 @@ import fleure.utils
 import fleure.tests.common
 
 
-class Test00(unittest.TestCase):
+class HostTest00(unittest.TestCase):
+
+    def test_10___init__(self):
+        (root, workdir) = ("/tmp", "/tmp/out")
+        host = TT.Host(root, workdir=workdir)
+        self.assertTrue(isinstance(host, TT.Host))
+
+        self.assertEquals(host.root, root)
+        self.assertEquals(host.workdir, workdir)
+        self.assertTrue(host.hid is not None)
+        self.assertEquals(host.tpaths, TT.Host.tpaths)
+
+        self.assertTrue(host.repos is None)
+        self.assertTrue(host.base is None)
+        self.assertFalse(host.available)
+        self.assertEquals(host.errors, [])
+
+
+class HostTest10(unittest.TestCase):
 
     def setUp(self):
         self.workdir = fleure.tests.common.setup_workdir()
@@ -29,34 +46,20 @@ class Test00(unittest.TestCase):
             if os.path.exists(src):
                 shutil.copy(src, rpmdbdir)
 
+        workdir = os.path.join(self.workdir, "out")
+        self.host = TT.Host(self.workdir, workdir=workdir)
+
     def tearDown(self):
         fleure.tests.common.cleanup_workdir(self.workdir)
 
-    def test_20_setup_root__valid_root(self):
-        self.assertEquals(TT.setup_root(self.workdir, None)[0], self.workdir)
+    def test_20_configure(self):
+        self.host.configure()
+        self.assertTrue(self.host.has_valid_root())
 
-    def test_22_setup_root__tar_xz_archive(self):
-        txz = "rpmdb.tar.xz"
-        cmd = "cd %s && timeout 60 tar --xz -cf %s var/lib/rpm/[A-Z]*" % \
-            (self.workdir, txz)
-        (out, err) = subprocess.Popen(cmd, shell=True).communicate()
-        if err:
-            raise ValueError("err=" + err)
-
-        tpath = os.path.join(self.workdir, txz)
-        (out, err) = TT.setup_root(tpath, self.workdir)
-        self.assertEquals(out, self.workdir, err)
-
-    def test_24_setup_root__zip_archive(self):
-        txz = "rpmdb.zip"
-        cmd = ("cd %s && timeout 60 zip %s var/lib/rpm/[A-Z]* && "
-               "rm -rf var/" % (self.workdir, txz))
-        (out, err) = subprocess.Popen(cmd, shell=True).communicate()
-        if err:
-            raise ValueError("err=" + err)
-
-        tpath = os.path.join(self.workdir, txz)
-        (out, err) = TT.setup_root(tpath, self.workdir)
-        self.assertEquals(out, self.workdir, err)
+    def test_30_init_base(self):
+        self.host.configure()
+        base = self.host.init_base()
+        base.prepare()
+        self.assertNotEquals(base.list_installed(), [])
 
 # vim:sw=4:ts=4:et:
