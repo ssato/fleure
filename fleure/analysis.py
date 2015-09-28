@@ -70,21 +70,25 @@ def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
             yield ert
 
 
-_ERT_KFN = lambda e: (len(e["update_names"]), itemgetter("issue_date"))
-
-
-def errata_of_rpms(ers, rpms=None, kfn=_ERT_KFN):
+def errata_of_rpms_g(ers, rpms=fleure.globals.CORE_RPMS):
     """
     :param ers: A list of errata
-    :param rpms: RPM names to select relevant errata
-    :return: A list of errata relevant to any of given RPMs
-    """
-    if rpms is None:
-        return []
+    :param rpms: A list of RPM names to select relevant errata
+    :return: A generator to yield errata relevant to any of given RPM names
 
-    return sorted((e for e in ers if any(n in e["update_names"] for n
-                                         in rpms)),
-                  key=kfn, reverse=True)
+    >>> ert0 = dict(advisory="RHSA-2015:XXX1",  # +NORMALIZE_WHITESPACE
+    ...             update_names=["kernel", "tzdata"])
+    >>> ert1 = dict(advisory="RHSA-2015:XXX2",  # +NORMALIZE_WHITESPACE
+    ...             update_names=["glibc", "tzdata"])
+    >>> ers = errata_of_rpms_g([ert0, ert1], ("kernel", ))
+    >>> ert0 in ers
+    True
+    >>> ert1 in ers
+    False
+    """
+    for ert in ers:
+        if any(n in ert["update_names"] for n in rpms):
+            yield ert
 
 
 def list_num_of_es_for_updates(ers):
@@ -148,9 +152,11 @@ def analyze_errata(ers, score=fleure.globals.DEFAULT_CVSS_SCORE,
                      e["update_names"])
     rhba_by_kwds = sorted(errata_of_keywords_g(rhba, keywords),
                           key=kfn, reverse=True)
-    rhba_of_rpms_by_kwds = errata_of_rpms(rhba_by_kwds, core_rpms, kfn)
-    rhba_of_rpms = errata_of_rpms(rhba, core_rpms,
-                                  itemgetter("update_names"))
+    rhba_of_core_rpms_by_kwds = \
+        sorted(errata_of_rpms_g(rhba_by_kwds, core_rpms),
+               key=kfn, reverse=True)
+    rhba_of_rpms = sorted(errata_of_rpms_g(rhba, core_rpms,
+                          key=itemgetter("update_names"), reverse=True)
     latest_rhba_of_rpms = list_latest_errata_by_updates(rhba_of_rpms)
 
     if score > 0:
@@ -202,7 +208,7 @@ def analyze_errata(ers, score=fleure.globals.DEFAULT_CVSS_SCORE,
                           list_by_kwds=rhba_by_kwds,
                           list_of_core_rpms=rhba_of_rpms,
                           list_latests_of_core_rpms=latest_rhba_of_rpms,
-                          list_by_kwds_of_core_rpms=rhba_of_rpms_by_kwds,
+                          list_by_kwds_of_core_rpms=rhba_of_core_rpms_by_kwds,
                           list_higher_cvss_score=rhba_by_score,
                           list_updates_by_kwds=us_of_rhba_by_kwds,
                           list_higher_cvss_updates=us_of_rhba_by_score,
