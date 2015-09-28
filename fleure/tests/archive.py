@@ -50,19 +50,15 @@ class Test00(unittest.TestCase):
     def test_20__is_bad_path(self):
         pass
 
-    def test_30__subproc_communicate__success(self):
-        self.assertTrue(TT._subproc_communicate(":")[1] is None)
-        self.assertEquals(TT._subproc_communicate("echo OK")[0], "OK\n")
-
     def test_40_safe_untar(self):
         thisfile = os.path.abspath(__file__)
         otherfile = "aaa.txt"
         arcfile = "test.tar.xz"
 
         with fleure.tests.common.Chdir(self.workdir):
-            TT._subproc_communicate("ln -s %s ." % thisfile)
+            fleure.utils.subproc_call("ln -s %s ." % thisfile)
             touch(otherfile)
-            TT._subproc_communicate("tar --xz -cvf %s ." % arcfile)
+            fleure.utils.subproc_call("tar --xz -cvf %s ." % arcfile)
 
         destdir = os.path.join(self.workdir, "out")
         os.makedirs(destdir)
@@ -83,9 +79,9 @@ class Test00(unittest.TestCase):
         arcfile = "test.zip"
 
         with fleure.tests.common.Chdir(self.workdir):
-            TT._subproc_communicate("ln -s %s ." % thisfile)
+            fleure.utils.subproc_call("ln -s %s ." % thisfile)
             touch(otherfile)
-            TT._subproc_communicate("zip -ry %s ." % arcfile)
+            fleure.utils.subproc_call("zip -ry %s ." % arcfile)
 
         destdir = os.path.join(self.workdir, "out")
         os.makedirs(destdir)
@@ -120,7 +116,7 @@ class Test10(unittest.TestCase):
         os.makedirs(root)
 
         cmd_s = "tar zcvf %s /var/lib/rpm/[A-Z]*" % arcfile
-        TT._subproc_communicate(cmd_s)
+        fleure.utils.subproc_call(cmd_s)
 
         (root2, errors) = TT.extract_rpmdb_archive(arcfile, root)
 
@@ -136,7 +132,7 @@ class Test10(unittest.TestCase):
         os.makedirs(root)
 
         cmd_s = "zip %s /var/lib/rpm/[A-Z]*" % arcfile
-        TT._subproc_communicate(cmd_s)
+        fleure.utils.subproc_call(cmd_s)
 
         (root2, errors) = TT.extract_rpmdb_archive(arcfile, root)
 
