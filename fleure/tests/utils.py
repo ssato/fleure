@@ -36,4 +36,20 @@ class Test00(unittest.TestCase):
     def test_20_check_rpmdb_root(self):
         self.assertTrue(TT.check_rpmdb_root(self.workdir))
 
+    def test_30_subproc_call(self):
+        (rcode, out, err) = TT.subproc_call(":")
+        self.assertEquals(rcode, 0)
+        self.assertEquals(out, '')
+        self.assertEquals(err, '')
+
+        (rcode, out, err) = TT.subproc_call("echo OK")
+        self.assertEquals(rcode, 0)
+        self.assertEquals(out, "OK\n")
+        self.assertEquals(err, '')
+
+        (rcode, out, err) = TT.subproc_call("echo NG > /dev/stderr && false")
+        self.assertNotEquals(rcode, 0)
+        self.assertEquals(out, '')
+        self.assertEquals(err, "NG\n")
+
 # vim:sw=4:ts=4:et:
