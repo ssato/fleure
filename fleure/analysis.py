@@ -32,6 +32,12 @@ def _sgroupby(items, kfn, kfn2=None):
     :param kfn2: Key function to sort each group in result
 
     :return: A generator to yield items in `items` grouped by `kf`
+
+    >>> items = [(1, 2, 10), (3, 4, 2), (3, 2, 1), (1, 10, 5)]
+    >>> list(_sgroupby(items, itemgetter(0)))
+    [[(1, 2, 10), (1, 10, 5)], [(3, 4, 2), (3, 2, 1)]]
+    >>> list(_sgroupby(items, itemgetter(0), itemgetter(2)))
+    [[(1, 10, 5), (1, 2, 10)], [(3, 2, 1), (3, 4, 2)]]
     """
     return (list(g) if kfn2 is None else sorted(g, key=kfn2) for _k, g
             in itertools.groupby(sorted(items, key=kfn), kfn))
@@ -119,48 +125,49 @@ def errata_of_rpms_g(ers, rpms=fleure.globals.CORE_RPMS):
             yield ert
 
 
-def list_updates_by_num_of_errata(ers):
+def list_update_errata_pairs(ers):
+    """
+    :param ers: A list of errata dict
+    :return: A list of (update_name, [errata_advisory])
+
+    >>> ers = [dict(advisory="RHSA-2015:XXX1",
+    ...             update_names=["kernel", "tzdata"]),
+    ...        dict(advisory="RHSA-2014:XXX2",
+    ...             update_names=["glibc", "tzdata"])
+    ...        ]
+    >>> list_update_errata_pairs(ers) == [
+    ...     ('glibc', ['RHSA-2014:XXX2']),
+    ...     ('kernel', ['RHSA-2015:XXX1']),
+    ...     ('tzdata', ['RHSA-2015:XXX1', 'RHSA-2014:XXX2'])
+    ... ]
+    True
+    """
+    ues = fleure.utils.uconcat([(u, e["advisory"]) for u in e["update_names"]]
+                               for e in ers)
+    return [(u, sorted((t[1] for t in g), reverse=True)) for u, g
+            in itertools.groupby(ues, itemgetter(0))]
+
+
+def list_updates_by_num_of_errata(uess):
     """
     List number of specific type of errata for each package names.
 
-    :param ers: A list of errata
+    :param uess: A list of (update, [errata_advisory]) pairs
     :return: [(package_name :: str, num_of_relevant_errata :: Int)]
 
-    >>> er0 = {'advisory': u'RHSA-2015:1623',
-    ...        'update_names': ['kernel-headers', 'kernel']}
-    >>> er1 = {'advisory': 'RHSA-2015:1513',
-    ...        'update_names': ['bind-utils']}
-    >>> er2 = {'advisory': 'RHSA-2015:1081',
-    ...        'update_names': ['kernel-headers', 'kernel']}
-    >>> list_updates_by_num_of_errata([er0, er1, er2])
+    >>> ers = [{'advisory': u'RHSA-2015:1623',
+    ...         'update_names': ['kernel-headers', 'kernel']},
+    ...        {'advisory': 'RHSA-2015:1513',
+    ...         'update_names': ['bind-utils']},
+    ...        {'advisory': 'RHSA-2015:1081',
+    ...         'update_names': ['kernel-headers', 'kernel']}
+    ...        ]
+    >>> list_updates_by_num_of_errata(list_update_errata_pairs(ers))
     [('kernel', 2), ('kernel-headers', 2), ('bind-utils', 1)]
     >>>
     """
-    unes = fleure.utils.uconcat([(u, e["advisory"]) for u in e["update_names"]]
-                                for e in ers)
-    u_ues_s = [(u, list(g)) for u, g in itertools.groupby(unes, itemgetter(0))]
-    return sorted(((u, len(ues)) for u, ues in u_ues_s), key=itemgetter(1),
+    return sorted(((u, len(es)) for u, es in uess), key=itemgetter(1),
                   reverse=True)
-
-
-def mk_update_name_vs_advs_map(ers):
-    """
-    Make a list of a dict {name: [adv]} where name is name of update
-    package relevant to an errata and [adv] is a list of its advisories.
-
-    :param ers: A list of applicable errata sorted by severity
-        if it's RHSA and advisory in ascending sequence
-    """
-    def un_adv_pairs(ers):
-        """pair name of updates and errata advisories"""
-        for ert in ers:
-            for uname in ert.get("update_names", []):
-                yield (uname, ert["advisory"])
-
-    un_advs_list = sorted(un_adv_pairs(ers), key=itemgetter(0))
-    return sorted(((k, [t[1] for t in g]) for k, g in
-                   itertools.groupby(un_advs_list, key=itemgetter(0))),
-                  key=lambda t: len(t[1]), reverse=True)
 
 
 def analyze_errata(ers, score=fleure.globals.DEFAULT_CVSS_SCORE,
@@ -220,10 +227,13 @@ def analyze_errata(ers, score=fleure.globals.DEFAULT_CVSS_SCORE,
                          len([e for e in rhsa
                               if e.get("severity") == "Low"]))]
 
-    n_rhsa_by_pns = list_updates_by_num_of_errata(rhsa)
-    n_cri_rhsa_by_pns = list_updates_by_num_of_errata(cri_rhsa)
-    n_imp_rhsa_by_pns = list_updates_by_num_of_errata(imp_rhsa)
-    n_rhba_by_pns = list_updates_by_num_of_errata(rhba)
+    rhsa_ues = list_update_errata_pairs(rhsa)
+    rhba_ues = list_update_errata_pairs(rhba)
+    n_rhsa_by_pns = list_updates_by_num_of_errata(rhsa_ues)
+    n_rhba_by_pns = list_updates_by_num_of_errata(rhba_ues)
+
+    _ups_by_nes = lambda es: \
+        list_updates_by_num_of_errata(list_update_errata_pairs(es))
 
     return dict(rhsa=dict(list=rhsa,
                           list_critical=cri_rhsa,
@@ -236,9 +246,9 @@ def analyze_errata(ers, score=fleure.globals.DEFAULT_CVSS_SCORE,
                           list_higher_cvss_updates=us_of_rhsa_by_score,
                           rate_by_sev=rhsa_rate_by_sev,
                           list_n_by_pnames=n_rhsa_by_pns,
-                          list_n_cri_by_pnames=n_cri_rhsa_by_pns,
-                          list_n_imp_by_pnames=n_imp_rhsa_by_pns,
-                          list_by_packages=mk_update_name_vs_advs_map(rhsa)),
+                          list_n_cri_by_pnames=_ups_by_nes(cri_rhsa),
+                          list_n_imp_by_pnames=_ups_by_nes(imp_rhsa),
+                          list_by_packages=rhsa_ues),
                 rhba=dict(list=rhba,
                           list_by_kwds=rhba_by_kwds,
                           list_of_core_rpms=rhba_of_rpms,
@@ -248,9 +258,9 @@ def analyze_errata(ers, score=fleure.globals.DEFAULT_CVSS_SCORE,
                           list_updates_by_kwds=us_of_rhba_by_kwds,
                           list_higher_cvss_updates=us_of_rhba_by_score,
                           list_n_by_pnames=n_rhba_by_pns,
-                          list_by_packages=mk_update_name_vs_advs_map(rhba)),
+                          list_by_packages=rhba_ues),
                 rhea=dict(list=rhea,
-                          list_by_packages=mk_update_name_vs_advs_map(rhea)),
+                          list_by_packages=list_update_errata_pairs(rhea)),
                 rate_by_type=[("Security", len(rhsa)),
                               ("Bug", len(rhba)),
                               ("Enhancement", len(rhea))])
