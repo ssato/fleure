@@ -91,7 +91,7 @@ def errata_of_rpms_g(ers, rpms=fleure.globals.CORE_RPMS):
             yield ert
 
 
-def list_updates_groupby_nerrata(ers):
+def list_updates_by_num_of_errata(ers):
     """
     List number of specific type of errata for each package names.
 
@@ -104,7 +104,7 @@ def list_updates_groupby_nerrata(ers):
     ...        'update_names': ['bind-utils']}
     >>> er2 = {'advisory': 'RHSA-2015:1081',
     ...        'update_names': ['kernel-headers', 'kernel']}
-    >>> list_updates_groupby_nerrata([er0, er1, er2])
+    >>> list_updates_by_num_of_errata([er0, er1, er2])
     [('kernel', 2), ('kernel-headers', 2), ('bind-utils', 1)]
     >>>
     """
@@ -193,11 +193,11 @@ def analyze_errata(ers, score=fleure.globals.DEFAULT_CVSS_SCORE,
                          len([e for e in rhsa
                               if e.get("severity") == "Low"]))]
 
-    n_rhsa_by_pns = list_updates_groupby_nerrata(rhsa)
-    n_cri_rhsa_by_pns = list_updates_groupby_nerrata(cri_rhsa)
-    n_imp_rhsa_by_pns = list_updates_groupby_nerrata(imp_rhsa)
+    n_rhsa_by_pns = list_updates_by_num_of_errata(rhsa)
+    n_cri_rhsa_by_pns = list_updates_by_num_of_errata(cri_rhsa)
+    n_imp_rhsa_by_pns = list_updates_by_num_of_errata(imp_rhsa)
 
-    n_rhba_by_pns = list_updates_groupby_nerrata(rhba)
+    n_rhba_by_pns = list_updates_by_num_of_errata(rhba)
 
     return dict(rhsa=dict(list=rhsa,
                           list_critical=cri_rhsa,
