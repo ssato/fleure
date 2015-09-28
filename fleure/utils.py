@@ -132,6 +132,26 @@ def json_dump(data, filepath):
     json.dump(data, copen(filepath, 'w'))
 
 
+def subproc_call(cmd_s, cwd=os.curdir, **kwargs):
+    """
+    :func:`subprocess.Popen.communicate` + :func:`subprocess.check_call`.
+
+    :param cmd_s: Command string to run
+    :param cwd: Dir in which cd to run command
+    :param kwargs: Keyword arguments passed to subprocess.Popen
+    """
+    rcode = -1
+    try:
+        proc = subprocess.Popen(cmd_s, shell=True, cwd=cwd,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        rcode = proc.wait()
+        (out, err) = proc.communicate()
+        return (rcode, out, err)
+
+    except subprocess.CalledProcessError as exc:
+        return (rcode, None, str(exc))
+
+
 # @fleure.decorators.async (TBD)
 def run_cmd(cmd_s, workdir=os.curdir):
     """
