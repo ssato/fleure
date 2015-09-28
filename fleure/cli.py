@@ -115,7 +115,7 @@ def main():
 
     if os.path.exists(os.path.join(root, "var/lib/rpm")):
         options.multihost = False
-        LOG.info("Found a data of single host. Switch backed to single host mode.")
+        LOG.info("Found a data of single host. Go backed to single host mode.")
 
     if options.multihost:
         # NOTE: multiproc mode is disabled and options.multiproc is not passed
