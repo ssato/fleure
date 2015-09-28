@@ -12,6 +12,7 @@ from operator import itemgetter
 
 import itertools
 import logging
+import nltk
 import tablib
 
 import fleure.globals
@@ -26,20 +27,44 @@ from fleure.datasets import (
 
 LOG = logging.getLogger("fleure")
 
-ERRATA_KEYWORDS = ("crash", "panic", "hang", "SEGV", "segmentation fault",
-                   "data corruption")
-CORE_RPMS = ("kernel", "glibc", "bash", "openssl", "zlib")
 
-
-def errata_matches_keywords_g(ers, keywords=ERRATA_KEYWORDS):
+def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
+                         strict=False):
     """
     :param ers: A list of errata
     :param keywords: Keyword list to filter 'important' RHBAs
-    :return: A generator to yield errata of which description contains any of
+    :strict: Strict matching of keywords with using NLTK stemmer
+    :return:
+        A generator to yield errata of which description contains any of
         given keywords
+
+    >>> ert0 = dict(advisory="RHSA-2015:XXX1",  # +NORMALIZE_WHITESPACE
+    ...             description="system hangs, or crash...")
+    >>> ert1 = dict(advisory="RHEA-2015:XXX2",  # +NORMALIZE_WHITESPACE
+    ...             description="some enhancement and changes")
+    >>> ers = list(errata_of_keywords_g([ert0, ert1], ("hang", "crash")))
+    >>> ert0 in ers
+    True
+    >>> ers[0]["keywords"]  # 'hangs' does not match with 'hang'.
+    ['crash']
+    >>> ert1 in ers
+    False
+    >>> ers = list(errata_of_keywords_g([ert0], ("hang", ), True))
+    >>> ert0 in ers
+    True
+    >>> ers[0]["keywords"]  # 'hangs' matches after stemming.
+    ['hang']
     """
+    if strict:
+        _stemmer = nltk.PorterStemmer()
+        _stem = _stemmer.stem
+
     for ert in ers:
-        mks = [k for k in keywords if k in ert["description"]]
+        tokens = set(nltk.wordpunct_tokenize(ert["description"]))
+        if strict:
+            tokens = set(_stem(w) for w in tokens)
+
+        mks = [k for k in keywords if k in tokens]
         if mks:
             ert["keywords"] = mks
             yield ert
@@ -98,8 +123,9 @@ def mk_update_name_vs_advs_map(ers):
                   key=lambda t: len(t[1]), reverse=True)
 
 
-def analyze_errata(ers, score=0, keywords=ERRATA_KEYWORDS,
-                   core_rpms=CORE_RPMS):
+def analyze_errata(ers, score=fleure.globals.DEFAULT_CVSS_SCORE,
+                   keywords=fleure.globals.ERRATA_KEYWORDS,
+                   core_rpms=fleure.globals.CORE_RPMS):
     """
     :param ers: A list of applicable errata sorted by severity
         if it's RHSA and advisory in ascending sequence
@@ -120,7 +146,7 @@ def analyze_errata(ers, score=0, keywords=ERRATA_KEYWORDS,
 
     kfn = lambda e: (len(e.get("keywords", [])), e["issue_date"],
                      e["update_names"])
-    rhba_by_kwds = sorted(errata_matches_keywords_g(rhba, keywords),
+    rhba_by_kwds = sorted(errata_of_keywords_g(rhba, keywords),
                           key=kfn, reverse=True)
     rhba_of_rpms_by_kwds = errata_of_rpms(rhba_by_kwds, core_rpms, kfn)
     rhba_of_rpms = errata_of_rpms(rhba, core_rpms,
@@ -201,7 +227,8 @@ def padding_row(row, mcols):
     return row + [''] * (mcols - len(row))
 
 
-def mk_overview_dataset(data, score=0, keywords=ERRATA_KEYWORDS,
+def mk_overview_dataset(data, score=fleure.globals.DEFAULT_CVSS_SCORE,
+                        keywords=fleure.globals.ERRATA_KEYWORDS,
                         core_rpms=None):
     """
     :param data: RPMs, Update RPMs and various errata data summarized
