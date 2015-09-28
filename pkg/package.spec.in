@@ -30,6 +30,7 @@ Requires:       python-anyconfig
 Requires:       python-anytemplate
 Requires:       python-bunch
 Requires:       python-networkx
+Requires:       python-nltk
 Requires:       python-tablib
 Requires:       graphviz
 Requires:       libosinfo
@@ -47,6 +48,7 @@ Requires:       python3-beautifulsoup4
 Requires:       python3-anyconfig
 Requires:       python3-anytemplate
 Requires:       python3-networkx
+Requires:       python3-nltk
 Requires:       python3-tablib
 Requires:       rpm-python3
 %{?python_provide:%python_provide python3-%{srcname}}
