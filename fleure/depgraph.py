@@ -204,8 +204,10 @@ def dump_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
 
     output2 = os.path.join(workdir, outname + ".svg")
     cmd_s = "sfdp -Tsvg -o%s %s" % (output2, output)
-    (rcode, out, err) = fleure.utils.run_cmd(cmd_s)
+    (rcode, out, err) = fleure.utils.subproc_call(cmd_s, timeout=120)
     if rcode != 0:
+        if not err:
+            err = "Maybe timeout occurs"
         LOG.warn("Failed to generate a SVG file: in=%s, out=%s, out/err=%s/%s",
                  output, output2, out, err)
 
