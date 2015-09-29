@@ -132,15 +132,18 @@ def json_dump(data, filepath):
     json.dump(data, copen(filepath, 'w'))
 
 
-def subproc_call(cmd_s, cwd=os.curdir, **kwargs):
+def subproc_call(cmd_s, cwd=os.curdir, timeout=None, **kwargs):
     """
     :func:`subprocess.Popen.communicate` + :func:`subprocess.check_call`.
 
     :param cmd_s: Command string to run
     :param cwd: Dir in which cd to run command
+    :param timeout: Timeout to expect command finishes in seconds
     :param kwargs: Keyword arguments passed to subprocess.Popen
     """
     rcode = -1
+    if timeout is not None:
+        cmd_s = "timeout %d %s" % (timeout, cmd_s)
     try:
         proc = subprocess.Popen(cmd_s, shell=True, cwd=cwd,
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
