@@ -52,4 +52,10 @@ class Test00(unittest.TestCase):
         self.assertEquals(out, '')
         self.assertEquals(err, "NG\n")
 
+    def test_32_subproc_call__timeout(self):
+        (rcode, out, err) = TT.subproc_call("sleep 10", timeout=2)
+        self.assertNotEquals(rcode, 0)
+        self.assertFalse(out, out)
+        self.assertFalse(err, err)
+
 # vim:sw=4:ts=4:et:
