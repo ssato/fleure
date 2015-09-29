@@ -200,7 +200,7 @@ def _errata_to_int(errata):
                                  dic["year"], dic["seq"], rev))
 
 
-def errata_complement_g(ers, updates, score=0):
+def complement_errata_g(ers, updates, score=0):
     """
     TODO: What should be complemented?
 
@@ -225,6 +225,14 @@ def errata_complement_g(ers, updates, score=0):
             ert["cves"] = [_cve_details(cve) for cve in ert.get("cves", [])]
 
         yield ert
+
+
+def complement_errata(ers, updates, score=0):
+    """
+    Call :func:`complement_errata_g` for errata list
+    """
+    return fleure.utils.uniq(complement_errata_g(ers, updates, score),
+                             key=itemgetter("id"), reverse=True)
 
 
 def _d2i(day):
