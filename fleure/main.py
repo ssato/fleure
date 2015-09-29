@@ -195,15 +195,15 @@ def prepare(root_or_arc_path, hid=None, **kwargs):
         LOG.error("Root dir is not ready. Error was: %s", host.error)
         return host
 
+    LOG.info(_("%s: Start to initialize: root=%s, backend=%s"),
+             host.hid, host.root, kwargs.get("backend", "maybe yum"))
     base = host.init_base()
     base.prepare()
-    LOG.debug(_("%s: Initialized backend %s"), host.hid, base.name)
+    LOG.info(_("%s: Initialization completed, start to analyze ..."), host.hid)
 
-    LOG.debug(_("%s: Dump Installed RPMs list loaded from %s"),
-              host.hid, host.root)
     host.installed = sorted(base.list_installed(),
                             key=itemgetter(*host.rpmkeys))
-    LOG.info(_("%s: Found %d (rebuilt=%d, replaced=%d) Installed RPMs"),
+    LOG.info(_("%s: Found %d (rebuilt=%d, replaced=%d) installed RPMs"),
              host.hid, len(host.installed),
              len([p for p in host.installed if p.get("rebuilt", False)]),
              len([p for p in host.installed if p.get("replaced", False)]))
@@ -230,7 +230,6 @@ def analyze(host):
                                    installed=len(host.installed),
                                    hosts=[host.hid, ],
                                    generated=timestamp))
-    LOG.debug(_("%s: Dump metadata for %s"), host.hid, host.root)
     host.save(metadata.toDict(), "metadata")
 
     ups = fleure.utils.uniq(host.base.list_updates(),
@@ -239,23 +238,22 @@ def analyze(host):
     ers = fleure.utils.uniq(fleure.datasets.errata_complement_g(ers, ups,
                                                                 score),
                             key=itemgetter("id"), reverse=True)
-    LOG.info(_("%s: %d Errata, %d Update RPMs"), host.hid, len(ers), len(ups))
-
-    LOG.debug(_("%s: Dump Errata and Update RPMs list..."), host.hid)
     host.save(dict(data=ers, ), "errata")
     host.save(dict(data=ups, ), "updates")
+    LOG.info(_("%s: Found %d errata and %d updates, saved the lists"),
+             host.hid, len(ers), len(ups))
 
     host.errata = ers
     host.updates = ups
     ips = host.installed
 
-    LOG.info(_("%s: Analyze and dump results of errata data in %s"),
-             host.hid, host.workdir)
+    LOG.info(_("%s: Analyzing errata and packages ..."), host.hid)
     dump_results(host, ips, ers, ups)
+    LOG.info(_("%s: Saved analysis results in %s"), host.workdir)
 
     if host.period is not None:
         (start_date, end_date) = fleure.datasets.period_to_dates(*host.period)
-        LOG.info(_("%s: Analyze errata in period: %s ~ %s"),
+        LOG.info(_("%s: Analyzing errata and packages [%s ~ %s]"),
                  host.hid, start_date, end_date)
         pes = [e for e in ers
                if fleure.datasets.errata_in_period(e, start_date, end_date)]
@@ -266,19 +264,21 @@ def analyze(host):
             os.makedirs(pdir)
 
         dump_results(host, ips, pes, ups)
+        LOG.info(_("%s: Saved analysis results [%s ~ %s] in %s"),
+                 host.hid, start_date, end_date, pdir)
 
     if host.refdir:
         LOG.debug(_("%s [delta]: Analyze delta errata data by refering %s"),
                   host.hid, host.refdir)
         (ers, ups) = fleure.datasets.compute_delta(host.refdir, ers, ups)
-        LOG.info(_("%s [delta]: %d Errata, %d Update RPMs"), host.hid,
-                 len(ers), len(ups))
-
         host.save(dict(data=ers, ), "errata", subdir="delta")
         host.save(dict(data=ups, ), "updates", subdir="delta")
+        LOG.info(_("%s [delta]: Found %d errata and %d updates, save the "
+                   "lists"), host.hid, len(ers), len(ups))
 
-        LOG.info(_("%s: Analyze and dump results of delta errata"), host.hid)
+        LOG.info(_("%s: Analyzing delta errata and packages ..."), host.hid)
         dump_results(host, ips, ers, ups)
+        LOG.info(_("%s: Saved delta analysis results in %s"), host.workdir)
 
 
 def set_loglevel(verbosity=0, backend=False):
