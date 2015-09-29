@@ -240,7 +240,7 @@ def analyze(host):
     dump_results(host, ips, ers, ups)
     LOG.info(_("%s: Saved analysis results in %s"), host.workdir)
 
-    if host.period is not None:
+    if host.period:
         (start_date, end_date) = fleure.datasets.period_to_dates(*host.period)
         LOG.info(_("%s: Analyzing errata and packages [%s ~ %s]"),
                  host.hid, start_date, end_date)
