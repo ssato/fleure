@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fleure 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-29 19:26+JST\n"
-"PO-Revision-Date: 2015-09-29 19:26+0900\n"
+"POT-Creation-Date: 2015-09-29 19:32+JST\n"
+"PO-Revision-Date: 2015-09-29 19:32+0900\n"
 "Last-Translator: Satoru SATOH <ssato@redhat.com>\n"
 "Language-Team: Japanese <ssato@redhat.com>\n"
 "Language: ja\n"
@@ -321,6 +321,10 @@ msgstr "更新 RPM"
 msgid "Installed RPMs"
 msgstr "インストール RPM"
 
+#: pkg/..//fleure/main.py:190
+msgid "Root dir is not ready. Error was: %s"
+msgstr "Root ディレクトリが準備できていません。エラー: %s"
+
 #: pkg/..//fleure/main.py:193
 msgid "%s: Start to initialize: root=%s, backend=%s"
 msgstr "%s: 初期化を開始: root=%s, backend=%s"
@@ -372,6 +376,14 @@ msgstr "%s: 差分のエラータとパッケージを解析中 ..."
 #: pkg/..//fleure/main.py:270
 msgid "%s: Saved delta analysis results in %s"
 msgstr "%s: 差分の解析結果を %s 内に保存しました"
+
+#: pkg/..//fleure/main.py:281
+msgid "Wrong verbosity: %d"
+msgstr "間違った冗長化レベル: %d"
+
+#: pkg/..//fleure/main.py:310
+msgid "Anaylize the host: %s"
+msgstr "ホストを解析: %s"
 
 #: pkg/..//fleure/multihosts.py:55
 msgid "Failed to find RPM DBs under %s"
