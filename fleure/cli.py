@@ -60,8 +60,9 @@ def period_type(period_s):
         if re.match(reg, period_s):
             return [period_s]
 
-    raise ArgumentTypeError("Given string '%s' does not match with required "
-                            "format, YYYY[-MM[-DD]][,YYYY[-MM[-DD]]]")
+    raise argparse.ArgumentTypeError("Given string '%s' does not match with "
+                                     "required format, "
+                                     "YYYY[-MM[-DD]][,YYYY[-MM[-DD]]]")
 
 
 def parse_args(argv=None):
