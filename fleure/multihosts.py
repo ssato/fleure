@@ -11,6 +11,8 @@ A module to extend fleure.main for multiple host analysis.
 """
 from __future__ import absolute_import
 
+# Available in EPEL for RHELs:
+# https://apps.fedoraproject.org/packages/python-bunch
 import bunch
 import glob
 import itertools
