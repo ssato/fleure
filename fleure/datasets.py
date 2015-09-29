@@ -10,6 +10,7 @@ from __future__ import absolute_import
 import calendar
 import collections
 import logging
+import operator
 import os.path
 import re
 import tablib
@@ -232,7 +233,7 @@ def complement_errata(ers, updates, score=0):
     Call :func:`complement_errata_g` for errata list
     """
     return fleure.utils.uniq(complement_errata_g(ers, updates, score),
-                             key=itemgetter("id"), reverse=True)
+                             key=operator.itemgetter("id"), reverse=True)
 
 
 def _d2i(day):
