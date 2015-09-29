@@ -44,7 +44,7 @@ else:
 LOG = logging.getLogger("fleure")
 
 
-def _dump_xls(dataset, filepath):
+def dump_xls(dataset, filepath):
     """XLS dump function"""
     book = tablib.Databook(dataset)
     with open(filepath, 'wb') as out:
@@ -60,10 +60,8 @@ def dump_results(host, rpms, errata, updates):
     :param errata: A list of applicable errata
     :param updates: A list of update RPMs
     """
-    keywords = host.errata_keywords
-    core_rpms = host.core_rpms
+    dargs = (host.cvss_min_score, host.errata_keywords, host.core_rpms)
     rpmkeys = host.rpmkeys
-    score = host.cvss_min_score
 
     rpms_rebuilt = [p for p in rpms if p.get("rebuilt", False)]
     rpms_replaced = [p for p in rpms if p.get("replaced", False)]
@@ -76,7 +74,7 @@ def dump_results(host, rpms, errata, updates):
     nps = len(rpms)
     nus = len(updates)
 
-    ers = fleure.analysis.analyze_errata(errata, score, keywords, core_rpms)
+    ers = fleure.analysis.analyze_errata(errata, *dargs)
     data = dict(errata=ers,
                 installed=dict(list=rpms,
                                list_rebuilt=rpms_rebuilt,
@@ -104,8 +102,7 @@ def dump_results(host, rpms, errata, updates):
     lbekeys = (_("advisory"), _("keywords"), _("synopsis"), _("url"),
                _("update_names"))
 
-    mds = [fleure.analysis.mk_overview_dataset(data, score, keywords,
-                                               core_rpms),
+    mds = [fleure.analysis.mk_overview_dataset(data, *dargs),
            make_dataset((data["errata"]["rhsa"]["list_latest_critical"] +
                          data["errata"]["rhsa"]["list_latest_important"]),
                         _("Cri-Important RHSAs (latests)"), sekeys, lsekeys),
@@ -128,6 +125,7 @@ def dump_results(host, rpms, errata, updates):
            make_dataset(data["errata"]["rhba"]["list_updates_by_kwds"],
                         _("Updates by RHBAs (Keyword)"), rpmkeys, lrpmkeys)]
 
+    score = host.cvss_min_score
     if score > 0:
         cvss_ds = [
             make_dataset(data["errata"]["rhsa"]["list_higher_cvss_score"],
@@ -156,7 +154,7 @@ def dump_results(host, rpms, errata, updates):
                                 _("RPMs from other vendors"), rpmdkeys,
                                 lrpmdkeys))
 
-    _dump_xls(mds, os.path.join(host.workdir, "errata_summary.xls"))
+    dump_xls(mds, os.path.join(host.workdir, "errata_summary.xls"))
 
     if host.details:
         dds = [make_dataset(errata, _("Errata Details"),
@@ -170,7 +168,7 @@ def dump_results(host, rpms, errata, updates):
                make_dataset(updates, _("Update RPMs"), rpmkeys, lrpmkeys),
                make_dataset(rpms, _("Installed RPMs"), rpmdkeys, lrpmdkeys)]
 
-        _dump_xls(dds, os.path.join(host.workdir, "errata_details.xls"))
+        dump_xls(dds, os.path.join(host.workdir, "errata_details.xls"))
 
 
 @profile
@@ -221,23 +219,17 @@ def analyze(host):
     """
     :param host: host object function :function:`prepare` returns
     """
-    score = host.cvss_min_score
-    timestamp = datetime.datetime.now().strftime("%F %T")
-    metadata = bunch.bunchify(dict(id=host.hid, root=host.root,
-                                   workdir=host.workdir, repos=host.repos,
-                                   backend=host.base.name, score=score,
-                                   keywords=host.errata_keywords,
-                                   installed=len(host.installed),
-                                   hosts=[host.hid, ],
-                                   generated=timestamp))
-    host.save(metadata.toDict(), "metadata")
+    metadata = dict(id=host.hid, root=host.root, workdir=host.workdir,
+                    repos=host.repos, backend=host.base.name,
+                    score=host.cvss_min_score, keywords=host.errata_keywords,
+                    installed=len(host.installed), hosts=[host.hid, ],
+                    generated=datetime.datetime.now().strftime("%F %T"))
+    host.save(metadata, "metadata")
 
     ups = fleure.utils.uniq(host.base.list_updates(),
                             key=itemgetter(*host.rpmkeys))
     ers = host.base.list_errata()
-    ers = fleure.utils.uniq(fleure.datasets.errata_complement_g(ers, ups,
-                                                                score),
-                            key=itemgetter("id"), reverse=True)
+    ers = fleure.datasets.complement_errata(ers, ups, host.cvss_min_score)
     host.save(dict(data=ers, ), "errata")
     host.save(dict(data=ups, ), "updates")
     LOG.info(_("%s: Found %d errata and %d updates, saved the lists"),
