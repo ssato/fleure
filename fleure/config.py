@@ -101,7 +101,7 @@ class Host(bunch.Bunch):
         else:
             self.root = None
 
-        self.hid = str(uuid.uuid1()) if hid is None else hid
+        self.hid = str(uuid.uuid4()).split('-')[0] if hid is None else hid
         self.workdir = self.root if workdir is None else _normpath(workdir)
 
         if cachedir is None:
