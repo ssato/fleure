@@ -15,6 +15,7 @@ import datetime
 import errno
 import logging
 import os.path
+import re
 import sys
 
 import fleure.globals
@@ -31,9 +32,36 @@ _DEFAULTS = dict(path=None, workdir="/tmp/fleure-{}".format(_TODAY),
                  score=fleure.globals.DEFAULT_CVSS_SCORE,
                  keywords=fleure.globals.ERRATA_KEYWORDS,
                  rpms=fleure.globals.CORE_RPMS,
-                 period='', cachedir=None, refdir=None, tpaths=[],
+                 period=[], cachedir=None, refdir=None, tpaths=[],
                  backend=fleure.config.DEFAULT_BACKEND,
                  backends=fleure.config.BACKENDS, verbosity=0)
+
+
+def period_type(period_s):
+    """
+    :param period_s:
+        A string represents date period such as
+        "YYYY[-MM[-DD]][,YYYY[-MM[-DD]]], ex. " "'2014-10-01,2014-12-31',
+        '2014-01-01'.
+
+    .. seealso:: :func:`period_to_dates` and its friends in fleure.datasets
+    """
+    if not period_s:
+        return []
+
+    reg = r"^((\d{4})(?:.(\d{2})(?:.(\d{2}))?))?$"
+    if ',' in period_s:
+        (start, end) = period_s.split(',')
+        (start, end) = (start.strip(), end.strip())
+
+        if re.match(reg, start) and re.match(reg, end):
+            return [start, end]
+    else:
+        if re.match(reg, period_s):
+            return [period_s]
+
+    raise ArgumentTypeError("Given string '%s' does not match with required "
+                            "format, YYYY[-MM[-DD]][,YYYY[-MM[-DD]]]")
 
 
 def parse_args(argv=None):
@@ -77,7 +105,7 @@ def parse_args(argv=None):
                  "keywords. [%s]" % ', '.join(defaults["keywords"]))
     add_arg("--rpm", dest="rpms", action="append",
             help="RPM names to filter errata relevant to given RPMs")
-    add_arg("--period",
+    add_arg("--period", type=period_type,
             help="Period to filter errata in format of "
                  "YYYY[-MM[-DD]][,YYYY[-MM[-DD]]], ex. "
                  "'2014-10-01,2014-12-31', '2014-01-01'. If end date is "
@@ -101,7 +129,7 @@ def parse_args(argv=None):
                  "[single host mode], or top dir holding RPM DB root dirs "
                  "of target hosts [multihost mode]")
 
-    return psr.parse_args()
+    return psr.parse_args(argv)
 
 
 def main(argv=None):
@@ -116,14 +144,13 @@ def main(argv=None):
         print("Not found: %s" % args.root_or_archive, file=sys.stderr)
         sys.exit(errno.ENOENT)
 
-    period = args.period.split(',') if args.period else None
     if not args.tpaths:
         args.tpaths = fleure.globals.FLEURE_TEMPLATE_PATHS
 
     cnf = dict(workdir=args.workdir, cachedir=args.cachedir,
                repos=args.repos, verbosity=args.verbosity,
                cvss_min_score=args.score, errata_keywords=args.keywords,
-               core_rpms=args.rpms, period=period, refdir=args.refdir,
+               core_rpms=args.rpms, period=args.period, refdir=args.refdir,
                backend=args.backend, tpaths=args.tpaths, hid=args.hid)
 
     if os.path.exists(os.path.join(args.root_or_archive, "var/lib/rpm")):
