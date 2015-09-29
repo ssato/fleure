@@ -102,8 +102,8 @@ def safe_untar(arcfile, destdir, files=None):
 
     :return: A list of error messages if something goes wrong or []
     """
-    cmd_s = "timeout 30 tar --list -f " + arcfile
-    (rcode, out, err) = fleure.utils.subproc_call(cmd_s)
+    cmd_s = "tar --list -f " + arcfile
+    (rcode, out, err) = fleure.utils.subproc_call(cmd_s, timeout=30)
     if rcode != 0:
         return [err or "Failed to list files in tar: %s" % arcfile]
 
@@ -112,9 +112,8 @@ def safe_untar(arcfile, destdir, files=None):
 
     errors = []
     for filepath in files:
-        cmd_s = "timeout 60 tar --get -C {}/ -f {} {}".format(destdir, arcfile,
-                                                              filepath)
-        (rcode, out, err) = fleure.utils.subproc_call(cmd_s)
+        cmd_s = "tar --get -C {}/ -f {} {}".format(destdir, arcfile, filepath)
+        (rcode, out, err) = fleure.utils.subproc_call(cmd_s, timeout=60)
         if rcode != 0:
             err = err or "Failed to extract from " + arcfile
             errors.append(err + ": " + filepath)
