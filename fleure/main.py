@@ -187,7 +187,7 @@ def prepare(root_or_arc_path, hid=None, **kwargs):
     host.configure()  # Extract archive, setup root and repos, etc.
 
     if not host.has_valid_root():
-        LOG.error("Root dir is not ready. Error was: %s", host.error)
+        LOG.error(_("Root dir is not ready. Error was: %s"), host.error)
         return host
 
     LOG.info(_("%s: Start to initialize: root=%s, backend=%s"),
@@ -278,7 +278,7 @@ def set_loglevel(verbosity=0, backend=False):
     if verbosity in (0, 1, 2):
         llvl = [logging.WARN, logging.INFO, logging.DEBUG][verbosity]
     else:
-        LOG.warn("Wrong verbosity: %d", verbosity)
+        LOG.warn(_("Wrong verbosity: %d"), verbosity)
         llvl = logging.WARN
 
     LOG.setLevel(llvl)
@@ -307,7 +307,7 @@ def main(root_or_arc_path, hid=None, verbosity=0, **kwargs):
     host = prepare(root_or_arc_path, hid, **kwargs)
 
     if host.available:
-        LOG.info("Anaylize the host: %s", host.hid)
+        LOG.info(_("Anaylize the host: %s"), host.hid)
         analyze(host)
 
 # vim:sw=4:ts=4:et:
