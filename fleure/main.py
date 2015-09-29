@@ -11,9 +11,6 @@
 from __future__ import absolute_import
 from operator import itemgetter
 
-# Available in EPEL for RHELs:
-# https://apps.fedoraproject.org/packages/python-bunch
-import bunch
 import datetime
 import logging
 import os.path
