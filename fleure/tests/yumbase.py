@@ -9,9 +9,8 @@
 # software; if not, see http://www.gnu.org/licenses/gpl.html
 #
 # pylint: disable=missing-docstring
-import os.path
-import os
-import shutil
+from __future__ import absolute_import
+
 import unittest
 
 import fleure.yumbase as TT
@@ -24,15 +23,7 @@ if fleure.tests.common.is_rhel_or_fedora():
 
         def setUp(self):
             self.workdir = fleure.tests.common.setup_workdir()
-
-            rpmdbdir = os.path.join(self.workdir, fleure.globals.RPMDB_SUBDIR)
-            os.makedirs(rpmdbdir)
-
-            for dbn in fleure.globals.RPMDB_FILENAMES:
-                shutil.copy(os.path.join('/', fleure.globals.RPMDB_SUBDIR,
-                                         dbn),
-                            rpmdbdir)
-
+            fleure.tests.common.copy_rpmdb_files(self.workdir)
             self.base = TT.Base(self.workdir)
 
         def tearDown(self):

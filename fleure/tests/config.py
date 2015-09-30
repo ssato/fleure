@@ -5,9 +5,8 @@
 # pylint: disable=missing-docstring
 from __future__ import absolute_import
 
-import os
 import os.path
-import shutil
+import os
 import unittest
 
 import fleure.config as TT
@@ -37,14 +36,7 @@ class HostTest10(unittest.TestCase):
 
     def setUp(self):
         self.workdir = fleure.tests.common.setup_workdir()
-
-        rpmdbdir = os.path.join(self.workdir, fleure.globals.RPMDB_SUBDIR)
-        os.makedirs(rpmdbdir)
-
-        for dbn in fleure.globals.RPMDB_FILENAMES:
-            src = os.path.join('/', fleure.globals.RPMDB_SUBDIR, dbn)
-            if os.path.exists(src):
-                shutil.copy(src, rpmdbdir)
+        fleure.tests.common.copy_rpmdb_files(self.workdir)
 
         workdir = os.path.join(self.workdir, "out")
         self.host = TT.Host(self.workdir, workdir=workdir)

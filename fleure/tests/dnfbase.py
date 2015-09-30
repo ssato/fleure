@@ -4,14 +4,13 @@
 # License: GPLv3+
 #
 # pylint: disable=missing-docstring
+from __future__ import absolute_import
+
+import unittest
+
 import fleure.dnfbase as TT
 import fleure.utils
 import fleure.tests.common
-
-import os.path
-import os
-import shutil
-import unittest
 
 
 if fleure.tests.common.is_rhel_or_fedora():
@@ -37,14 +36,7 @@ if fleure.tests.common.is_rhel_or_fedora():
 
         def setUp(self):
             self.workdir = fleure.tests.common.setup_workdir()
-
-            rpmdbdir = os.path.join(self.workdir, fleure.globals.RPMDB_SUBDIR)
-            os.makedirs(rpmdbdir)
-
-            for dbn in fleure.globals.RPMDB_FILENAMES:
-                shutil.copy(os.path.join('/', fleure.globals.RPMDB_SUBDIR,
-                                         dbn),
-                            rpmdbdir)
+            fleure.tests.common.copy_rpmdb_files(self.workdir)
 
             self.base = TT.Base(self.workdir)
             self.base.prepare()

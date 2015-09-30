@@ -9,29 +9,20 @@
 # software; if not, see http://www.gnu.org/licenses/gpl.html
 #
 # pylint: disable=missing-docstring
+from __future__ import absolute_import
+
+import unittest
+
 import fleure.utils as TT
 import fleure.globals
 import fleure.tests.common
-
-import os
-import os.path
-import shutil
-import unittest
 
 
 class Test00(unittest.TestCase):
 
     def setUp(self):
         self.workdir = fleure.tests.common.setup_workdir()
-
-        if fleure.tests.common.is_rhel_or_fedora():
-            rpmdbdir = os.path.join(self.workdir, fleure.globals.RPMDB_SUBDIR)
-            os.makedirs(rpmdbdir)
-
-            for dbn in fleure.globals.RPMDB_FILENAMES:
-                shutil.copy(os.path.join('/', fleure.globals.RPMDB_SUBDIR,
-                                         dbn),
-                            rpmdbdir)
+        fleure.tests.common.copy_rpmdb_files(self.workdir)
 
     def tearDown(self):
         fleure.tests.common.cleanup_workdir(self.workdir)

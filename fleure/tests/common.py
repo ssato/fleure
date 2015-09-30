@@ -4,9 +4,11 @@
 # pylint: disable=missing-docstring
 import os.path
 import os
+import shutil
 import tempfile
 
 import anyconfig.compat
+import fleure.globals
 
 
 CNF_0 = dict(name="a", a=1, b=dict(b=[1, 2], c="C"))
@@ -56,6 +58,18 @@ def cleanup_workdir(workdir):
     assert workdir != '.'
 
     os.system("rm -rf " + workdir)
+
+
+def copy_rpmdb_files(workdir):
+    """Copy some RPM DB files into workdir for tests.
+    """
+    rpmdbdir = os.path.join(workdir, fleure.globals.RPMDB_SUBDIR)
+    os.makedirs(rpmdbdir)
+
+    for dbn in fleure.globals.RPMDB_FILENAMES:
+        src = os.path.join('/', fleure.globals.RPMDB_SUBDIR, dbn)
+        if os.path.exists(src):
+            shutil.copy(src, rpmdbdir)
 
 
 def dicts_equal(lhs, rhs):
