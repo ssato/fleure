@@ -25,11 +25,12 @@ if fleure.tests.common.is_rhel_or_fedora():
         def setUp(self):
             self.workdir = fleure.tests.common.setup_workdir()
 
-            rpmdbdir = os.path.join(self.workdir, fleure.utils.RPMDB_SUBDIR)
+            rpmdbdir = os.path.join(self.workdir, fleure.globals.RPMDB_SUBDIR)
             os.makedirs(rpmdbdir)
 
-            for dbn in fleure.utils.RPMDB_FILENAMES:
-                shutil.copy(os.path.join('/', fleure.utils.RPMDB_SUBDIR, dbn),
+            for dbn in fleure.globals.RPMDB_FILENAMES:
+                shutil.copy(os.path.join('/', fleure.globals.RPMDB_SUBDIR,
+                                         dbn),
                             rpmdbdir)
 
             self.base = TT.Base(self.workdir)

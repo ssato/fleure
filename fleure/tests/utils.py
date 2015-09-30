@@ -10,6 +10,7 @@
 #
 # pylint: disable=missing-docstring
 import fleure.utils as TT
+import fleure.globals
 import fleure.tests.common
 
 import os
@@ -24,11 +25,13 @@ class Test00(unittest.TestCase):
         self.workdir = fleure.tests.common.setup_workdir()
 
         if fleure.tests.common.is_rhel_or_fedora():
-            rpmdbdir = os.path.join(self.workdir, TT.RPMDB_SUBDIR)
+            rpmdbdir = os.path.join(self.workdir, fleure.globals.RPMDB_SUBDIR)
             os.makedirs(rpmdbdir)
 
-            for dbn in TT.RPMDB_FILENAMES:
-                shutil.copy(os.path.join('/', TT.RPMDB_SUBDIR, dbn), rpmdbdir)
+            for dbn in fleure.globals.RPMDB_FILENAMES:
+                shutil.copy(os.path.join('/', fleure.globals.RPMDB_SUBDIR,
+                                         dbn),
+                            rpmdbdir)
 
     def tearDown(self):
         fleure.tests.common.cleanup_workdir(self.workdir)
