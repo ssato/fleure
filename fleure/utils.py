@@ -31,14 +31,10 @@ except ImportError:
     bsddb = None
 
 # from fleure.decorators import async  # TBD
+import fleure.globals
 
 
 LOG = logging.getLogger(__name__)
-RPMDB_SUBDIR = "var/lib/rpm"
-
-# It may depends on the versions of rpm:
-RPMDB_FILENAMES = ("Packages", "Basenames", "Dirnames", "Installtid", "Name",
-                   "Obsoletename", "Providename", "Requirename")
 
 _RHERRATA_RE = re.compile(r"^RH[SBE]A-\d{4}[:-]\d{4}(?:-\d+)?$")
 
@@ -179,7 +175,7 @@ def _is_bsd_hashdb(dbpath):
 
 
 def check_rpmdb_root(root, readonly=True, system=False,
-                     dbnames=RPMDB_FILENAMES):
+                     dbnames=fleure.globals.RPMDB_FILENAMES):
     """
     :param root: The pivot root directry where target's RPM DB files exist
     :param readonly: Ensure RPM DB files readonly
@@ -191,7 +187,7 @@ def check_rpmdb_root(root, readonly=True, system=False,
     else:
         assert root != "/", "Do not run this for host system's RPM DB!"
 
-    rpmdbdir = os.path.join(root, RPMDB_SUBDIR)
+    rpmdbdir = os.path.join(root, fleure.globals.RPMDB_SUBDIR)
 
     if not os.path.exists(rpmdbdir):
         LOG.error("RPM DB dir %s does not exist!", rpmdbdir)
@@ -334,44 +330,45 @@ def guess_rhel_version_simple(root):
     return osver
 
 
-def guess_rhel_repos(root, with_extras=False):
+def guess_rhel_repos(root=None, rhelver=None, repos_map=None,
+                     with_extras=False):
     """
     Guess RHEL yum repo IDs.
 
     :param root: RPM DB root dir may be in relative path
+    :param rhelver: RHEL version or None to determine it automatically
+    :param repos_map: A map of dist name and yum repos
     :param with_extras: Include extra yum repos if True
-    :return: A list of yum repos
-    """
-    rhelver = guess_rhel_version_simple(root)
-    assert rhelver in (5, 6, 7), "Not supported RHEL version: %d" % rhelver
 
-    if rhelver == 5:
-        # Yum repos for RHEL 5, requires RHN Classic registration:
-        repos = ["rhel-x86_64-server-5", ]
-        if with_extras:
-            repos += ["rhel-x86_64-server-cluster-5",
-                      "rhel-x86_64-server-cluster-storage-5",
-                      "rhel-x86_64-server-productivity-5",
-                      "rhel-x86_64-server-supplementary-5"]
-    elif rhelver == 6:
-        # Yum repos for RHEL 6, requires RHN Classic registration:
-        repos = ["rhel-x86_64-server-6",
-                 "rhel-x86_64-server-optional-6"]
-        if with_extras:
-            repos += ["rhel-x86_64-server-ha-6",
-                      "rhel-x86_64-server-rs-6",
-                      "rhel-x86_64-server-sfs-6",
-                      "rhel-x86_64-server-supplementary-6"]
+    :return: A list of yum repos or []
+
+    >>> rmap = dict(rhel_5=["aaa"], rhel_6=["bbb"], rhel_6_extras=["ccc"])
+    >>> guess_rhel_repos(rhelver=6, repos_map=rmap)
+    ['bbb']
+    >>> guess_rhel_repos(rhelver=6, repos_map=rmap, with_extras=True)
+    ['bbb', 'ccc']
+    """
+    if root is None:
+        assert rhelver is not None, "root or rhelver must be given!"
+        assert isinstance(rhelver, int), \
+            "rhelver must be a int!: %s" % str(rhelver)
     else:
-        # RHN yum repos:
-        repos = ["rhel-7-server-rpms",
-                 "rhel-7-server-optional-rpms"]
-        if with_extras:
-            repos += ["rhel-7-server-rh-common-rpms",
-                      "rhel-7-server-extras-rpms",
-                      "rhel-ha-for-rhel-7-server-rpms",
-                      "rhel-rs-for-rhel-7-server-rpms",
-                      "rhel-7-server-supplementary-rpms"]
+        if rhelver is None:
+            rhelver = guess_rhel_version_simple(root)
+        else:
+            assert isinstance(rhelver, int), \
+                "rhelver must be a int!: %s" % str(rhelver)
+        assert rhelver in (5, 6, 7), "Not supported RHEL version: %d" % rhelver
+
+    if repos_map is None:
+        repos_map = fleure.globals.REPOS_MAP
+
+    dist = "rhel_%d" % rhelver
+    repos = repos_map.get(dist, [])
+
+    if with_extras:
+        repos += repos_map.get(dist + "_extras", [])
+
     return repos
 
 # vim:sw=4:ts=4:et:
