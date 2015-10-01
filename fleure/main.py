@@ -18,6 +18,7 @@ import os
 import tablib
 
 import fleure.analysis
+import fleure.archive
 import fleure.config
 import fleure.depgraph
 import fleure.globals
@@ -290,6 +291,26 @@ def set_loglevel(verbosity=0, backend=False):
     fleure.dnfbase.LOG.setLevel(llvl)
 
 
+def archive_report(reportdir):
+    """Archive analysis report.
+
+    :reportdir: Dir where generated report files exist
+    :password: Password to encrypt archive file
+    :return:
+        Absolute path of archive file made or None might indicates some
+        failures before/during making archive.
+    """
+    filenames = fleure.globals.REPORT_FILES
+    if all(os.path.exists(os.path.join(reportdir, fn)) for fn in filenames):
+        arcpath = fleure.archive.archive_report(reportdir)
+        LOG.info(_("Archived results: %s"), arcpath)
+        return arcpath
+
+    LOG.warn("Reprot files (%s) do not exist. Do no make a report archives",
+             ", ".join(filenames))
+    return None
+
+
 def main(root_or_arc_path, hid=None, verbosity=0, **kwargs):
     """
     :param root_or_arc_path:
@@ -302,6 +323,8 @@ def main(root_or_arc_path, hid=None, verbosity=0, **kwargs):
     :param kwargs:
         Extra keyword arguments other than `root_or_arc_path` passed to make an
         instance of :class:`fleure.config.Config`
+
+    :return: Workdir where results exist or path to archive of results
     """
     set_loglevel(verbosity)
     host = prepare(root_or_arc_path, hid, **kwargs)
@@ -309,5 +332,10 @@ def main(root_or_arc_path, hid=None, verbosity=0, **kwargs):
     if host.available:
         LOG.info(_("Anaylize the host: %s"), host.hid)
         analyze(host)
+
+    if kwargs.get("archive", False):
+        return archive_report(host.workdir)
+    else:
+        return host.workdir
 
 # vim:sw=4:ts=4:et:
