@@ -10,6 +10,7 @@ import os
 import unittest
 
 import fleure.archive as TT
+import fleure.globals
 import fleure.utils
 import fleure.tests.common
 
@@ -97,6 +98,20 @@ class Test00(unittest.TestCase):
         # self.assertFalse(os.path.exists(filepath))
         # self.assertFalse(os.path.isfile(filepath))
         self.assertTrue(os.path.exists(filepath))
+
+    def test_70_archive_report(self):
+        filenames = fleure.globals.REPORT_FILES
+        for fname in filenames:
+            touch(os.path.join(self.workdir, fname))
+
+        output = TT.archive_report(self.workdir, filenames=filenames)
+        self.assertTrue(os.path.exists(output))
+
+        topdir = os.path.basename(self.workdir)
+        paths = sorted(os.path.join(topdir, fn) for fn in filenames)
+
+        with TT.zipfile.ZipFile(output) as zipf:
+            self.assertEquals(sorted(zipf.namelist()), paths)
 
 
 class Test10(unittest.TestCase):
