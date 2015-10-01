@@ -34,7 +34,8 @@ _DEFAULTS = dict(path=None, workdir="/tmp/fleure-{}".format(_TODAY),
                  rpms=fleure.globals.CORE_RPMS,
                  period=[], cachedir=None, refdir=None, tpaths=[],
                  backend=fleure.config.DEFAULT_BACKEND,
-                 backends=fleure.config.BACKENDS, verbosity=0)
+                 backends=fleure.config.BACKENDS, verbosity=0,
+                 archive=False)
 
 
 def period_type(period_s):
@@ -89,6 +90,8 @@ def parse_args(argv=None):
                  "guess from data in RPM DBs automatically, and please not "
                  "that any other repos are disabled if this option was set.")
     add_arg("-I", "--hid", help="Host (Data) ID [None]")
+    add_arg("-A", "--archive", action="store_true",
+            help="Archive report files generated")
     add_arg("-M", "--multihost", help="Multihost mode")
     # ..note:: Disabled until issue of yum vs. multiprocessing module is fixed.
     # add_arg("-M", "--multiproc", action="store_true",
@@ -152,7 +155,8 @@ def main(argv=None):
                repos=args.repos, verbosity=args.verbosity,
                cvss_min_score=args.score, errata_keywords=args.keywords,
                core_rpms=args.rpms, period=args.period, refdir=args.refdir,
-               backend=args.backend, tpaths=args.tpaths, hid=args.hid)
+               backend=args.backend, tpaths=args.tpaths, hid=args.hid,
+               archive=args.archive)
 
     if os.path.exists(os.path.join(args.root_or_archive, "var/lib/rpm")):
         args.multihost = False
