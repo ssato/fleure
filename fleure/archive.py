@@ -18,6 +18,7 @@ import logging
 import os.path
 import os
 import tempfile
+import uuid
 import zipfile
 
 import fleure.globals
@@ -211,5 +212,27 @@ def extract_rpmdb_archive(arc_path, root=None):
     files = [os.path.join(prefix, fn) for fn in fleure.globals.RPMDB_FILENAMES]
 
     return (root, _exract_fnc(arc_path)(arc_path, root, files))
+
+
+def archive_report(resultsdir, output=None,
+                   filenames=fleure.globals.REPORT_FILES):
+    """
+    Archive analysis results (.xls files).
+
+    :param resultsdir: Dir in which results are
+    :param output: Archive file path to save
+    :param filenames: Name of files will be archived into the output file
+    """
+    if output is None:
+        output = os.path.join(resultsdir, "report-%s.zip" % str(uuid.uuid4()))
+
+    topdir = os.path.basename(resultsdir)
+
+    with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for filename in filenames:
+            zipf.write(os.path.join(resultsdir, filename),
+                       arcname=os.path.join(topdir, filename))
+
+    return output
 
 # vim:sw=4:ts=4:et:
