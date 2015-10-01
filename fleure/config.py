@@ -142,7 +142,7 @@ class Host(bunch.Bunch):
             self.errors.append("Invalid RPM DBs: " + self.root)
             return
 
-        if self.repos is None:
+        if self.repos is None or not self.repos:
             self.repos = fleure.utils.guess_rhel_repos(self.root)
 
         if not os.path.exists(self.workdir):
