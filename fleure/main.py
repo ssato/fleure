@@ -195,7 +195,8 @@ def prepare(root_or_arc_path, hid=None, **kwargs):
              host.hid, host.root, kwargs.get("backend", "maybe yum"))
     base = host.init_base()
     base.prepare()
-    LOG.info(_("%s: Initialization completed, start to analyze ..."), host.hid)
+    LOG.info(_("%s[%s]: Initialization completed, start to analyze ..."),
+             host.hid, base.name)
 
     host.installed = sorted(base.list_installed(),
                             key=itemgetter(*host.rpmkeys))
