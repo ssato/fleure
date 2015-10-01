@@ -67,6 +67,7 @@ REPOS_MAP = \
                         "rhel-rs-for-rhel-7-server-rpms",
                         "rhel-7-server-supplementary-rpms"])
 
+REPORT_FILES = ("errata_summary.xls", "errata_details.xls")
 
 LOGGING_FORMAT = "%(asctime)s %(name)s: [%(levelname)s] %(message)s"
 
