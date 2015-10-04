@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fleure 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-01 12:43+JST\n"
-"PO-Revision-Date: 2015-10-01 12:43+0900\n"
+"POT-Creation-Date: 2015-10-04 11:50+JST\n"
+"PO-Revision-Date: 2015-10-04 11:50+0900\n"
 "Last-Translator: Satoru SATOH <ssato@redhat.com>\n"
 "Language-Team: Japanese <ssato@redhat.com>\n"
 "Language: ja\n"
@@ -330,62 +330,62 @@ msgid "%s: Start to initialize: root=%s, backend=%s"
 msgstr "%s: 初期化を開始: root=%s, backend=%s"
 
 #: pkg/..//fleure/main.py:198
-msgid "%s: Initialization completed, start to analyze ..."
-msgstr "%s: 初期化を完了、解析を開始 ..."
+msgid "%s[%s]: Initialization completed, start to analyze ..."
+msgstr "%s[%s]: 初期化を完了、解析を開始 ..."
 
-#: pkg/..//fleure/main.py:202
+#: pkg/..//fleure/main.py:203
 msgid "%s: Found %d (rebuilt=%d, replaced=%d) installed RPMs"
 msgstr "%s: %d 個 (rebuilt=%d, replaced=%d) のインストール RPM を発見"
 
-#: pkg/..//fleure/main.py:233
+#: pkg/..//fleure/main.py:234
 msgid "%s: Found %d errata and %d updates, saved the lists"
 msgstr "%s: %d 個のエラータと %d 個の更新 RPM を発見、一覧を保存"
 
-#: pkg/..//fleure/main.py:240
+#: pkg/..//fleure/main.py:241
 msgid "%s: Analyzing errata and packages ..."
 msgstr "%s: エラータとパッケージを解析中 ..."
 
-#: pkg/..//fleure/main.py:242
+#: pkg/..//fleure/main.py:243
 msgid "%s: Saved analysis results in %s"
 msgstr "%s: 解析結果を %s 内に保存しました"
 
-#: pkg/..//fleure/main.py:246
+#: pkg/..//fleure/main.py:247
 msgid "%s: Analyzing errata and packages [%s ~ %s]"
 msgstr "%s: エラータとパッケージ [期間 %s ~ %s] を解析中"
 
-#: pkg/..//fleure/main.py:253
+#: pkg/..//fleure/main.py:254
 msgid "%s: Creating period working dir %s"
 msgstr "%s: 指定期間データの作業用ディレクトリ %s を作成"
 
-#: pkg/..//fleure/main.py:257
+#: pkg/..//fleure/main.py:258
 msgid "%s: Saved analysis results [%s ~ %s] in %s"
 msgstr "%s: 解析結果 [期間 %s ~ %s] を %s 内に保存しました"
 
-#: pkg/..//fleure/main.py:261
+#: pkg/..//fleure/main.py:262
 msgid "%s [delta]: Analyze delta errata data by refering %s"
 msgstr "%s [差分]: %s を参照して差分エラータを解析"
 
-#: pkg/..//fleure/main.py:266
+#: pkg/..//fleure/main.py:267
 msgid "%s [delta]: Found %d errata and %d updates, save the lists"
 msgstr "%s [差分]: %d 個のエラータと %d 個の更新 RPM を発見、一覧を保存"
 
-#: pkg/..//fleure/main.py:269
+#: pkg/..//fleure/main.py:270
 msgid "%s: Analyzing delta errata and packages ..."
 msgstr "%s: 差分のエラータとパッケージを解析中 ..."
 
-#: pkg/..//fleure/main.py:271
+#: pkg/..//fleure/main.py:272
 msgid "%s: Saved delta analysis results in %s"
 msgstr "%s: 差分の解析結果を %s 内に保存しました"
 
-#: pkg/..//fleure/main.py:282
+#: pkg/..//fleure/main.py:283
 msgid "Wrong verbosity: %d"
 msgstr "間違った冗長化レベル: %d"
 
-#: pkg/..//fleure/main.py:306
+#: pkg/..//fleure/main.py:307
 msgid "Archived results: %s"
 msgstr "解析結果をアーカイブしました: %s"
 
-#: pkg/..//fleure/main.py:333
+#: pkg/..//fleure/main.py:334
 msgid "Anaylize the host: %s"
 msgstr "ホストを解析: %s"
 
