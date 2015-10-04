@@ -30,21 +30,9 @@ def list_files(tdir):
 data_files = [
     ("share/fleure/templates/2/ja", list_files("data/templates/2/ja/")),
     ("share/fleure/templates/2/en", list_files("data/templates/2/en/")),
-    # (os.path.join(get_python_lib(), "fleure/locale/ja/LC_MESSAGES"),
-    # ["fleure/locale/ja/LC_MESSAGES/rpmkit.mo"]),
+    (os.path.join(get_python_lib(), "fleure/locale/ja/LC_MESSAGES"),
+     ["fleure/locale/ja/LC_MESSAGES/fleure.mo"]),
 ]
-
-
-def multi_replace(s, replaces):
-    """
-    >>> multi_replace("abc def", [("abc", "ABC"), ("def", "DEF")])
-    'ABC DEF'
-    """
-    if replaces:
-        for src, dst in replaces:
-            s = s.replace(src, dst)
-
-    return s
 
 
 class SrpmCommand(Command):
@@ -89,10 +77,6 @@ class RpmCommand(SrpmCommand):
     build_stage = "b"
 
 
-TESTS_REQ = [l.rstrip() for l in open("pkg/test_requirements.txt").readlines()
-             if l and not l.startswith('#')]
-
-
 setup(name=PACKAGE,
       version=VERSION,
       description=("Package level static analysis tool for RPM-based Linux "
@@ -104,8 +88,7 @@ setup(name=PACKAGE,
       url="https://github.com/ssato/fleure",
       packages=find_packages(),
       include_package_data=True,
-      cmdclass={"srpm": SrpmCommand,
-                "rpm":  RpmCommand},
+      cmdclass=dict(srpm=SrpmCommand, rpm=RpmCommand),
       entry_points=open(os.path.join(os.curdir,
                                      "pkg/entry_points.txt")).read(),
       data_files=data_files)
