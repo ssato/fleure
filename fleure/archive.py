@@ -220,12 +220,13 @@ def archive_report(resultsdir, output=None,
     Archive analysis results (.xls files).
 
     :param resultsdir: Dir in which results are
-    :param output: Archive file path to save
+    :param output: Archive filename
     :param filenames: Name of files will be archived into the output file
     """
     if output is None:
-        output = os.path.join(resultsdir, "report-%s.zip" % str(uuid.uuid4()))
+        output = "report-%s.zip" % str(uuid.uuid4())
 
+    output = os.path.join(resultsdir, output)
     topdir = os.path.basename(resultsdir)
 
     with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as zipf:

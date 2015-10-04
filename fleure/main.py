@@ -292,18 +292,18 @@ def set_loglevel(verbosity=0, backend=False):
     fleure.dnfbase.LOG.setLevel(llvl)
 
 
-def archive_report(reportdir):
+def archive_report(reportdir, output):
     """Archive analysis report.
 
     :reportdir: Dir where generated report files exist
-    :password: Password to encrypt archive file
+    :output: Output filename
     :return:
         Absolute path of archive file made or None might indicates some
         failures before/during making archive.
     """
     filenames = fleure.globals.REPORT_FILES
     if all(os.path.exists(os.path.join(reportdir, fn)) for fn in filenames):
-        arcpath = fleure.archive.archive_report(reportdir)
+        arcpath = fleure.archive.archive_report(reportdir, output)
         LOG.info(_("Archived results: %s"), arcpath)
         return arcpath
 
@@ -335,7 +335,8 @@ def main(root_or_arc_path, hid=None, verbosity=0, **kwargs):
         analyze(host)
 
     if kwargs.get("archive", False):
-        return archive_report(host.workdir)
+        outname = "report-%s-%s.zip" % (host.hid, fleure.globals.TODAY)
+        return archive_report(host.workdir, outname)
     else:
         return host.workdir
 
