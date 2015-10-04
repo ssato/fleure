@@ -2,6 +2,5 @@ include MANIFEST.in
 include README.rst
 include setup.py
 include pkg/*
-include po/*.po
 recursive-include fleure *.py *.mo
-recursive-include data *.j2 *.yml
+recursive-include data *.j2 *.yml *.po *.pot
