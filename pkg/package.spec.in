@@ -83,6 +83,7 @@ mv $RPM_BUILD_ROOT%{_bindir}/%{srcname}_cli $RPM_BUILD_ROOT%{_bindir}/%{cli}-2
 %doc README.rst
 %{python2_sitelib}/*
 %{_bindir}/%{cli}-2
+%{_bindir}/%{cli}
 
 %files -n python3-%{srcname}
 %doc README.rst
