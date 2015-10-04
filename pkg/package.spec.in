@@ -1,6 +1,7 @@
 # Ref. https://fedoraproject.org/wiki/Packaging:Python
 %global srcname fleure
 %global sumtxt  Package level static analysis tool for RPM-based Linux systems
+%global cli     %{srcname}_cli
 
 Name:           python-%{srcname}
 Version:        @VERSION@
@@ -72,24 +73,25 @@ Common data files of %{srcname}.
 
 %install
 %py3_install
-mv $RPM_BUILD_ROOT%{_bindir}/%{srcname}_cli $RPM_BUILD_ROOT%{_bindir}/%{srcname}_cli-3
+mv $RPM_BUILD_ROOT%{_bindir}/%{srcname}_cli $RPM_BUILD_ROOT%{_bindir}/%{cli}-3
 %py2_install
-cp $RPM_BUILD_ROOT%{_bindir}/%{srcname}_cli $RPM_BUILD_ROOT%{_bindir}/%{srcname}_cli-2
+mv $RPM_BUILD_ROOT%{_bindir}/%{srcname}_cli $RPM_BUILD_ROOT%{_bindir}/%{cli}-2
+# Default: python-2 version
+(cd $RPM_BUILD_ROOT%{_bindir}/ && ln -s %{cli}-2 %{cli})
 
 %files -n python2-%{srcname}
 %doc README.rst
 %{python2_sitelib}/*
-%{_bindir}/%{srcname}_cli
-%{_bindir}/%{srcname}_cli-2
+%{_bindir}/%{cli}-2
 
 %files -n python3-%{srcname}
 %doc README.rst
 %{python3_sitelib}/*
-%{_bindir}/%{srcname}_cli-3
+%{_bindir}/%{cli}-3
 
 %files -n python-%{srcname}-common
 %{_datadir}/%{srcname}/templates/2/*/*.j2
 
 %changelog
-* Thu Sep 10 2015 Satoru SATOH <ssato@redhat.com> - 0.1-1
+* Sun Oct  4 2015 Satoru SATOH <ssato@redhat.com> - 0.1-1
 - Initial packaging originally came from the part of rpmkit
