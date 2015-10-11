@@ -8,9 +8,12 @@ from __future__ import absolute_import
 import os.path
 import tablib
 import unittest
-
-import fleure.main as TT
 import fleure.tests.common
+
+try:
+    import fleure.main as TT
+except ImportError:
+    TT = None
 
 
 class Test00(unittest.TestCase):
@@ -21,6 +24,7 @@ class Test00(unittest.TestCase):
     def tearDown(self):
         fleure.tests.common.cleanup_workdir(self.workdir)
 
+    @fleure.tests.common.skip_if_not(TT is not None)
     def test_10_dump_xl(self):
         tds = tablib.Dataset()
         tds.title = "Test"

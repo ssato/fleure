@@ -6,13 +6,17 @@
 from __future__ import absolute_import
 
 import unittest
+import fleure.tests.common
 
-import fleure.cli as TT
-# import fleure.tests.common
+try:
+    import fleure.cli as TT
+except ImportError:
+    TT = None
 
 
 class Test(unittest.TestCase):
 
+    @fleure.tests.common.skip_if_not(TT is not None)
     def test_10_parse_args__defaults(self):
         root = "/tmp/dummy_root"
         args = TT.parse_args([root])
@@ -21,6 +25,7 @@ class Test(unittest.TestCase):
         for key, val in defaults.items():
             self.assertEquals(getattr(args, key), val)
 
+    @fleure.tests.common.skip_if_not(TT is not None)
     def test_11_parse_args__repos(self):
         root = "/tmp/dummy_root"
         repos = ["rhel-x86_64-server-6", "rhel-x86_64-server-6-scl-2"]
@@ -32,6 +37,7 @@ class Test(unittest.TestCase):
         for key, val in defaults.items():
             self.assertEquals(getattr(args, key), val)
 
+    @fleure.tests.common.skip_if_not(TT is not None)
     def test_12_parse_args__period(self):
         root = "/tmp/dummy_root"
 
@@ -43,6 +49,7 @@ class Test(unittest.TestCase):
         args = TT.parse_args([root, "--period", period])
         self.assertEquals(args.period, period.split(','))
 
+    @fleure.tests.common.skip_if_not(TT is not None)
     def test_24_main__no_root_arg(self):
         raised = False
         try:
