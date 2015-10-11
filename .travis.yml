@@ -10,12 +10,12 @@ services:
 
 before_install:
   - docker build -t ssato/fleure -f pkg/Dockerfile .
-  # - docker run ssato/fleure /bin/sh -c "cd /tmp/fleure && bash -x ./pkg/runtest.sh"
+  - docker run ssato/fleure /bin/sh -c "cd /tmp/fleure && bash -x ./pkg/runtest.sh"
   - docker ps -a
   - docker info
 
 script:
-  - "./pkg/runtest.sh"
+  - :  # "./pkg/runtest.sh"
 
 notifications:
   email:
