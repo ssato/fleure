@@ -38,8 +38,7 @@ def _normpath(path):
     '/a/b/c'
 
     >>> import pwd, random
-    >>> uhs = [(x.pw_name, x.pw_dir) for x in pwd.getpwall()
-    ...        if x.pw_dir.startswith("/home")]
+    >>> uhs = [(x.pw_name, x.pw_dir) for x in pwd.getpwall()]
     >>> (usr, homedir) = random.sample(uhs, 1)[0]
     >>> _normpath("~%s/a/b/.." % usr) == os.path.join(homedir, "a")
     True
