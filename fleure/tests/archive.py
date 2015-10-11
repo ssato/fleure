@@ -54,12 +54,12 @@ class Test00(unittest.TestCase):
     def test_40_safe_untar(self):
         thisfile = os.path.abspath(__file__)
         otherfile = "aaa.txt"
-        arcfile = "test.tar.xz"
+        arcfile = "test.tar.gz"
 
         with fleure.tests.common.Chdir(self.workdir):
             fleure.utils.subproc_call("ln -s %s ." % thisfile)
             touch(otherfile)
-            fleure.utils.subproc_call("tar --xz -cvf %s ." % arcfile)
+            fleure.utils.subproc_call("tar zcvf %s ." % arcfile)
 
         destdir = os.path.join(self.workdir, "out")
         os.makedirs(destdir)
