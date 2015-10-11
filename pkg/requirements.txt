@@ -3,4 +3,5 @@ beautifulsoup4
 bunch
 matplotlib
 networkx
+nltk
 tablib
