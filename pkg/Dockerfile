@@ -1,8 +1,8 @@
 FROM fedora:22
 MAINTAINER https://github.com/ssato/fleure
 
-
-RUN dnf -y update && dnf clean all
+# It will take some time to finish.
+# RUN dnf -y update && dnf clean all
 
 # see pkg/requirements.txt, pkg/test_requirements.txt and pkg/package.spec.in
 RUN dnf install -y dnf-plugins-core && dnf copr enable -y ssato/python-anyconfig
