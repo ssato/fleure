@@ -15,7 +15,7 @@ before_install:
   - docker info
 
 script:
-  - :  # "./pkg/runtest.sh"
+  - true  # "./pkg/runtest.sh"
 
 notifications:
   email:
