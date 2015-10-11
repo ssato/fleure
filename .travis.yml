@@ -1,0 +1,23 @@
+# References:
+# - http://about.travis-ci.org/docs/user/languages/python/
+# - http://docs.travis-ci.com/user/docker/
+sudo: required
+language: python
+services:
+  - docker
+
+#python:
+#  - 2.4
+#  - 2.6
+#  - 2.7
+before_install:
+  - docker build -t ssato/fleure -f pkg/Dockerfile .
+  - docker run ssato/fleure /bin/sh -c "cd /tmp/fleure && git pull && bash -x ./pkg/runtest.sh"
+
+script:
+  - "./pkg/runtest.sh"
+
+notifications:
+  email:
+    #on_success: always # default: change
+    on_failure: always
