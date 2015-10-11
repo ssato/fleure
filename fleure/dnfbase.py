@@ -38,6 +38,9 @@ def _to_pkg(pkg, extras=None):
        anyhow; hawkey.Package.packager != vendor, buildhost is not
        available, etc.
     """
+    if isinstance(pkg, collections.Mapping):
+        return pkg  # Conversion should be done already.
+
     if extras is None:
         originally_from = "TBD"
     else:
@@ -45,9 +48,6 @@ def _to_pkg(pkg, extras=None):
             originally_from = pkg.packager
         else:
             originally_from = "Unknown"
-
-    if isinstance(pkg, collections.Mapping):
-        return pkg  # Conversion should be done already.
 
     return fleure.package.Package(pkg.name, pkg.v, pkg.r, pkg.a, pkg.epoch,
                                   pkg.summary, pkg.packager, "N/A",
