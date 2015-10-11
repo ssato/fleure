@@ -2,6 +2,10 @@
 fleure
 =========
 
+.. image:: https://img.shields.io/travis/ssato/fleure.svg
+   :target: https://travis-ci.org/ssato/fleure
+   :alt: Test status
+
 fleure (フルーア) [#]_ , a successor of rk-updateinfo (rpmkit.updateinfo cli),
 is a package level static analysis tool for systems running RPM-based linux
 distributions such like RHEL (primary target) and Fedora.
