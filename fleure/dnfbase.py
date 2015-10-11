@@ -210,6 +210,7 @@ class Base(fleure.base.Base):
             self.cachedir = conf.cachedir = cachedir
 
         self.base = dnf.Base(conf)
+        # self.base.conf.cachedir = self.cachedir   # Required?
         self._hpackages = collections.defaultdict(list)
 
     def configure(self):
