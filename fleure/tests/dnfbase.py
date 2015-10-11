@@ -7,54 +7,62 @@
 from __future__ import absolute_import
 
 import unittest
-
-import fleure.dnfbase as TT
-import fleure.utils
 import fleure.tests.common
 
+try:
+    import fleure.utils  # rpm, yum modules
+    import fleure.dnfbase as TT  # dnf
+except ImportError:
+    TT = None
 
-if fleure.tests.common.is_rhel_or_fedora():
-    class Test10(unittest.TestCase):
 
-        def test_12__init__with_root(self):
-            base = TT.Base(root="/tmp")
-            self.assertTrue(isinstance(base, TT.Base))
+class Test10(unittest.TestCase):
 
-            conf = base.base.conf
-            self.assertEquals(conf.installroot, u"/tmp")
-            self.assertEquals(conf.logdir, u"/tmp/var/log")
+    @fleure.tests.common.skip_if_not(TT is not None)
+    def test_12__init__with_root(self):
+        base = TT.Base(root="/tmp")
+        self.assertTrue(isinstance(base, TT.Base))
 
-        def test_14__init__with_cachedir(self):
-            cachedir = u"/tmp/aaa"
-            base = TT.Base(cachedir=cachedir)
-            self.assertTrue(isinstance(base, TT.Base))
-            self.assertEquals(base.base.conf.cachedir, cachedir,
-                              "%s vs. %s" % (base.base.conf.cachedir,
-                                             cachedir))
+        conf = base.base.conf
+        self.assertEquals(conf.installroot, u"/tmp")
+        self.assertEquals(conf.logdir, u"/tmp/var/log")
 
-    class Test20(unittest.TestCase):
+    @fleure.tests.common.skip_if_not(TT is not None)
+    def test_14__init__with_cachedir(self):
+        cachedir = u"/tmp/aaa"
+        base = TT.Base(cachedir=cachedir)
+        self.assertTrue(isinstance(base, TT.Base))
+        self.assertEquals(base.base.conf.cachedir, cachedir,
+                          "%s vs. %s" % (base.base.conf.cachedir,
+                                         cachedir))
 
-        def setUp(self):
-            self.workdir = fleure.tests.common.setup_workdir()
-            fleure.tests.common.copy_rpmdb_files(self.workdir)
 
-            self.base = TT.Base(self.workdir)
-            self.base.prepare()
+class Test20(unittest.TestCase):
 
-        def tearDown(self):
-            fleure.tests.common.cleanup_workdir(self.workdir)
+    def setUp(self):
+        self.workdir = fleure.tests.common.setup_workdir()
+        fleure.tests.common.copy_rpmdb_files(self.workdir)
 
-        def test_20_list_installed(self):
-            pkgs = self.base.list_installed()
-            self.assertTrue(isinstance(pkgs, list))
-            self.assertTrue(bool(pkgs))
+        self.base = TT.Base(self.workdir)
+        self.base.prepare()
 
-        def test_30_list_updates(self):
-            pkgs = self.base.list_updates()
-            self.assertTrue(isinstance(pkgs, list))
+    def tearDown(self):
+        fleure.tests.common.cleanup_workdir(self.workdir)
 
-        def test_40_list_errata(self):
-            ers = self.base.list_errata()
-            self.assertTrue(isinstance(ers, list))
+    @fleure.tests.common.skip_if_not(TT is not None)
+    def test_20_list_installed(self):
+        pkgs = self.base.list_installed()
+        self.assertTrue(isinstance(pkgs, list))
+        self.assertTrue(bool(pkgs))
+
+    @fleure.tests.common.skip_if_not(TT is not None)
+    def test_30_list_updates(self):
+        pkgs = self.base.list_updates()
+        self.assertTrue(isinstance(pkgs, list))
+
+    @fleure.tests.common.skip_if_not(TT is not None)
+    def test_40_list_errata(self):
+        ers = self.base.list_errata()
+        self.assertTrue(isinstance(ers, list))
 
 # vim:sw=4:ts=4:et:

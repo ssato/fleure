@@ -2,6 +2,8 @@
 # Copyright (C) 2011 - 2015 Satoru SATOH <ssato at redhat.com>
 #
 # pylint: disable=missing-docstring
+from __future__ import absolute_import
+
 import os.path
 import os
 import shutil
@@ -58,6 +60,17 @@ def cleanup_workdir(workdir):
     assert workdir != '.'
 
     os.system("rm -rf " + workdir)
+
+
+def skip_if_not(pred=True):
+    """A decorator to skip test if `pred` is False.
+    """
+    def wrapper(fnc):
+        """Skip test; see nose.tools.nontrivial.nottest.
+        """
+        fnc.__test__ = pred
+        return fnc
+    return wrapper
 
 
 def copy_rpmdb_files(workdir):

@@ -11,8 +11,13 @@ import unittest
 
 import fleure.archive as TT
 import fleure.globals
-import fleure.utils
 import fleure.tests.common
+
+try:
+    import fleure.utils
+    _RPM_DB_FOUND = os.path.exists("/var/lib/rpm/Packages")
+except ImportError:
+    _RPM_DB_FOUND = False
 
 
 def touch(filepath):
@@ -122,10 +127,8 @@ class Test10(unittest.TestCase):
     def tearDown(self):
         fleure.tests.common.cleanup_workdir(self.workdir)
 
+    @fleure.tests.common.skip_if_not(_RPM_DB_FOUND)
     def test_60_extract_rpmdb_archive__targz(self):
-        if not os.path.exists("/var/lib/rpm/Packages"):
-            return  # Not RHEL/Fedora/CentOS/...
-
         root = os.path.join(self.workdir, "sysroot")
         arcfile = os.path.join(self.workdir, "rpmdb.tar.gz")
         os.makedirs(root)
@@ -138,10 +141,8 @@ class Test10(unittest.TestCase):
         self.assertTrue(fleure.utils.check_rpmdb_root(root), errors)
         self.assertTrue(fleure.utils.check_rpmdb_root(root2), errors)
 
+    @fleure.tests.common.skip_if_not(_RPM_DB_FOUND)
     def test_62_extract_rpmdb_archive__zip(self):
-        if not os.path.exists("/var/lib/rpm/Packages"):
-            return
-
         root = os.path.join(self.workdir, "sysroot")
         arcfile = os.path.join(self.workdir, "rpmdb.zip")
         os.makedirs(root)

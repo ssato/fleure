@@ -12,41 +12,50 @@
 from __future__ import absolute_import
 
 import unittest
-
-import fleure.yumbase as TT
-import fleure.utils
 import fleure.tests.common
 
+try:
+    import fleure.yumbase as TT
+    import fleure.utils
+except ImportError:
+    TT = None
 
-if fleure.tests.common.is_rhel_or_fedora():
-    class Test00(unittest.TestCase):
 
-        def setUp(self):
-            self.workdir = fleure.tests.common.setup_workdir()
-            fleure.tests.common.copy_rpmdb_files(self.workdir)
-            self.base = TT.Base(self.workdir)
+class Test00(unittest.TestCase):
 
-        def tearDown(self):
-            fleure.tests.common.cleanup_workdir(self.workdir)
+    def setUp(self):
+        self.workdir = fleure.tests.common.setup_workdir()
+        fleure.tests.common.copy_rpmdb_files(self.workdir)
 
-        def test_10_create(self):
-            self.assertTrue(isinstance(self.base.base, TT.yum.YumBase))
+    def tearDown(self):
+        fleure.tests.common.cleanup_workdir(self.workdir)
 
-        def test_30_list_installed(self):
-            self.base.prepare()
-            pkgs = self.base.list_installed()
+    @fleure.tests.common.skip_if_not(TT is not None)
+    def test_10_create(self):
+        base = TT.Base(self.workdir)
+        self.assertTrue(isinstance(base.base, TT.yum.YumBase))
 
-            self.assertTrue(isinstance(pkgs, list))
-            self.assertNotEquals(pkgs, [])
+    @fleure.tests.common.skip_if_not(TT is not None)
+    def test_30_list_installed(self):
+        base = TT.Base(self.workdir)
+        base.prepare()
+        pkgs = base.list_installed()
 
-        def test_40_list_errata(self):
-            self.base.prepare()
-            ers = self.base.list_errata()
-            self.assertTrue(isinstance(ers, list))
+        self.assertTrue(isinstance(pkgs, list))
+        self.assertNotEquals(pkgs, [])
 
-        def test_50_list_updates(self):
-            self.base.prepare()
-            pkgs = self.base.list_updates()
-            self.assertTrue(isinstance(pkgs, list))
+    @fleure.tests.common.skip_if_not(TT is not None)
+    def test_40_list_errata(self):
+        base = TT.Base(self.workdir)
+        base.prepare()
+        ers = base.list_errata()
+        self.assertTrue(isinstance(ers, list))
+
+    @fleure.tests.common.skip_if_not(TT is not None)
+    def test_50_list_updates(self):
+        base = TT.Base(self.workdir)
+        base.prepare()
+        pkgs = base.list_updates()
+        self.assertTrue(isinstance(pkgs, list))
 
 # vim:sw=4:ts=4:et:
