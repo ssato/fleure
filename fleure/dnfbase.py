@@ -203,6 +203,7 @@ class Base(fleure.base.Base):
             conf.logdir = _pathjoin(self.root, conf.logdir)
             conf.persistdir = _pathjoin(self.root, conf.persistdir)
 
+        # :see: https://bugzilla.redhat.com/show_bug.cgi?id=1184943
         if cachedir is None:
             conf.cachedir = _pathjoin(self.root, conf.cachedir)
             self.cachedir = conf.cachedir
