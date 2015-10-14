@@ -10,4 +10,4 @@ RUN dnf install -y python-anyconfig python-{nltk,beautifulsoup4,bunch,matplotlib
 RUN pip install anytemplate
 
 RUN git clone https://github.com/ssato/fleure.git /tmp/fleure
-CMD cd /tmp/fleure && bash -x ./pkg/runtest.sh
+#CMD cd /tmp/fleure && bash -x ./pkg/runtest.sh
