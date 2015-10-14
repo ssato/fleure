@@ -1,4 +1,4 @@
-FROM fedora:22
+FROM ssato/python-dev:fedora-22
 MAINTAINER https://github.com/ssato/fleure
 
 # It will take some time to finish.
@@ -6,9 +6,8 @@ MAINTAINER https://github.com/ssato/fleure
 
 # see pkg/requirements.txt, pkg/test_requirements.txt and pkg/package.spec.in
 RUN dnf install -y dnf-plugins-core && dnf copr enable -y ssato/python-anyconfig
-RUN dnf install -y findutils git tar zip yum pylint python-anyconfig \
-python-{pip,nltk,beautifulsoup4,bunch,matplotlib,networkx,tablib,flake8,nose,pep8}
-RUN pip install anytemplate coveralls
-RUN git clone https://github.com/ssato/fleure.git /tmp/fleure
+RUN dnf install -y python-anyconfig python-{nltk,beautifulsoup4,bunch,matplotlib,networkx,tablib}
+RUN pip install anytemplate
 
-# CMD cd /tmp/fleure && bash -x ./pkg/runtest.sh
+RUN git clone https://github.com/ssato/fleure.git /tmp/fleure
+CMD cd /tmp/fleure && bash -x ./pkg/runtest.sh
