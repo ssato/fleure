@@ -10,8 +10,7 @@ services:
 
 before_install:
   - docker build -t ssato/fleure -f pkg/Dockerfile .
-  - docker ps -a
-  - docker info
+  # - docker info
 
 script:
   # - "./pkg/runtest.sh"
