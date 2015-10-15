@@ -7,12 +7,13 @@ from __future__ import absolute_import
 import os.path
 import os
 import shutil
+import sys
 import tempfile
 
-import anyconfig.compat
 import fleure.globals
 
 
+IS_PYTHON_3 = sys.version_info[0] == 3
 CNF_0 = dict(name="a", a=1, b=dict(b=[1, 2], c="C"))
 SCM_0 = {"type": "object",
          "properties": {
@@ -101,7 +102,7 @@ def dicts_equal(lhs, rhs):
     if len(lhs.keys()) != len(rhs.keys()):
         return False
 
-    for key, val in anyconfig.compat.iteritems(rhs):
+    for key, val in rhs.items():
         val_ref = lhs.get(key, None)
         if val != val_ref:
             return False
@@ -113,7 +114,7 @@ def to_bytes(astr):
     """
     Convert a string to bytes. Do nothing in python 2.6.
     """
-    return bytes(astr, 'utf-8') if anyconfig.compat.IS_PYTHON_3 else astr
+    return bytes(astr, 'utf-8') if IS_PYTHON_3 else astr
 
 
 def is_rhel_or_fedora(relfile="/etc/redhat-release"):
