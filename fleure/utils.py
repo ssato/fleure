@@ -97,10 +97,10 @@ def uniq(vals, sort=True, key=None, reverse=False, use_set=False):
     return sorted(acc, key=key, reverse=reverse) if sort else acc
 
 
-def uconcat(xss):
+def uconcat(xss, **uniq_options):
     """uniq + concat
     """
-    return uniq(concat(xss))
+    return uniq(concat(xss), **uniq_options)
 
 
 def copen(path, flag='r', encoding="utf-8"):
