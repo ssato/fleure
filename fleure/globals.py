@@ -23,12 +23,13 @@ import datetime
 import gettext
 import logging
 import os.path
+import os
 
 
 PACKAGE = "fleure"
 
-FLEURE_SYSCONFDIR = "/etc/%s" % PACKAGE
-FLEURE_DATADIR = "/usr/share/%s" % PACKAGE
+FLEURE_SYSCONFDIR = os.environ.get("FLEURE_SYSCONFDIR", "/etc/%s.d" % PACKAGE)
+FLEURE_DATADIR = os.environ.get("FLEURE_DATADIR", "/usr/share/%s" % PACKAGE)
 FLEURE_TEMPLATE_PATHS = [os.path.join(FLEURE_DATADIR, "templates/2/%s") % lang
                          for lang in ("ja", "en")]
 
