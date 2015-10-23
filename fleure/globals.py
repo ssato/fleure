@@ -54,12 +54,14 @@ REPOS_MAP = \
                         "rhel-x86_64-server-cluster-storage-5",
                         "rhel-x86_64-server-productivity-5",
                         "rhel-x86_64-server-supplementary-5"],
-         rhel_6=["rhel-x86_64-server-6",
-                 "rhel-x86_64-server-optional-6"],
-         rhel_6_extras=["rhel-x86_64-server-ha-6",
-                        "rhel-x86_64-server-rs-6",
-                        "rhel-x86_64-server-sfs-6",
-                        "rhel-x86_64-server-supplementary-6"],
+         rhel_6=["rhel-6-server-rpms",
+                 "rhel-6-server-optional-rpms"],
+         rhel_6_extras=["rhel-6-server-rh-common-rpms",
+                        "rhel-6-server-extras-rpms",
+                        "rhel-ha-for-rhel-6-server-rpms",
+                        "rhel-rs-for-rhel-6-server-rpms",
+                        "rhel-sfs-for-rhel-6-server-rpms",
+                        "rhel-6-server-supplementary-rpms"],
          rhel_7=["rhel-7-server-rpms",
                  "rhel-7-server-optional-rpms"],
          rhel_7_extras=["rhel-7-server-rh-common-rpms",
@@ -69,7 +71,6 @@ REPOS_MAP = \
                         "rhel-7-server-supplementary-rpms"])
 
 REPORT_FILES = ("errata_summary.xls", "errata_details.xls")
-
 LOGGING_FORMAT = "%(asctime)s %(name)s: [%(levelname)s] %(message)s"
 
 
