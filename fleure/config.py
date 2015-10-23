@@ -8,6 +8,7 @@
 """
 from __future__ import absolute_import
 
+import anyconfig
 import bunch
 import os.path
 import tempfile
@@ -51,6 +52,27 @@ def _normpath(path):
     return os.path.normpath(os.path.abspath(path))
 
 
+def load_config_from_files():
+    """
+    Load configurations from default sysconfdir.
+    """
+    cnf_paths = os.path.join(fleure.globals.FLEURE_SYSCONFDIR, "*.yml")
+    try:
+        cnf = bunch.bunchify(anyconfig.load(cnf_paths))
+    except (IOError, OSError):
+        return dict()
+    try:
+        return dict(errata_keywords=cnf.rpm.keywords,
+                    core_rpms=cnf.rpm.core_rpms, rpm_vendor=cnf.rpm.vendor,
+                    cvss_min_score=cnf.cvss_score, repos_map=cnf.repos_map)
+    except (KeyError, AttributeError):
+        return dict(errata_keywords=fleure.globals.ERRATA_KEYWORDS,
+                    core_rpms=fleure.globals.CORE_RPMS,
+                    rpm_vendor=fleure.globals.RPM_VENDOR,
+                    cvss_min_score=fleure.globals.CVSS_MIN_SCORE,
+                    repos_map=fleure.globals.REPOS_MAP)
+
+
 class Host(bunch.Bunch):
     """Object holding common configuration and host specific data.
     """
@@ -91,6 +113,7 @@ class Host(bunch.Bunch):
             A dir holding reference data previously generated to compute delta,
             updates since that data generated.
         """
+        kwargs.update(load_config_from_files())
         super(Host, self).__init__(root_or_arc_path=root_or_arc_path,
                                    repos=repos, period=period, refdir=refdir,
                                    **kwargs)
@@ -142,7 +165,8 @@ class Host(bunch.Bunch):
             return
 
         if self.repos is None or not self.repos:
-            self.repos = fleure.utils.guess_rhel_repos(self.root)
+            self.repos = fleure.utils.guess_rhel_repos(self.root, None,
+                                                       self.repos_map)
 
         if not os.path.exists(self.workdir):
             os.makedirs(self.workdir)
