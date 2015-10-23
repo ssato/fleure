@@ -32,6 +32,7 @@ data_files = [
     ("share/fleure/templates/2/en", list_files("data/templates/2/en/")),
     (os.path.join(get_python_lib(), "fleure/locale/ja/LC_MESSAGES"),
      ["fleure/locale/ja/LC_MESSAGES/fleure.mo"]),
+    ("/etc/fleure.d", list_files("data/conf/*.yml")),
 ]
 
 

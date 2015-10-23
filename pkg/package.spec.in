@@ -91,6 +91,7 @@ mv $RPM_BUILD_ROOT%{_bindir}/%{srcname}_cli $RPM_BUILD_ROOT%{_bindir}/%{cli}-2
 %{_bindir}/%{cli}-3
 
 %files -n python-%{srcname}-common
+%{_sysconfdir}/%{srcname}.d/*.yml
 %{_datadir}/%{srcname}/templates/2/*/*.j2
 
 %changelog
