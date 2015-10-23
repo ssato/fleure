@@ -11,9 +11,6 @@ A module to extend fleure.main for multiple host analysis.
 """
 from __future__ import absolute_import
 
-# Available in EPEL for RHELs:
-# https://apps.fedoraproject.org/packages/python-bunch
-import bunch
 import glob
 import itertools
 import logging
@@ -81,17 +78,14 @@ def prepare(hosts_datadir, workdir=None, **kwargs):
             LOG.debug(_("Creating working dir: %s"), workdir)
             os.makedirs(workdir)
 
-    for hid, root in hosts_rpmroot_g(hosts_datadir):
+    for hroot in glob.glob(os.path.join(hosts_datadir, '*')):
+        hid = os.path.basename(hroot)
         hworkdir = os.path.join(workdir, hid)
-        if not hworkdir:
+        if not os.paht.exists(hworkdir):
             os.makedirs(hworkdir)
 
-        if root is None:
-            touch(os.path.join(hworkdir, "RPMDB_NOT_AVAILABLE"))
-            yield bunch.Bunch(hid=hid, workdir=hworkdir, available=False)
-        else:
-            yield fleure.main.prepare(root, hid=hid, workdir=hworkdir,
-                                      **kwargs)
+        yield fleure.main.prepare(hroot, hid=hid, workdir=hworkdir,
+                                  **kwargs)
 
 
 def p2nevra(pkg):
@@ -155,7 +149,7 @@ def main(hosts_datadir, workdir=None, verbosity=0, multiproc=False, **kwargs):
 
     # Group hosts by installed rpms to degenerate these hosts and avoid to
     # analyze for same installed RPMs more than once. his :: [[[h]]]
-    his = [[list(g2) for _k2, g2 in gby(g, hps)] for _k, g in gby(hosts, ilen)]
+    his = [[list(t1[1]) for t1 in gby(t0[1], hps)] for t0 in gby(hosts, ilen)]
 
     for hss in his:
         hset = [(hs[0], hs[1:]) for hs in hss]
