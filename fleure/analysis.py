@@ -282,7 +282,7 @@ def higher_score_cve_errata_g(ers, score=0):
             yield ert
 
 
-def analyze_errata(ers, score=fleure.globals.DEFAULT_CVSS_SCORE,
+def analyze_errata(ers, score=fleure.globals.CVSS_MIN_SCORE,
                    keywords=fleure.globals.ERRATA_KEYWORDS,
                    core_rpms=fleure.globals.CORE_RPMS):
     """
@@ -334,7 +334,7 @@ def padding_row(row, mcols):
     return row + [''] * (mcols - len(row))
 
 
-def mk_overview_dataset(data, score=fleure.globals.DEFAULT_CVSS_SCORE,
+def mk_overview_dataset(data, score=fleure.globals.CVSS_MIN_SCORE,
                         keywords=fleure.globals.ERRATA_KEYWORDS,
                         core_rpms=None):
     """

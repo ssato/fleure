@@ -29,7 +29,7 @@ LOG = logging.getLogger(__name__)
 _TODAY = datetime.datetime.now().strftime("%F")
 _DEFAULTS = dict(path=None, workdir="/tmp/fleure-{}".format(_TODAY),
                  repos=None, imultiproc=False, hid=None, multihost=False,
-                 score=fleure.globals.DEFAULT_CVSS_SCORE,
+                 score=fleure.globals.CVSS_MIN_SCORE,
                  keywords=fleure.globals.ERRATA_KEYWORDS,
                  rpms=fleure.globals.CORE_RPMS,
                  period=[], cachedir=None, refdir=None, tpaths=[],

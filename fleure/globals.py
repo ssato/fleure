@@ -44,7 +44,7 @@ RPM_KEYS = ("name", "epoch", "version", "release", "arch")
 ERRATA_KEYWORDS = ("crash", "panic", "hang", "SEGV", "segmentation fault",
                    "data corruption")
 CORE_RPMS = ("kernel", "glibc", "bash", "openssl", "zlib")
-DEFAULT_CVSS_SCORE = 0  # PCIDSS: 4.0
+CVSS_MIN_SCORE = 0  # PCIDSS: 4.0
 
 TODAY = datetime.datetime.now().strftime("%F")
 
