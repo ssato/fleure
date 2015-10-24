@@ -36,7 +36,7 @@ import fleure.globals
 
 LOG = logging.getLogger(__name__)
 
-_RHERRATA_RE = re.compile(r"^RH[SBE]A-\d{4}[:-]\d{4}(?:-\d+)?$")
+_RHERRATA_RE = re.compile(r"^RH[SBE]A-\d{4}[:-]\d{4,5}(?:-\d+)?$")
 
 
 def concat(xss):
