@@ -181,7 +181,8 @@ def subproc_call(cmd_s, cwd=os.curdir, timeout=None, **kwargs):
         cmd_s = "timeout %d %s" % (timeout, cmd_s)
     try:
         proc = subprocess.Popen(cmd_s, shell=True, cwd=cwd,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                **kwargs)
         rcode = proc.wait()
         (out, err) = proc.communicate()
         return (rcode, out, err)
