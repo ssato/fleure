@@ -22,6 +22,7 @@ import shutil
 
 from fleure.globals import _
 
+import fleure.archive
 import fleure.main
 import fleure.utils
 
@@ -60,6 +61,24 @@ def touch(filepath):
     open(filepath, 'w').write()
 
 
+def _hids_from_apaths(apaths):
+    """
+    Compute host IDs from given list of hosts' data archives.
+
+    :param apaths: A list of archives
+    :return: A list of host ids
+
+    >>> aps = ["~foo/r/rhel-6-1_var_lib_rpm.tar.xz",
+    ...        "~foo/r/rhel-6-2_var_lib_rpm.tar.xz",
+    ...        "~foo/r/rhel-6-3-201510_var_lib_rpm.tar.xz",
+    ...        "~foo/r/b-rhel-6-4-20151024_var_lib_rpm.tar.xz"]
+    >>> _hids_from_apaths(aps)  # doctest: +NORMALIZE_WHITESPACE
+    ['rhel-6-1', 'rhel-6-2', 'rhel-6-3-201510', 'b-rhel-6-4-20151024']
+    """
+    sfx = fleure.utils.longest_common_suffix(*apaths)
+    return [os.path.basename(p[:p.rfind(sfx)]) for p in apaths]
+
+
 def prepare(hosts_datadir, workdir=None, **kwargs):
     """
     Scan and collect hosts' basic data (installed rpms list, etc.).
@@ -78,14 +97,26 @@ def prepare(hosts_datadir, workdir=None, **kwargs):
             LOG.debug(_("Creating working dir: %s"), workdir)
             os.makedirs(workdir)
 
-    for hroot in glob.glob(os.path.join(hosts_datadir, '*')):
-        hid = os.path.basename(hroot)
+    hpaths = glob.glob(os.path.join(hosts_datadir, '*'))
+    hids = _hids_from_apaths(hpaths)
+    cachedir = os.path.join(workdir, "_cache")  # Use common cache dir.
+
+    for hid, hpath in itertools.izip(hids, hpaths):
         hworkdir = os.path.join(workdir, hid)
-        if not os.paht.exists(hworkdir):
+        if not os.path.exists(hworkdir):
             os.makedirs(hworkdir)
 
-        yield fleure.main.prepare(hroot, hid=hid, workdir=hworkdir,
-                                  **kwargs)
+        if os.path.isdir(hpath):
+            hroot = hpath
+        else:
+            hroot = hworkdir
+            fleure.archive.extract_rpmdb_archive(hpath, hworkdir)
+
+        kwargs["hid"] = hid
+        kwargs["workdir"] = hworkdir
+        kwargs["cachedir"] = cachedir
+
+        yield fleure.main.prepare(hroot, **kwargs)
 
 
 def p2nevra(pkg):
