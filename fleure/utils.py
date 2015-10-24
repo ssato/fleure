@@ -166,6 +166,21 @@ def longest_common_prefix(*args):
                    in itertools.takewhile(all_eq, itertools.izip(*args)))
 
 
+def longest_common_suffix(*args):
+    """
+    Like `longest_common_prefix` compute the common suffix of given strings.
+
+    >>> longest_common_suffix("abc.tar.xz", "bcd.tar.xz", "def.tar.xz")
+    '.tar.xz'
+    >>> longest_common_suffix("cab", "ab", "cdab")
+    'ab'
+    >>> longest_common_suffix("cab", "cba")
+    ''
+    """
+    rsfx = longest_common_prefix(*(list(reversed(x)) for x in args))
+    return ''.join(reversed(rsfx))
+
+
 # @fleure.decorators.async (TBD)
 def subproc_call(cmd_s, cwd=os.curdir, timeout=None, **kwargs):
     """
