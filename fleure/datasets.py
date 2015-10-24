@@ -187,7 +187,7 @@ def _errata_to_int(errata):
     sevs = collections.defaultdict(int, dict(Low=2, Moderate=4, Important=6,
                                              Critical=8))
     reg = re.compile(r"^RH(?P<echar>(E|B|S))A-(?P<year>\d{4}):"
-                     r"(?P<seq>\d{4})(?:-(?P<rev>\d+))?$")
+                     r"(?P<seq>\d{4,5})(?:-(?P<rev>\d+))?$")
 
     match = reg.match(errata["advisory"])
     if not match:
