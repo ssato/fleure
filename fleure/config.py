@@ -129,6 +129,7 @@ class Host(bunch.Bunch):
         if cachedir is None:
             if self.root is not None:
                 self.cachedir = os.path.join(self.root, "var/cache")
+            # else:  -> cachedir will be set in :meth:`configure` later.
         else:
             self.cachedir = _normpath(cachedir)
 
