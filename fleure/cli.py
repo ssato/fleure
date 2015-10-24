@@ -92,7 +92,7 @@ def parse_args(argv=None):
     add_arg("-I", "--hid", help="Host (Data) ID [None]")
     add_arg("-A", "--archive", action="store_true",
             help="Archive report files generated")
-    add_arg("-M", "--multihost", help="Multihost mode")
+    add_arg("-M", "--multihost", action="store_true", help="Multihost mode")
     # ..note:: Disabled until issue of yum vs. multiprocessing module is fixed.
     # add_arg("-M", "--multiproc", action="store_true",
     #         help="Specify this option to analyze data in parallel")
