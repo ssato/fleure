@@ -128,6 +128,44 @@ def json_dump(data, filepath):
     json.dump(data, copen(filepath, 'w'))
 
 
+def all_eq(iterable):
+    """
+    :param iterable: An iterable object such as a list, generator, etc.
+    :return: True if all items in iterable `iterable` equals each other.
+
+    >>> all_eq([])
+    False
+    >>> all_eq(["a", "a", "a"])
+    True
+    >>> all_eq(c for c in "")
+    False
+    >>> all_eq(c for c in "aaba")
+    False
+    >>> all_eq(c for c in "aaaa")
+    True
+    >>> all_eq([c for c in "aaaa"])
+    True
+    """
+    if not isinstance(iterable, list):
+        iterable = list(iterable)  # iterable may be a generator...
+
+    return all(x == iterable[0] for x in iterable[1:]) if iterable else False
+
+
+def longest_common_prefix(*args):
+    """
+    Variant of LCS = Longest Common Sub-sequence. For LCS, see
+    http://en.wikipedia.org/wiki/Longest_common_substring_problem
+
+    >>> longest_common_prefix("abc", "ab", "abcd")
+    'ab'
+    >>> longest_common_prefix("abc", "bc")
+    ''
+    """
+    return ''.join(x[0] for x
+                   in itertools.takewhile(all_eq, itertools.izip(*args)))
+
+
 # @fleure.decorators.async (TBD)
 def subproc_call(cmd_s, cwd=os.curdir, timeout=None, **kwargs):
     """
