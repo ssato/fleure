@@ -87,6 +87,23 @@ class Package(dict):
             self[key] = val
 
     def __str__(self):
+        """to string method"""
         return "({name}, {version}, {release}, {epoch}, {arch})".format(**self)
+
+    @classmethod
+    def from_dict(cls, pkg):
+        """
+        Factory method to create a :class:`Package` instance from a dict.
+
+        >>> pkgd = dict(name="foo", version="0.0.1", release="1",
+        ...             arch="x86_64", epoch=0, buildhost="localhost")
+        >>> pkg = Package.from_dict(pkgd)
+        >>> isinstance(pkg, Package)
+        True
+        """
+        kwargs = dict((key, val) for key, val in pkg.items()
+                      if key not in ("name", "version", "release", "arch"))
+        return cls(pkg["name"], pkg["version"], pkg["release"], pkg["arch"],
+                   **kwargs)
 
 # vim:sw=4:ts=4:et:
