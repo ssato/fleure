@@ -113,10 +113,13 @@ class Host(bunch.Bunch):
             A dir holding reference data previously generated to compute delta,
             updates since that data generated.
         """
-        kwargs.update(load_config_from_files())
+        defaults = load_config_from_files()
+        defaults.update(kwargs)
         super(Host, self).__init__(root_or_arc_path=root_or_arc_path,
                                    repos=repos, period=period, refdir=refdir,
                                    **kwargs)
+        for key, val in kwargs.items():
+            setattr(self, key, val)
 
         if os.path.isdir(root_or_arc_path):
             self.root = _normpath(root_or_arc_path)
