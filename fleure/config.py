@@ -118,8 +118,8 @@ class Host(bunch.Bunch):
         super(Host, self).__init__(root_or_arc_path=root_or_arc_path,
                                    repos=repos, period=period, refdir=refdir,
                                    **kwargs)
-        for key, val in kwargs.items():
-            setattr(self, key, val)
+        for key, val in defaults.items():
+            self[key] = val
 
         if os.path.isdir(root_or_arc_path):
             self.root = _normpath(root_or_arc_path)
