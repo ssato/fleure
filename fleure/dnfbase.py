@@ -17,11 +17,27 @@ import operator
 import os.path
 
 import fleure.base
+import fleure.globals
 import fleure.package
 import fleure.utils
 
 
 LOG = logging.getLogger(__name__)
+
+
+def _list_installed(root):
+    """
+    DNF (hawkey) does not provide some RPM info for installed RPMs such like
+    buildhost, vendor. This is an workaround for that.
+
+    :param root: Root dir of RPM DBs.
+    :return: A list of packages :: [dict]
+    """
+    # see :class:`~fleure.package.Package`
+    keys = list(fleure.globals.RPM_KEYS) + ["summary", "vendor", "buildhost"]
+    ips = fleure.utils.list_installed_rpms(root, keys)
+
+    return [fleure.package.Package.from_dict(p) for p in ips]
 
 
 def _to_pkg(pkg, extras=None):
@@ -236,7 +252,10 @@ class Base(fleure.base.Base):
             query = self.base.sack.query()
 
             if item == "installed":
-                hpkgs = query.installed()
+                hpkgs = query.installed()  # These lack of buildhost, etc.
+                self._hpackages[item] = hpkgs  # Just to cache for errata.
+                self._packages[item] = objs = _list_installed(self.root)
+                return objs
             elif item == "updates":
                 hpkgs = query.upgrades()
             else:  # obsoletes
