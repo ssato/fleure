@@ -8,6 +8,7 @@
 # PARTICULAR PURPOSE. You should have received a copy of GPLv3 along with this
 # software; if not, see http://www.gnu.org/licenses/gpl.html
 #
+# pylint: disable=no-member
 """
 Misc utility routines for fleure.
 """
@@ -349,6 +350,26 @@ def rpm_transactionset(root='/', readonly=True):
     return trs
 
 
+def list_installed_rpms(root='/', keys=fleure.globals.RPM_KEYS):
+    """
+    List installed RPMs :: [dict]
+
+    :param root: Root dir of RPM DBs.
+    :param keys: RPM Package dict keys
+
+    :return: A list of packages :: [dict]
+
+    >>> ips = list_installed_rpms()
+    >>> bool(ips)
+    True
+    """
+    rts = rpm_transactionset(root)
+    ips = [dict(zip(keys, [h[k] for k in keys])) for h in rts.dbMatch()]
+    del rts
+
+    return ips
+
+
 def guess_rhel_version_simple(root):
     """
     Guess RHEL major version from RPM database. It's similar to the above
@@ -362,11 +383,9 @@ def guess_rhel_version_simple(root):
     :param root: RPM DB root dir
     :param maybe_rhel_4:
     """
-    trs = rpm_transactionset(root, True)
-    # pylint: disable=no-member
-    rpmver = [h for h in trs.dbMatch()][0][rpm.RPMTAG_RPMVERSION]
-    # pylint: enable=no-member
-    del trs
+    rts = rpm_transactionset(root)
+    rpmver = [h for h in rts.dbMatch()][0][rpm.RPMTAG_RPMVERSION]
+    del rts
 
     irpmver = int(''.join(rpmver.split('.')[:4])[:4])
 
