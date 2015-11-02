@@ -61,6 +61,20 @@ def touch(filepath):
     open(filepath, 'w').write()
 
 
+def _gen_hid(apath, suffix):
+    """
+    Compute host ID from given host's data archive path and common suffix or
+    name of dir in which host's data files are.
+
+    :param apath: Path to host's data arvhie or dir
+    :param suffix: Common longest suffix of apath-es of hosts of same group
+    """
+    if os.path.isfile(apath):
+        apath = apath[:apath.rfind(suffix)]
+
+    return os.path.basename(apath)
+
+
 def _hids_from_apaths(apaths):
     """
     Compute host IDs from given list of hosts' data archives.
@@ -76,7 +90,7 @@ def _hids_from_apaths(apaths):
     ['rhel-6-1', 'rhel-6-2', 'rhel-6-3-201510', 'b-rhel-6-4-20151024']
     """
     sfx = fleure.utils.longest_common_suffix(*apaths)
-    return [os.path.basename(p[:p.rfind(sfx)]) for p in apaths]
+    return [_gen_hid(p, sfx) for p in apaths]
 
 
 def prepare(hosts_datadir, workdir=None, **kwargs):
@@ -97,7 +111,7 @@ def prepare(hosts_datadir, workdir=None, **kwargs):
             LOG.debug(_("Creating working dir: %s"), workdir)
             os.makedirs(workdir)
 
-    hpaths = glob.glob(os.path.join(hosts_datadir, '*'))
+    hpaths = sorted(glob.glob(os.path.join(hosts_datadir, '*')))
     hids = _hids_from_apaths(hpaths)
     cachedir = os.path.join(workdir, "_cache")  # Use common cache dir.
 
