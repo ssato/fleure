@@ -69,7 +69,7 @@ def _gen_hid(apath, suffix):
     :param apath: Path to host's data arvhie or dir
     :param suffix: Common longest suffix of apath-es of hosts of same group
     """
-    if os.path.isfile(apath):
+    if not os.path.isdir(apath):
         apath = apath[:apath.rfind(suffix)]
 
     return os.path.basename(apath)
