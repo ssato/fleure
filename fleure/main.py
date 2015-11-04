@@ -49,7 +49,7 @@ def dump_xls(dataset, filepath):
         out.write(book.xls)
 
 
-def dump_results(host, rpms, errata, updates):
+def dump_results(host, rpms, errata, updates, dumpdir=None):
     """
     Dump package level static analysis results.
 
@@ -57,6 +57,7 @@ def dump_results(host, rpms, errata, updates):
     :param rpms: A list of installed RPMs
     :param errata: A list of applicable errata
     :param updates: A list of update RPMs
+    :param dumpdir: Dir to save results
     """
     dargs = (host.cvss_min_score, host.errata_keywords, host.core_rpms)
     rpmkeys = host.rpmkeys
@@ -84,7 +85,7 @@ def dump_results(host, rpms, errata, updates):
                                    (_("packages not need updates"),
                                     nps - nus)]))
 
-    host.save(data, "summary")
+    host.save(data, "summary", dumpdir)
     fleure.depgraph.dump_depgraph(host.root, ers, host.workdir,
                                   tpaths=host.tpaths)
     # TODO: Keep DRY principle.
@@ -152,7 +153,8 @@ def dump_results(host, rpms, errata, updates):
                                 _("RPMs from other vendors"), rpmdkeys,
                                 lrpmdkeys))
 
-    dump_xls(mds, os.path.join(host.workdir, "errata_summary.xls"))
+    dump_xls(mds, os.path.join(host.workdir if dumpdir is None else dumpdir,
+                               "errata_summary.xls"))
 
     if host.details:
         dds = [make_dataset(errata, _("Errata Details"),
@@ -166,7 +168,9 @@ def dump_results(host, rpms, errata, updates):
                make_dataset(updates, _("Update RPMs"), rpmkeys, lrpmkeys),
                make_dataset(rpms, _("Installed RPMs"), rpmdkeys, lrpmdkeys)]
 
-        dump_xls(dds, os.path.join(host.workdir, "errata_details.xls"))
+        dump_xls(dds,
+                 os.path.join(host.workdir if dumpdir is None else dumpdir,
+                              "errata_details.xls"))
 
 
 @profile
@@ -254,7 +258,7 @@ def analyze(host):
             LOG.debug(_("%s: Creating period working dir %s"), host.hid, pdir)
             os.makedirs(pdir)
 
-        dump_results(host, ips, pes, ups)
+        dump_results(host, ips, pes, ups, pdir)
         LOG.info(_("%s: Saved analysis results [%s ~ %s] in %s"),
                  host.hid, start_date, end_date, pdir)
 
