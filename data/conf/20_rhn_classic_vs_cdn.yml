@@ -1,0 +1,117 @@
+# Repo ID mappings between RHN Classic repos vs. CDN repos:
+#   <RHN Classic repo id>: <CDN repo id>
+#
+# Notes:
+#   - Basic rules look like the followings:
+#     - Base OS: rhel-<arch>-<type>-<version> -> rhel-<version>-<type>-rpms,
+#       e.g. arch = x86_64, type = server, version = 5
+#     - Addons: rhel-<arch>-<type>-<addon>-<version> ->
+#       rhel-<addon_altname>-for-rhel-<version>-<type>-rpms,
+#       e.g. addon = cluster, addon_altname = ha
+#
+#   - CDN repos are architecture independent; $basearch in .repo file will be
+#     expanded by yum.
+#
+rhn_classic_to_cdn_maps:
+  # RHEL 5:
+  rhel-x86_64-server-5: rhel-5-server-rpms
+
+  jb-ewp-5-x86_64-server-5-rpm: jb-ewp-5-for-rhel-5-server-rpms
+  jb-ews-1-x86_64-server-5-rpm: jb-ews-1-for-rhel-5-server-rpms
+  jb-ews-2-x86_64-server-5-rpm: jb-ews-2-for-rhel-5-server-rpms
+  jbappplatform-4.3.0-x86_64-server-5-rpm: jb-eap-4.3-for-rhel-5-server-rpms
+  jbappplatform-5-x86_64-server-5-rpm: jb-eap-5-for-rhel-5-server-rpms
+  jbappplatform-6-x86_64-server-5-rpm: jb-eap-6-for-rhel-5-server-rpms
+  jbappplatform-6.3-x86_64-server-5-rpm: jb-eap-6.3-for-rhel-5-server-rpms
+  jbappplatform-6.4-x86_64-server-5-rpm: jb-eap-6.4-for-rhel-5-server-rpms
+
+  # TODOs:
+  # jb-wfk-1-x86_64-server-5-rpm: 
+  # jbappplatform-4-x86_64-server-5-rpm: 
+  # jbappplatform-4.3.0-fp-x86_64-server-5-rpm:
+  # redhat-rhn-proxy-5.7-server-x86_64-5:
+  # redhat-rhn-satellite-5.7-server-x86_64-5:
+  # rhel-x86_64-rhev-v2v-5:
+  # rhel-x86_64-server-5-appstk-2:
+  # rhel-x86_64-server-5-cf-tools-1:
+  # rhel-x86_64-server-5-mrg-grid-1:
+  # rhel-x86_64-server-5-mrg-grid-2:
+  # rhel-x86_64-server-5-mrg-grid-execute-1:
+  # rhel-x86_64-server-5-mrg-grid-execute-2:
+  # rhel-x86_64-server-5-mrg-management-1:
+  # rhel-x86_64-server-5-mrg-management-2:
+  # rhel-x86_64-server-5-mrg-messaging-1:
+  # rhel-x86_64-server-5-mrg-messaging-2:
+  # rhel-x86_64-server-5-mrg-realtime-1:
+  # rhel-x86_64-server-5-rhcmsys-7.3:
+  # rhel-x86_64-server-5-rhcmsys-8:
+  # rhel-x86_64-server-5-rhdirserv-8:
+  # rhel-x86_64-server-5-rheipa-1:
+  # rhel-x86_64-server-5-sts:
+  # rhel-x86_64-server-dts-5:
+  # rhel-x86_64-server-fastrack-5:
+  # rhel-x86_64-server-hpc-5:
+  # rhel-x86_64-server-hts-5:
+  # rhel-x86_64-server-rhev-hdk-2-5:
+  # rhel-x86_64-server-vt-5:
+
+  rhel-x86_64-server-6: rhel-6-server-rpms
+  rhel-x86_64-server-optional-6: rhel-6-server-optional-rpms
+
+  #: a-mq-clients-1-for-rhel-5-server-rpms
+  jb-ewp-5-x86_64-server-5-rpm: jb-ewp-5-for-rhel-6-server-rpms
+  jb-ews-1-x86_64-server-5-rpm: jb-ews-1-for-rhel-6-server-rpms
+  jb-ews-2-x86_64-server-5-rpm: jb-ews-2-for-rhel-6-server-rpms
+  jbappplatform-5-x86_64-server-5-rpm: jb-eap-5-for-rhel-6-server-rpms
+  jbappplatform-6-x86_64-server-5-rpm: jb-eap-6-for-rhel-6-server-rpms
+  jbappplatform-6.3-x86_64-server-5-rpm: jb-eap-6.3-for-rhel-6-server-rpms
+  jbappplatform-6.4-x86_64-server-5-rpm: jb-eap-6.4-for-rhel-6-server-rpms
+
+  rhel-x86_64-server-6-rhdirserv-9: rhel-server-6-rhds-9-rpms
+  rhel-x86_64-server-dts-6: rhel-server-dts-6-rpms
+  rhel-x86_64-server-eucjp-6: rhel-eucjp-for-rhel-6-server-rpms
+  rhel-x86_64-server-ha-6: rhel-ha-for-rhel-6-server-rpms
+  rhel-x86_64-server-hpn-6: rhel-hpn-for-rhel-6-server-rpms
+  rhel-x86_64-server-hts-6: rhel-6-server-hts-rpms
+  rhel-x86_64-server-lb-6: rhel-lb-for-rhel-6-server-rpms
+  rhel-x86_64-server-optional-6: rhel-6-server-optional-rpms
+  rhel-x86_64-server-rs-6: rhel-rs-for-rhel-6-server-rpms
+  rhel-x86_64-server-sap-6: rhel-sap-for-rhel-6-server-rpms
+  rhel-x86_64-server-sfs-6: rhel-scalefs-for-rhel-6-server-rpms
+  rhel-x86_64-server-sjis-6: rhel-sjis-for-rhel-6-server-rpms
+  rhel-x86_64-server-supplementary-6: rhel-6-server-supplementary-rpms
+
+  rhel-x86_64-rhev-agent-6-server: rhel-6-server-rhev-agent-rpms
+  rhel-x86_64-rhev-mgmt-agent-6: rhel-6-server-rhev-mgmt-agent-rpms
+  rhel-x86_64-server-6-rhevh: rhel-6-server-rhevh-rpms
+  rhel-x86_64-server-6-rhevm-3: rhel-6-server-rhevm-3-rpms
+  rhel-x86_64-server-6-rhevm-3.1: rhel-6-server-rhevm-3.1-rpms
+  rhel-x86_64-server-6-rhevm-3.2: rhel-6-server-rhevm-3.2-rpms
+  rhel-x86_64-server-6-rhevm-3.3: rhel-6-server-rhevm-3.3-rpms
+  rhel-x86_64-server-6-rhevm-3.4: rhel-6-server-rhevm-3.4-rpms
+  rhel-x86_64-server-6-rhevm-3.5: rhel-6-server-rhevm-3.5-rpms
+  rhel-x86_64-server-6-rhevm-3.6: rhel-6-server-rhevm-3.6-rpms
+  rhel-x86_64-server-v2vwin-6: rhel-6-server-v2vwin-1-rpms
+
+  rhel-x86_64-server-6-cf-ce-1: rhel-6-server-cf-ce-1-rpms
+  rhel-x86_64-server-6-cf-se-1: rhel-6-server-cf-se-1-rpms
+  rhel-x86_64-server-6-cf-tools-1: rhel-6-server-cf-tools-1-rpms
+  rhel-x86_64-server-6-mrg-grid-2: rhel-6-server-mrg-grid-rpms
+  rhel-x86_64-server-6-mrg-grid-execute-2: rhel-6-server-mrg-grid-execute-rpms
+  rhel-x86_64-server-6-mrg-management-2: rhel-6-server-mrg-management-rpms
+  rhel-x86_64-server-6-mrg-messaging-2: rhel-6-server-mrg-messaging-2-rpms
+  rhel-x86_64-server-6-mrg-messaging-3: rhel-6-server-mrg-messaging-3-rpms
+
+  # TODOs:
+  # redhat-rhn-proxy-5.7-server-x86_64-6:
+  # redhat-rhn-satellite-5.7-server-x86_64-6:
+  # redhat-rhn-satellite-manageddb-5.7-server-x86_64-6:
+  # rhel-x86_64-server-6-mrg-realtime-2:
+  # rhel-x86_64-server-6-rhevm-3-jboss-5:
+  # rhel-x86_64-server-6-rhui-2:
+  # rhel-x86_64-server-6-sts:
+  # rhel-x86_64-server-ei-replication-6:
+  # rhn-tools-rhel-x86_64-server-6:
+  # sam-rhel-x86_64-server-6:
+
+# vim:sw=2:ts=2:et:
