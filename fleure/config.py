@@ -192,16 +192,16 @@ class Host(bunch.Bunch):
                             cachedir=self.cachedir)
         return self.base
 
-    def save(self, obj, name, subdir=None):
+    def save(self, obj, name, savedir=None):
         """
         :param obj: Object to save
         :param name: File base name to save
-        :param subdir: Sub directory relative to workdir
+        :param savedir: Directory to save results
         """
-        if subdir is None:
+        if savedir is None:
             filepath = os.path.join(self.workdir, "%s.json" % name)
         else:
-            filepath = os.path.join(self.workdir, subdir, "%s.json" % name)
+            filepath = os.path.join(savedir, "%s.json" % name)
 
         if not os.path.exists(os.path.dirname(filepath)):
             os.makedirs(os.path.dirname(filepath))
