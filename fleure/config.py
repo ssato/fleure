@@ -44,7 +44,8 @@ def _normpath(path):
     >>> _normpath("~%s/a/b/.." % usr) == os.path.join(homedir, "a")
     True
     """
-    assert path, "Empty path was given!"
+    if not path:
+        raise ValueError("(Maybe) Empty path was given!")
 
     if path.startswith('~'):
         path = os.path.expanduser(path)
@@ -185,7 +186,8 @@ class Host(bunch.Bunch):
         """
         Inialized yum/dnf base object.
         """
-        assert self.has_valid_root(), "Initialize root at first!"
+        if not self.has_valid_root():
+            raise RuntimeError("Root is invalid. Initialize it at first!")
 
         backend = self.backends.get(self.backend)
         self.base = backend(self.root, self.repos, workdir=self.workdir,

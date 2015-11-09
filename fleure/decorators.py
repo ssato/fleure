@@ -17,7 +17,9 @@ def _make_ref_to_original(fnc):
 
     :param fnc: Function to decorate
     """
-    assert callable(fnc), "Given object is not callable!: " + repr(fnc)
+    if not callable(fnc):
+        raise ValueError("Given object is not callable!: %r" % fnc)
+
     setattr(inspect.getmodule(fnc), fnc.__name__ + "_original", fnc)
 
 
@@ -69,7 +71,9 @@ def async(fnc):
     @functools.wraps(fnc)
     def decorated(*args, **kwargs):
         """Decorated one"""
-        assert isinstance(async.pool, multiprocessing.pool.Pool)
+        if not isinstance(async.pool, multiprocessing.pool.Pool):
+            raise ValueError("Not an async.pool instance!")
+
         return async.pool.apply_async(fnc, args, kwargs)
 
     return decorated

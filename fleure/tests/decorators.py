@@ -25,7 +25,7 @@ class Test(unittest.TestCase):
         self.assertEquals(inspect.getdoc(fnc), inspect.getdoc(fnc2))
 
     def test_10_noop_not_callable(self):
-        self.assertRaises(AssertionError, TT.noop, None)
+        self.assertRaises(ValueError, TT.noop, None)
 
     def test_20_memoize(self):
         param = 0

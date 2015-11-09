@@ -139,6 +139,13 @@ def make_dataset(list_data, title=None, headers=None, lheaders=None):
     return tds
 
 
+def _assert_if_not_exist(path, desc):
+    """Tiny helper function to check if given path (dir or file) exists.
+    """
+    if not os.path.exists(path):
+        raise IOError("Reference %s not found: %s" % (desc, path))
+
+
 def compute_delta(refdir, ers, updates, nevra_keys=fleure.globals.RPM_KEYS):
     """
     :param refdir: Dir has reference data files: packages.json, errata.json
@@ -146,13 +153,12 @@ def compute_delta(refdir, ers, updates, nevra_keys=fleure.globals.RPM_KEYS):
     :param ers: A list of errata
     :param updates: A list of update packages
     """
-    emsg = "Reference %s not found: %s"
-    assert os.path.exists(refdir), emsg % ("data dir", refdir)
+    _assert_if_not_exist(refdir, "data dir")
 
     ref_es_file = os.path.join(refdir, "errata.json")
     ref_us_file = os.path.join(refdir, "updates.json")
-    assert os.path.exists(ref_es_file), emsg % ("errata file", ref_es_file)
-    assert os.path.exists(ref_us_file), emsg % ("updates file", ref_us_file)
+    _assert_if_not_exist(ref_es_file, "errata file")
+    _assert_if_not_exist(ref_us_file, "updates file")
 
     ref_es_data = fleure.utils.json_load(ref_es_file)
     ref_us_data = fleure.utils.json_load(ref_us_file)

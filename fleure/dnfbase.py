@@ -100,7 +100,8 @@ def get_severity_from_hadv(hadv, default="N/A"):
 
     :see: https://access.redhat.com/security/updates/classification/
     """
-    assert hadv.title, "Not _hawkey.Advisory ?: {}".format(hadv)
+    if not hadv.title:
+        raise ValueError("Not _hawkey.Advisory ?: {}".format(hadv))
 
     if hadv.type != hawkey.ADVISORY_SECURITY:
         return default
@@ -114,7 +115,8 @@ def _eref_to_pkg(eref):
 
     :eref: _hawkey.AdvisoryPkg object from errata references
     """
-    assert eref.evr, "Not _hawkey.AdvisoryPkg ?: {}".format(eref)
+    if not eref.evr:
+        raise ValueError("Not _hawkey.AdvisoryPkg ?: {}".format(eref))
 
     (ver, rel) = eref.evr.rsplit('-')
     if ':' in ver:
@@ -132,7 +134,8 @@ def hadv_to_errata(hadv):
 
     :param hadv: A _hawkey.Advisory object
     """
-    assert hadv.id, "Not _hawkey.Advisory ?: {}".format(hadv)
+    if not hadv.id:
+        raise ValueError("Not _hawkey.Advisory ?: {}".format(hadv))
 
     errata = dict(advisory=hadv.id, synopsis=hadv.title,
                   description=hadv.description,

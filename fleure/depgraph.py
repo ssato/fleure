@@ -86,7 +86,8 @@ def make_requires_dict(root=None, reverse=False, use_yum=True):
         fnc = "requiring_packages" if reverse else "required_packages"
         return sorted(x.name for x in getattr(pkg, fnc)())
 
-    assert use_yum, "Not implemented w/o yum yet!"  # Not yet.
+    if not use_yum:
+        raise NotImplementedError("It's not work w/o yum yet!")  # Not yet.
 
     list_installed = _yum_list_installed  # Alternative is not available yet.
     return dict((p.name, list_reqs(p)) for p in list_installed(root))
