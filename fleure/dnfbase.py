@@ -25,45 +25,45 @@ import fleure.utils
 LOG = logging.getLogger(__name__)
 
 
-def _list_installed(root):
+def _inspect(ipkg, extra_names=None):
+    """
+    Inspect ipkg and update it.
+    """
+    ret = fleure.package.inspect_origin(ipkg["name"], ipkg["vendor"],
+                                        ipkg["buildhost"], extra_names)
+    ipkg.update(**ret)
+    return ipkg
+
+
+def _list_installed(root, enames=None):
     """
     DNF (hawkey) does not provide some RPM info for installed RPMs such like
     buildhost, vendor. This is an workaround for that.
 
-    :param root: Root dir of RPM DBs.
+    :param root: Root dir of RPM DBs
+    :param enames: A list of extra packages not availabe from given repos
     :return: A list of packages :: [dict]
     """
     # see :class:`~fleure.package.Package`
     keys = list(fleure.globals.RPM_KEYS) + ["summary", "vendor", "buildhost"]
     ips = fleure.utils.list_installed_rpms(root, keys)
 
-    return [fleure.package.Package.from_dict(p) for p in ips]
+    return [fleure.package.Package.from_dict(_inspect(p, enames)) for p in ips]
 
 
-def _to_pkg(pkg, extras=None):
+def _to_pkg(pkg):
     """
     Convert Package object :: hawkey.Package to a dict object
     :: fleure.package.Package object.
 
     :param pkg: Package object which base.list_installed(), etc. returns
     :param extras:
-        A list of dicts represent extra packages which is installed but not
-        available from yum repos available.
-
-    .. todo:: Some data is missing in hawkey.Package and we must get them
-       anyhow; hawkey.Package.packager != vendor, buildhost is not
-       available, etc.
+        True if given package is extras, not available from given yum repos.
     """
     if isinstance(pkg, collections.Mapping):
         return pkg  # Conversion should be done already.
 
-    if extras is None:
-        originally_from = "TBD"
-    else:
-        if pkg.name in (e["name"] for e in extras):
-            originally_from = pkg.packager
-        else:
-            originally_from = "Unknown"
+    originally_from = "Unknown"
 
     return fleure.package.Package(pkg.name, pkg.v, pkg.r, pkg.a, pkg.epoch,
                                   pkg.summary, pkg.packager, "N/A",
@@ -254,7 +254,12 @@ class Base(fleure.base.Base):
             if item == "installed":
                 hpkgs = query.installed()  # These lack of buildhost, etc.
                 self._hpackages[item] = hpkgs  # Just to cache for errata.
-                self._packages[item] = objs = _list_installed(self.root)
+
+                havails = query.available()
+                extras = [p for p in hpkgs if p not in havails]
+                ens = fleure.utils.uniq(e.name for e in extras)
+
+                self._packages[item] = objs = _list_installed(self.root, ens)
                 return objs
             elif item == "updates":
                 hpkgs = query.upgrades()
