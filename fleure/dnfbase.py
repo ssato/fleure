@@ -262,7 +262,7 @@ class Base(fleure.base.Base):
                 self._packages[item] = objs = _list_installed(self.root, ens)
                 return objs
             elif item == "updates":
-                hpkgs = query.upgrades()
+                hpkgs = query.upgrades().latest()
             else:  # obsoletes
                 hpkgs = query.filter(obsoletes=query.installed())
 
