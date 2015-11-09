@@ -10,7 +10,6 @@ Summary:        %{sumtxt}
 Group:          Applications/System
 License:        AGPLv3+ and GPLv3+
 URL:            https://github.com/ssato/%{srcname}
-#Source0:        https://github.com/ssato/%{srcname}/tarball/master/%{name}-%{version}.tar.gz
 Source0:        %{srcname}-%{version}.tar.gz
 BuildArch:      noarch
 BuildRequires:  python2-devel python3-devel
