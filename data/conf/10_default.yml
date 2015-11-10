@@ -35,8 +35,15 @@ cvss_score: 0  # PCIDSS: 4.0
 
 repos_map:
   rhel_5:
-    - rhel-x86_64-server-5
+    - rhel-5-server-rpms
+    - rhel-5-server-optional-rpms
   rhel_5_extras:
+    - rhel-5-server-rh-common-rpms
+    - rhel-5-server-vt-rpms
+    - rhel-5-server-supplementary-rpms
+  rhel_5_classic:
+    - rhel-x86_64-server-5
+  rhel_5_extras_classic:
     - rhel-x86_64-server-cluster-5
     - rhel-x86_64-server-cluster-storage-5
     - rhel-x86_64-server-productivity-5
