@@ -9,6 +9,7 @@ import os.path
 import tablib
 import unittest
 import fleure.tests.common
+import fleure.decorators
 
 try:
     import fleure.main as TT
@@ -32,7 +33,8 @@ class Test00(unittest.TestCase):
         tds.append((1, 2, 3))
 
         xlspath = os.path.join(self.workdir, "test.xls")
-        TT.dump_xls([tds], xlspath)
+        fnc = getattr(TT, fleure.decorators.ref_to_original(TT.dump_xls))
+        fnc([tds], xlspath)
 
         self.assertTrue(os.path.exists(xlspath))
 
