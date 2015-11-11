@@ -62,11 +62,11 @@ def list_updates_from_errata(ers):
 
 
 def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
-                         strict=True):
+                         stemming=True):
     """
     :param ers: A list of errata
     :param keywords: Keyword list to filter 'important' RHBAs
-    :strict: Strict matching of keywords with using NLTK stemmer
+    :param stemming: Strict matching of keywords with using NLTK stemmer
     :return:
         A generator to yield errata of which description contains any of
         given keywords
@@ -75,26 +75,27 @@ def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
     ...             description="system hangs, or crash...")
     >>> ert1 = dict(advisory="RHEA-2015:XXX2",
     ...             description="some enhancement and changes")
-    >>> ers = list(errata_of_keywords_g([ert0, ert1], ("hang", "crash")))
+    >>> ers = list(errata_of_keywords_g([ert0], ("hang", ), True))
+    >>> ert0 in ers
+    True
+    >>> ers[0]["keywords"]  # 'hangs' matches with stemming.
+    ['hang']
+    >>> ers = list(errata_of_keywords_g([ert0, ert1], ("hang", "crash"),
+    ...                                 stemming=False))
     >>> ert0 in ers
     True
     >>> ers[0]["keywords"]  # 'hangs' does not match with 'hang'.
     ['crash']
     >>> ert1 in ers
     False
-    >>> ers = list(errata_of_keywords_g([ert0], ("hang", ), True))
-    >>> ert0 in ers
-    True
-    >>> ers[0]["keywords"]  # 'hangs' matches after stemming.
-    ['hang']
     """
-    if strict:
+    if stemming:
         _stemmer = nltk.PorterStemmer()
         _stem = _stemmer.stem
 
     for ert in ers:
         tokens = set(nltk.wordpunct_tokenize(ert["description"]))
-        if strict:
+        if stemming:
             tokens = set(_stem(w) for w in tokens)
 
         mks = [k for k in keywords if k in tokens]
