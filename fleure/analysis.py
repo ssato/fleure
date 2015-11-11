@@ -62,7 +62,7 @@ def list_updates_from_errata(ers):
 
 
 def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
-                         strict=False):
+                         strict=True):
     """
     :param ers: A list of errata
     :param keywords: Keyword list to filter 'important' RHBAs
