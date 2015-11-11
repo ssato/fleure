@@ -11,6 +11,13 @@ import inspect
 import multiprocessing
 
 
+def ref_to_original(fnc):
+    """
+    Reference to original function :func:`fnc`.
+    """
+    return fnc.__name__ + "_original"
+
+
 def _make_ref_to_original(fnc):
     """
     Make up a reference to original function `fnc` to decorate, in its module.
@@ -20,7 +27,7 @@ def _make_ref_to_original(fnc):
     if not callable(fnc):
         raise ValueError("Given object is not callable!: %r" % fnc)
 
-    setattr(inspect.getmodule(fnc), fnc.__name__ + "_original", fnc)
+    setattr(inspect.getmodule(fnc), ref_to_original(fnc), fnc)
 
 
 def noop(fnc):
