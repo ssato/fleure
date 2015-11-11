@@ -38,6 +38,8 @@ if os.environ.get("FLEURE_NO_ASYNC", False):
 else:
     from fleure.decorators import async
 
+# Workaround for flake8's F401 (import but not used) error.
+assert profile and async
 
 PACKAGE = "fleure"
 
