@@ -178,6 +178,7 @@ def _make_depgraph_context(root, ers):
                 edges=sorted(graph.edges_iter()))
 
 
+@fleure.globals.async
 def dump_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
                   tpaths=fleure.globals.FLEURE_TEMPLATE_PATHS):
     """

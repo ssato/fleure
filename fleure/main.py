@@ -26,22 +26,14 @@ import fleure.datasets
 import fleure.utils
 import fleure.yumbase
 
-from fleure.globals import _
+from fleure.globals import _, profile, async
 from fleure.datasets import make_dataset
-
-
-if os.environ.get("FLEURE_MEMORY_DEBUG", False):
-    try:
-        from memory_profiler import profile
-    except ImportError:
-        from fleure.decorators import noop as profile
-else:
-    from fleure.decorators import noop as profile
 
 
 LOG = logging.getLogger("fleure")
 
 
+@async
 def dump_xls(dataset, filepath):
     """XLS dump function"""
     book = tablib.Databook(dataset)
@@ -49,6 +41,7 @@ def dump_xls(dataset, filepath):
         out.write(book.xls)
 
 
+@async
 def dump_results(host, rpms, errata, updates, dumpdir=None):
     """
     Dump package level static analysis results.
