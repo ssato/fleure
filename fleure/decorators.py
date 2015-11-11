@@ -72,7 +72,7 @@ def async(fnc):
     def decorated(*args, **kwargs):
         """Decorated one"""
         if not isinstance(async.pool, multiprocessing.pool.Pool):
-            raise ValueError("Not an async.pool instance!")
+            raise ValueError("async.pool is not initialized yet!")
 
         return async.pool.apply_async(fnc, args, kwargs)
 
