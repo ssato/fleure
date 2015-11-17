@@ -171,29 +171,6 @@ class Base(fleure.base.Base):
                 for repo in self.base.repos.findRepos(rid):
                     repo.enable()
 
-    def configure(self):
-        """Configure RPM DB root, yum repos to fetch updateinfo and setup
-        cachedir.
-        """
-        self._activate_repos(self.repos)
-        self._configured = True
-
-    def populate(self):
-        """
-        Populates the package sack from the repositories.
-
-        Network access to yum repos will happen if any non-local repos
-        activated and it should be going to take some time to finish.
-        """
-        if not self._populated:
-            LOG.info("Loading yum repo metadata from repos: %s",
-                     ','.join(r.id for r in self.base.repos.listEnabled()))
-            # self.base._getTs()
-            self.base._getSacks()
-            self.base._getUpdates()
-
-        self._populated = True  # TBD
-
     def _make_list_of(self, pkgnarrow):
         """
         List installed or update RPMs similar to
@@ -229,5 +206,28 @@ class Base(fleure.base.Base):
             raise ValueError("Invalid list item was given: %s", pkgnarrow)
 
         return objs
+
+    def configure(self):
+        """Configure RPM DB root, yum repos to fetch updateinfo and setup
+        cachedir.
+        """
+        self._activate_repos(self.repos)
+        self._configured = True
+
+    def populate(self):
+        """
+        Populates the package sack from the repositories.
+
+        Network access to yum repos will happen if any non-local repos
+        activated and it should be going to take some time to finish.
+        """
+        if not self._populated:
+            LOG.info("Loading yum repo metadata from repos: %s",
+                     ','.join(r.id for r in self.base.repos.listEnabled()))
+            # self.base._getTs()
+            self.base._getSacks()
+            self.base._getUpdates()
+
+        self._populated = True  # TBD
 
 # vim:sw=4:ts=4:et:
