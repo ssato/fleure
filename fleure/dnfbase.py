@@ -233,18 +233,6 @@ class Base(fleure.base.Base):
         # self.base.conf.cachedir = self.cachedir   # Required?
         self._hpackages = collections.defaultdict(list)
 
-    def configure(self):
-        """Configure repos, etc.
-        """
-        self.base.read_all_repos()
-        for rid, repo in self.base.repos.items():
-            getattr(repo, "enable" if rid in self.repos else "disable")()
-            # :see: :meth:`md_only_cached` of the :class:`dnf.repo.Repo`
-            if self.cacheonly:
-                repo.md_only_cached = True
-
-        self._configured = True
-
     def _make_list_of(self, item):
         """
         :param item:
@@ -288,6 +276,18 @@ class Base(fleure.base.Base):
             self._packages["errata"] = objs = [hadv_to_errata(a) for a in advs]
 
         return objs
+
+    def configure(self):
+        """Configure repos, etc.
+        """
+        self.base.read_all_repos()
+        for rid, repo in self.base.repos.items():
+            getattr(repo, "enable" if rid in self.repos else "disable")()
+            # :see: :meth:`md_only_cached` of the :class:`dnf.repo.Repo`
+            if self.cacheonly:
+                repo.md_only_cached = True
+
+        self._configured = True
 
     def populate(self):
         """
