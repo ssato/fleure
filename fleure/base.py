@@ -93,15 +93,21 @@ class Base(object):
         """
         raise NotImplementedError("Inherited class must implement this!")
 
+    def _assert_if_not_ready(self, tsk="the task"):
+        """
+        Raise an exception `BaseNotReadyError` if its' not ready.
+
+        :param tsk: A string explains the task to perform
+        """
+        if not self.ready():
+            raise BaseNotReadyError("Not ready yet! Populate it before " + tsk)
+
     def _get_list_of(self, item):
         """Make a list of items if not and return it.
 
         :param item: Name of the items to return, e.g. 'installed', 'errata'
         """
-        if not self.ready():
-            raise BaseNotReadyError("It's not ready yet! Populate it before "
-                                    "getting a list of %s.", item)
-
+        self._assert_if_not_ready("getting a list of %s." % item)
         items = self._packages.get(item, None)
         if items is None:  # Indicates it's not initialized.
             items = self._make_list_of(item)
