@@ -3,12 +3,13 @@
 # Author: Satoru SATOH <ssato@redhat.com>
 # License: GPLv3+
 #
+# Suppress warning of dnf.base.sack.add_excludes call:
+# pylint: disable=no-member
 """DNF backend.
 """
 from __future__ import absolute_import
 
 import collections
-import dnf.conf
 import dnf
 import hawkey
 import itertools
@@ -23,6 +24,7 @@ import fleure.utils
 
 
 LOG = logging.getLogger(__name__)
+Package = collections.namedtuple("Package", "name epoch version release arch")
 
 
 def _inspect(ipkg, extra_names=None):
@@ -301,5 +303,58 @@ class Base(fleure.base.Base):
             self.base.resolve()
 
             self._populated = True
+
+    def compute_removed(self, pkgspecs, excludes=None):
+        """
+        Compute packages to remove (uninstall) in consideration of excludes.
+
+        :param pkgspecs: Names or wildcards of packages trying to remove
+        :param excludes:
+            Names or wildcards specifying packages must not be removed
+
+        :return:
+            A tuple of excludes ([name]) and packages [(N, E, V, R, A)] to
+            remove (uninstall)
+        """
+        if not pkgspecs:
+            return ([], [])  # Nothing to do.
+
+        if excludes is None:
+            excludes = []
+
+        def _excludes_from_removed(excls):
+            """
+            see :method:`dnf.base.Base._setup_excludes`.
+            """
+            for excl in excls:
+                pkgs = self.base.sack.query().filter_autoglob(name=excl)
+                if pkgs:
+                    self.base.sack.add_excludes(pkgs)
+                    yield excl
+
+        def _trans_to_pkg(trans):
+            """Convert transaction object (erased) to a pkg tuple
+            """
+            return Package(trans.name, trans.e, trans.v, trans.r, trans.a)
+
+        self._assert_if_not_ready("excluding ...")
+        excls = list(_excludes_from_removed(excludes))
+        removes = []
+        for pspec in pkgspecs:
+            try:
+                self.base.remove(pspec)
+                self.base.resolve(allow_erasing=True)
+                ers = [_trans_to_pkg(x.erased) for x in
+                       self.base.transaction.get_items(dnf.transaction.ERASE)]
+                removes.extend(ers)
+
+            except dnf.exceptions.PackagesNotInstalledError:
+                logging.info("Excluded or no package matched: %s", pspec)
+
+            except dnf.exceptions.DepsolveError:
+                logging.warn("Depsolv error! Make it excluded: %s", pspec)
+                excls.extend(list(_excludes_from_removed([pspec])))
+
+        return (sorted(set(removes)), sorted(set(excls)))
 
 # vim:sw=4:ts=4:et:
