@@ -20,6 +20,7 @@ import os.path
 import fleure.base
 import fleure.globals
 import fleure.package
+import fleure.rpmutils
 import fleure.utils
 
 
@@ -48,7 +49,7 @@ def _list_installed(root, enames=None):
     """
     # see :class:`~fleure.package.Package`
     keys = list(fleure.globals.RPM_KEYS) + ["summary", "vendor", "buildhost"]
-    ips = fleure.utils.list_installed_rpms(root, keys)
+    ips = fleure.rpmutils.list_installed_rpms(root, keys)
 
     return [fleure.package.Package.from_dict(_inspect(p, enames)) for p in ips]
 
@@ -154,7 +155,7 @@ def hadv_to_errata(hadv):
 
     errata["packages"] = [_eref_to_pkg(p) for p in hadv.packages]
     errata["package_names"] = fleure.utils.uniq(p.name for p in hadv.packages)
-    errata["url"] = fleure.utils.errata_url(str(hadv.id))
+    errata["url"] = fleure.rpmutils.errata_url(str(hadv.id))
 
     return errata
 
@@ -251,7 +252,6 @@ class Base(fleure.base.Base):
                 havails = query.available()
                 extras = [p for p in hpkgs if p not in havails]
                 ens = fleure.utils.uniq(e.name for e in extras)
-
                 self._packages[item] = objs = _list_installed(self.root, ens)
                 return objs
             elif item == "updates":

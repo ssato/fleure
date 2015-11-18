@@ -12,6 +12,7 @@ import unittest
 import fleure.archive as TT
 import fleure.globals
 import fleure.tests.common
+import fleure.rpmutils
 
 try:
     import fleure.utils
@@ -138,8 +139,8 @@ class Test10(unittest.TestCase):
 
         (root2, errors) = TT.extract_rpmdb_archive(arcfile, root)
 
-        self.assertTrue(fleure.utils.check_rpmdb_root(root), errors)
-        self.assertTrue(fleure.utils.check_rpmdb_root(root2), errors)
+        self.assertTrue(fleure.rpmutils.check_rpmdb_root(root), errors)
+        self.assertTrue(fleure.rpmutils.check_rpmdb_root(root2), errors)
 
     @fleure.tests.common.skip_if_not(_RPM_DB_FOUND)
     def test_62_extract_rpmdb_archive__zip(self):
@@ -152,7 +153,7 @@ class Test10(unittest.TestCase):
 
         (root2, errors) = TT.extract_rpmdb_archive(arcfile, root)
 
-        self.assertTrue(fleure.utils.check_rpmdb_root(root), errors)
-        self.assertTrue(fleure.utils.check_rpmdb_root(root2), errors)
+        self.assertTrue(fleure.rpmutils.check_rpmdb_root(root), errors)
+        self.assertTrue(fleure.rpmutils.check_rpmdb_root(root2), errors)
 
 # vim:sw=4:ts=4:et:

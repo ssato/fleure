@@ -11,7 +11,7 @@ from __future__ import absolute_import
 import collections
 import os.path
 
-import fleure.utils
+import fleure.rpmutils
 
 
 class BaseNotReadyError(RuntimeError):
@@ -83,7 +83,7 @@ class Base(object):
 
         if not self._populated:
             if self._configured:
-                if fleure.utils.check_rpmdb_root(self.root, readonly=True):
+                if fleure.rpmutils.check_rpmdb_root(self.root, readonly=True):
                     self.populate()
 
     def _make_list_of(self, item):

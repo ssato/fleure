@@ -16,6 +16,7 @@ import uuid
 
 import fleure.globals
 import fleure.archive
+import fleure.rpmutils
 import fleure.utils
 import fleure.yumbase
 
@@ -165,13 +166,13 @@ class Host(bunch.Bunch):
             self.root = root
             self.cachedir = os.path.join(self.root, "var/cache")
 
-        if not fleure.utils.check_rpmdb_root(self.root):
+        if not fleure.rpmutils.check_rpmdb_root(self.root):
             self.errors.append("Invalid RPM DBs: " + self.root)
             return
 
         if self.repos is None or not self.repos:
-            self.repos = fleure.utils.guess_rhel_repos(self.root, None,
-                                                       self.repos_map)
+            self.repos = fleure.rpmutils.guess_rhel_repos(self.root, None,
+                                                          self.repos_map)
 
         if not os.path.exists(self.workdir):
             os.makedirs(self.workdir)

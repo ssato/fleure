@@ -14,6 +14,7 @@ import yum
 
 import fleure.base
 import fleure.package
+import fleure.rpmutils
 import fleure.utils
 
 
@@ -93,7 +94,7 @@ def _notice_to_errata(notice):
 
     pns = fleure.utils.uniq(p["name"] for p in errata["packages"])
     errata["package_names"] = ','.join(pns)
-    errata["url"] = fleure.utils.errata_url(errata["advisory"])
+    errata["url"] = fleure.rpmutils.errata_url(errata["advisory"])
 
     return errata
 

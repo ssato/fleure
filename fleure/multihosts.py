@@ -24,6 +24,7 @@ from fleure.globals import _
 
 import fleure.archive
 import fleure.main
+import fleure.rpmutils
 import fleure.utils
 
 
@@ -47,7 +48,7 @@ def hosts_rpmroot_g(hosts_datadir):
         (host_identity, host_rpmroot or None)
     """
     for hostdir in glob.glob(os.path.join(hosts_datadir, '*')):
-        if fleure.utils.check_rpmdb_root(hostdir):
+        if fleure.rpmutils.check_rpmdb_root(hostdir):
             yield (os.path.basename(hostdir), hostdir)
         else:
             LOG.warn(_("Failed to find RPM DBs under %s"), hostdir)
