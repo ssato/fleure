@@ -28,30 +28,22 @@ LOG = logging.getLogger(__name__)
 Package = collections.namedtuple("Package", "name epoch version release arch")
 
 
-def _inspect(ipkg, extra_names=None):
-    """
-    Inspect ipkg and update it.
-    """
-    ret = fleure.package.inspect_origin(ipkg["name"], ipkg["vendor"],
-                                        ipkg["buildhost"], extra_names)
-    ipkg.update(**ret)
-    return ipkg
-
-
-def _list_installed(root, enames=None):
+def _list_installed(root, extras=None):
     """
     DNF (hawkey) does not provide some RPM info for installed RPMs such like
     buildhost, vendor. This is an workaround for that.
 
     :param root: Root dir of RPM DBs
-    :param enames: A list of extra packages not availabe from given repos
+    :param extras: List of extra packages installed but not availabe from repos
+
     :return: A list of packages :: [dict]
     """
     # see :class:`~fleure.package.Package`
-    keys = list(fleure.globals.RPM_KEYS) + ["summary", "vendor", "buildhost"]
-    ips = fleure.rpmutils.list_installed_rpms(root, keys)
-
-    return [fleure.package.Package.from_dict(_inspect(p, enames)) for p in ips]
+    keys = ("name", "version", "release", "arch", "epoch", "summary", "vendor",
+            "buildhost")
+    enames = set(e.name for e in extras)
+    return [fleure.package.Package(*[h[k] for k in keys], extra_names=enames)
+            for h in fleure.rpmutils.rpm_transactionset(root).dbMatch()]
 
 
 def _to_pkg(pkg):
@@ -247,13 +239,14 @@ class Base(fleure.base.Base):
 
             if item == "installed":
                 hpkgs = query.installed()  # These lack of buildhost, etc.
-                self._hpackages[item] = hpkgs  # Just to cache for errata.
+                self._hpackages[item] = hpkgs  # Cache it.
 
-                havails = query.available()
-                extras = [p for p in hpkgs if p not in havails]
-                ens = fleure.utils.uniq(e.name for e in extras)
-                self._packages[item] = objs = _list_installed(self.root, ens)
-                return objs
+                # see also: :meth:`_list_pattern` in :class:`~dnf.base.Base`
+                # and :func:`extras_pkgs` in dnf.query module.
+                extras = [p for p in hpkgs if p not in query.available()]
+                self._hpackages["extras"] = extras  # Cache it also.
+                self._packages[item] = _list_installed(self.root, extras)
+                return self._packages[item]
             elif item == "updates":
                 hpkgs = query.upgrades().latest()
             else:  # obsoletes
@@ -266,11 +259,8 @@ class Base(fleure.base.Base):
             self._packages[item] = objs = [_to_pkg(p) for p in hpkgs]
 
         elif item == "errata":
-            ips = self._hpackages.get("installed", False)
-            if not ips:
-                # Make it generated and cached.
-                self._make_list_of("installed")
-                ips = self._hpackages.get("installed", False)
+            ips = self._hpackages.get("installed",
+                                      self._make_list_of("installed"))
 
             advs = itertools.chain(*(p.get_advisories(hawkey.GT) for p in ips))
             advs = fleure.utils.uniq(advs, key=operator.attrgetter("id"))
