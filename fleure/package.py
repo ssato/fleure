@@ -64,7 +64,7 @@ class Package(dict):
     """Package object holding parameters necessary for analysis.
     """
 
-    def __init__(self, name, version, release, arch, epoch=0, summary=None,
+    def __init__(self, name, version, release, arch, epoch=None, summary=None,
                  vendor=None, buildhost=None, extra_names=None, **kwargs):
         """
         :param name: Package name
@@ -75,7 +75,7 @@ class Package(dict):
         self["version"] = version
         self["release"] = release
         self["arch"] = arch
-        self["epoch"] = epoch
+        self["epoch"] = 0 if epoch is None else int(epoch)
         self["summary"] = summary
         self["vendor"] = vendor
         self["buildhost"] = buildhost
