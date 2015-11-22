@@ -345,6 +345,15 @@ class Base(fleure.base.Base):
                 logging.warn("Depsolv error! Make it excluded: %s", pspec)
                 excls.extend(list(_excludes_from_removed([pspec])))
 
+        # TODO: reset transaction:
+        #
+        #   self.base.reset(goal=True)
+        #   self.base.resolve()
+        # or
+        #   self._configured = False
+        #   self._populated = False
+        #   self.prepare()
+
         return (sorted(set(removes)), sorted(set(excls)))
 
 # vim:sw=4:ts=4:et:
