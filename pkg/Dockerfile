@@ -1,4 +1,4 @@
-FROM ssato/python-dev:fedora-22
+FROM ssato/python-dev:latest
 MAINTAINER https://github.com/ssato/fleure
 
 # It will take some time to finish.
