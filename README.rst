@@ -6,7 +6,7 @@ fleure
    :target: https://travis-ci.org/ssato/fleure
    :alt: Test status
 
-.. image:: https://img.shields.io/coveralls/ssato/fleure.svg
+.. .. image:: https://img.shields.io/coveralls/ssato/fleure.svg
    :target: https://coveralls.io/r/ssato/fleure
    :alt: [Coverage Status]
 
