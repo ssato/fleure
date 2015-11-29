@@ -16,6 +16,9 @@ script:
   # - "./pkg/runtest.sh"
   - docker run ssato/fleure /bin/sh -c "cd /tmp/fleure && bash -x ./pkg/runtest.sh"
 
+after_success:
+  - coveralls
+
 notifications:
   email:
     #on_success: always # default: change
