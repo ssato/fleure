@@ -6,6 +6,19 @@ fleure
    :target: https://travis-ci.org/ssato/fleure
    :alt: Test status
 
+.. image:: https://img.shields.io/coveralls/ssato/fleure.svg
+   :target: https://coveralls.io/r/ssato/fleure
+   :alt: [Coverage Status]
+
+.. image:: https://landscape.io/github/ssato/fleure/master/landscape.png
+   :target: https://landscape.io/github/ssato/fleure/master
+   :alt: [Code Health]
+
+.. image:: https://scrutinizer-ci.com/g/ssato/fleure/badges/quality-score.png?b=master
+   :target: https://scrutinizer-ci.com/g/ssato/fleure
+   :alt: [Code Quality]
+
+
 fleure (フルーア) [#]_ , a successor of rk-updateinfo (rpmkit.updateinfo cli),
 is a package level static analysis tool for systems running RPM-based linux
 distributions such like RHEL (primary target) and Fedora.
