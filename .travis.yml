@@ -13,11 +13,10 @@ before_install:
   # - docker info
 
 script:
-  # - "./pkg/runtest.sh"
-  - docker run ssato/fleure /bin/sh -c "cd /tmp/fleure && WITH_COVERAGE=1 bash -x ./pkg/runtest.sh && coveralls"
+  - docker run -v /tmp:/tmp ssato/fleure /bin/sh -c "cd /tmp/fleure && WITH_COVERAGE=1 bash -x ./pkg/runtest.sh"
 
-#after_success:
-#  - coveralls
+after_success:
+  - cd /tmp/fleure && coveralls
 
 notifications:
   email:
