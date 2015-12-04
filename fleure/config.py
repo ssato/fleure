@@ -16,6 +16,7 @@ import uuid
 
 import fleure.globals
 import fleure.archive
+import fleure.dates
 import fleure.rpmutils
 import fleure.utils
 import fleure.yumbase
@@ -117,8 +118,9 @@ class Host(bunch.Bunch):
         """
         defaults = load_config_from_files()
         defaults.update(kwargs)
+        period_ = fleure.dates.period_to_dates(*period) if period else False
         super(Host, self).__init__(root_or_arc_path=root_or_arc_path,
-                                   repos=repos, period=period, refdir=refdir,
+                                   repos=repos, period=period_, refdir=refdir,
                                    **kwargs)
         for key, val in defaults.items():
             self[key] = val
