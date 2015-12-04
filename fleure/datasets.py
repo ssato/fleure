@@ -14,8 +14,9 @@ import os.path
 import re
 import tablib
 
-import fleure.utils
 import fleure.cveinfo
+import fleure.dates
+import fleure.utils
 
 from fleure.globals import _
 
@@ -204,38 +205,34 @@ def _errata_to_int(errata):
                                  dic["year"], dic["seq"], rev))
 
 
-def complement_errata_g(ers, updates, score=0):
+def complement_an_errata(ert, updates=None, to_update_fn=None, score=-1):
     """
     TBD: What should be complemented?
 
-    :param ers: A list of errata
+    :param ert: An errata dict
     :param updates: A list of update packages
+    :param to_update_fn:
+        A callable to convert pacakge object to compare with update packages
     :param score: CVSS score
     """
-    p2na = lambda pkg: (pkg["name"], pkg["arch"])
+    if updates is None:
+        updates = []
 
-    unas = set(p2na(u) for u in updates)
-    for ert in ers:
-        ert["id"] = _errata_to_int(ert)  # Sorting key
-        ert["updates"] = fleure.utils.uniq(p for p in ert.get("packages", [])
-                                           if p2na(p) in unas)
-        ert["update_names"] = list(set(u["name"] for u in ert["updates"]))
+    if to_update_fn is None:
+        to_update_fn = operator.itemgetter("name", "arch")
 
-        # NOTE: Quick hack to strip extra white spaces at the top and the end
-        # of synopsis of some errata just in case.
-        ert["synopsis"] = ert["synopsis"].strip()
+    ert["id"] = _errata_to_int(ert)  # It will be used as sorting key
+    ert["updates"] = fleure.utils.uniq(p for p in ert.get("packages", [])
+                                       if to_update_fn(p) in updates)
+    ert["update_names"] = list(set(u["name"] for u in ert["updates"]))
 
-        if score > 0:
-            ert["cves"] = [_cve_details(cve) for cve in ert.get("cves", [])]
+    # NOTE: Quick hack to strip extra white spaces at the top and the end
+    # of synopsis of some errata just in case.
+    ert["synopsis"] = ert["synopsis"].strip()
 
-        yield ert
+    if score > 0:
+        ert["cves"] = [_cve_details(cve) for cve in ert.get("cves", [])]
 
-
-def complement_errata(ers, updates, score=0):
-    """
-    Call :func:`complement_errata_g` for errata list
-    """
-    return fleure.utils.uniq(complement_errata_g(ers, updates, score),
-                             key=operator.itemgetter("id"), reverse=True)
+    return ert
 
 # vim:sw=4:ts=4:et:
