@@ -28,16 +28,16 @@ LOG = logging.getLogger(__name__)
 Package = collections.namedtuple("Package", "name epoch version release arch")
 
 
-def _list_installed(root, extras=None, process_fn=None):
+def _list_installed(root, extras=None, process_fns=None):
     """
     DNF (hawkey) does not provide some RPM info for installed RPMs such like
     buildhost, vendor. This is an workaround for that.
 
     :param root: Root dir of RPM DBs
     :param extras: List of extra packages installed but not availabe from repos
-    :param process_fn:
-        Any callable to work as a factory function of item or None to do
-        nothing with it.
+    :param process_fns:
+        Any callable objects to process installed package object or None to do
+        nothing with it
 
     :return: A list of packages :: [dict]
     """
@@ -45,9 +45,10 @@ def _list_installed(root, extras=None, process_fn=None):
     keys = ("name", "version", "release", "arch", "epoch", "summary", "vendor",
             "buildhost")
     ens = set(e.name for e in extras)
-    _to_p = lambda params: fleure.package.Package(*params, extra_names=ens)
+    calls = (lambda params: fleure.package.Package(*params, extra_names=ens),
+             process_fns)
 
-    return [fleure.utils.chaincalls([h[k] for k in keys], _to_p, process_fn)
+    return [fleure.utils.chaincalls([h[k] for k in keys], *calls)
             for h in fleure.rpmutils.rpm_transactionset(root).dbMatch()]
 
 
@@ -233,14 +234,13 @@ class Base(fleure.base.Base):
         # self.base.conf.cachedir = self.cachedir   # Required?
         self._hpackages = collections.defaultdict(list)
 
-    def _make_list_of(self, item, process_fn=None):
+    def _make_list_of(self, item, process_fns=None):
         """
         :param item:
             Name of the items to make a list, e.g. 'installed', 'updates',
             'errata'.
-        :param process_fn:
-            Any callable to work as a factory function of item or None to do
-            nothing with it.
+        :param process_fns:
+            Any callables to process item or None to do nothing with it.
         """
         if item in ("installed", "updates", "obsoletes"):  # TBD: others.
             query = self.base.sack.query()
@@ -254,7 +254,7 @@ class Base(fleure.base.Base):
                 extras = [p for p in hpkgs if p not in query.available()]
                 self._hpackages["extras"] = extras  # Cache it also.
                 self._packages[item] = _list_installed(self.root, extras,
-                                                       process_fn)
+                                                       process_fns)
                 return self._packages[item]
             elif item == "updates":
                 hpkgs = query.upgrades().latest()
@@ -265,7 +265,7 @@ class Base(fleure.base.Base):
                 hpkgs = hpkgs.run()
 
             self._hpackages[item] = hpkgs
-            objs = [fleure.utils.chaincalls(p, _to_pkg, process_fn) for p
+            objs = [fleure.utils.chaincalls(p, _to_pkg, process_fns) for p
                     in hpkgs]
             self._packages[item] = objs
 
@@ -274,7 +274,7 @@ class Base(fleure.base.Base):
                                       self._make_list_of("installed"))
             aitr = itertools.chain(*(p.get_advisories(hawkey.GT) for p in ips))
             advs = fleure.utils.uniq(aitr, key=operator.attrgetter("id"),
-                                     callables=(hadv_to_errata, process_fn))
+                                     callables=(hadv_to_errata, process_fns))
             self._packages["errata"] = objs = advs
 
         return objs
