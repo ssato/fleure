@@ -13,6 +13,7 @@ Misc utility routines for fleure.
 """
 from __future__ import absolute_import
 
+import anyconfig.utils
 import codecs
 import itertools
 import json
@@ -57,7 +58,7 @@ def chaincalls(obj, *callables):
     :param callables:
         callables, functions or callable classes, to apply to obj in this order
 
-    >>> chaincalls(0, str, int, lambda x: x + 1, None)
+    >>> chaincalls(0, str, int, [lambda x: x + 1], None)
     1
     >>> chaincalls(0, *([lambda a: a + 1, lambda b: b + 2]))
     3
@@ -71,9 +72,12 @@ def chaincalls(obj, *callables):
         if fun is None:  # Just ignore it.
             continue
 
-        if not callable(fun):
-            raise ValueError("Not callable: %r" % repr(fun))
-        obj = fun(obj)
+        if anyconfig.utils.is_iterable(fun):
+            obj = chaincalls(obj, *fun)
+        else:
+            if not callable(fun):
+                raise ValueError("Not callable: %r" % repr(fun))
+            obj = fun(obj)
 
     return obj
 
