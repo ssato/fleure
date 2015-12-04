@@ -240,20 +240,19 @@ def analyze(host):
     LOG.info(_("%s: Saved analysis results in %s"), host.workdir)
 
     if host.period:
-        (start_date, end_date) = fleure.datasets.period_to_dates(*host.period)
+        (start, end) = host.period
         LOG.info(_("%s: Analyzing errata and packages [%s ~ %s]"),
-                 host.hid, start_date, end_date)
-        pes = [e for e in ers
-               if fleure.datasets.errata_in_period(e, start_date, end_date)]
+                 host.hid, start, end)
+        pes = [e for e in ers if fleure.datas.in_period(e, start, end)]
 
-        pdir = os.path.join(host.workdir, "%s_%s" % (start_date, end_date))
+        pdir = os.path.join(host.workdir, "%s_%s" % (start, end))
         if not os.path.exists(pdir):
             LOG.debug(_("%s: Creating period working dir %s"), host.hid, pdir)
             os.makedirs(pdir)
 
         dump_results(host, ips, pes, ups, pdir)
         LOG.info(_("%s: Saved analysis results [%s ~ %s] in %s"),
-                 host.hid, start_date, end_date, pdir)
+                 host.hid, start, end, pdir)
 
     if host.refdir:
         LOG.debug(_("%s [delta]: Analyze delta errata data by refering %s"),
