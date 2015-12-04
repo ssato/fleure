@@ -61,6 +61,9 @@ def list_updates_from_errata(ers):
             in _sgroupby(ups, itemgetter("name"))]
 
 
+_STEMMER = nltk.PorterStemmer()
+
+
 def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
                          stemming=True):
     """
@@ -90,8 +93,7 @@ def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
     False
     """
     if stemming:
-        _stemmer = nltk.PorterStemmer()
-        _stem = _stemmer.stem
+        _stem = _STEMMER.stem
 
     for ert in ers:
         tokens = set(nltk.wordpunct_tokenize(ert["description"]))
