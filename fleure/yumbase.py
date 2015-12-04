@@ -8,14 +8,18 @@
 from __future__ import absolute_import
 
 import collections
+import functools
 import itertools
 import logging
+import operator
 import yum
 
 import fleure.base
 import fleure.package
 import fleure.rpmutils
 import fleure.utils
+
+from fleure.utils import chaincalls
 
 
 LOG = logging.getLogger(__name__)
@@ -75,6 +79,9 @@ def _notice_to_errata(notice):
      'title': 'CVE-2013-1994',
      'type': 'cve'}
     """
+    if notice is None:
+        return notice
+
     nmd = notice.get_metadata()
 
     errata = dict(advisory=nmd["update_id"], synopsis=nmd["title"],
@@ -172,12 +179,14 @@ class Base(fleure.base.Base):
                 for repo in self.base.repos.findRepos(rid):
                     repo.enable()
 
-    def _make_list_of(self, pkgnarrow):
+    def _make_list_of(self, pkgnarrow, process_fn=None):
         """
         List installed or update RPMs similar to
         "repoquery --pkgnarrow=updates --all --plugins --qf '%{nevra}'".
 
         :param pkgnarrow: Package list narrowing factor or 'errata'
+        :param process_fn:
+            Any callable object to process item or None to do nothing with it
         :return: A dict contains lists of dicts of packages
         """
         if pkgnarrow in _PKG_NARROWS:
@@ -185,21 +194,25 @@ class Base(fleure.base.Base):
 
             if pkgnarrow == "installed":
                 extras = [p["name"] for p in self._make_list_of("extras")]
-                objs = [_to_pkg(p, extras) for p in ygh.installed]
+                calls = (functools.partial(_to_pkg, extras=extras), process_fn)
+                objs = [chaincalls(p, *calls) for p in ygh.installed]
             else:
-                objs = [_to_pkg(p) for p in getattr(ygh, pkgnarrow, [])]
+                objs = [chaincalls(p, _to_pkg, process_fn) for p in
+                        getattr(ygh, pkgnarrow, [])]
 
             self._packages[pkgnarrow] = objs
 
         elif pkgnarrow == "errata":
-            # See also :func:`update_minimal` in yum.updateinfo.
-            oldpkgtups = [t[1] for t in self.base.up.getUpdatesTuples()]
-
-            _notice_lister = self.base.upinfo.get_applicable_notices
-            npss_g = itertools.ifilter(None,
-                                       (_notice_lister(o) for o in oldpkgtups))
-            ers = itertools.chain(*((_notice_to_errata(t[1]) for t in ts)
-                                    for ts in npss_g))
+            # - `oupdates` in :func:`update_minimal` in yum.updateinfo
+            # - `data` in ...
+            calls = (operator.itemgetter(1),
+                     self.base.upinfo.get_applicable_notices)
+            nps = itertools.ifilter(None,
+                                    (chaincalls(t, *calls) for t in
+                                     self.base.up.getUpdatesTuples()))
+            calls = (operator.itemgetter(1), _notice_to_errata, process_fn)
+            ers = itertools.chain(*((chaincalls(t, *calls) for t in ts)
+                                    for ts in nps))
             objs = list(ers)
             self._packages[pkgnarrow] = objs
 
