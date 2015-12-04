@@ -49,7 +49,8 @@ def _list_installed(root, extras=None, process_fns=None):
              process_fns)
 
     return [fleure.utils.chaincalls([h[k] for k in keys], *calls)
-            for h in fleure.rpmutils.rpm_transactionset(root).dbMatch()]
+            for h in fleure.rpmutils.rpm_transactionset(root).dbMatch()
+            if h["name"] != "gpg-pubkey"]
 
 
 def _to_pkg(pkg):
