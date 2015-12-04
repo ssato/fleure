@@ -118,23 +118,22 @@ def make_dataset(list_data, title=None, headers=None, lheaders=None):
     :param title: Dataset title to be used as worksheet's name
     :param headers: Dataset headers to be used as column headers, etc.
     :param lheaders: Localized version of `headers`
+
+    TODO: Which is better?
+        - tablib.Dataset(); [tablib.append(vals) for vals in list_data]
+        - tablib.Dataset(*list_data, header=...)
     """
-    tds = tablib.Dataset()
-
-    # NOTE: We need to check title as valid worksheet name (length <= 31, etc.)
-    # See also xlwt.Utils.valid_sheet_name.
-    if title:
-        tds.title = title[:30]
-
+    # .. note::
+    #    We need to check title as valid worksheet name, length <= 31, etc.
+    #    See also xlwt.Utils.valid_sheet_name.
     if headers is not None:
-        tds.headers = headers if lheaders is None else lheaders
-        for val in list_data:
-            tds.append([_make_cell_data(val, h) for h in headers])
+        headers = headers if lheaders is None else lheaders
+        tdata = [[_make_cell_data(val, h) for h in headers] for val in
+                 list_data]
     else:
-        for val in list_data:
-            tds.append(val.values())
+        tdata = [val.values() for val in list_data]
 
-    return tds
+    return tablib.Dataset(*tdata, title=title[:30], headers=headers)
 
 
 def _assert_if_not_exist(path, desc):
