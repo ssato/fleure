@@ -222,8 +222,7 @@ def analyze(host):
                     generated=datetime.datetime.now().strftime("%F %T"))
     host.save(metadata, "metadata")
 
-    ups = fleure.utils.uniq(host.base.list_updates(),
-                            key=itemgetter(*host.rpmkeys))
+    ups = host.base.list_updates()
     ers = host.base.list_errata()
     ers = fleure.datasets.complement_errata(ers, ups, host.cvss_min_score)
     host.save(dict(data=ers, ), "errata")
