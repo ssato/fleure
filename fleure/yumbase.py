@@ -194,7 +194,8 @@ class Base(fleure.base.Base):
 
             if pkgnarrow == "installed":
                 extras = [p["name"] for p in self._make_list_of("extras")]
-                calls = (functools.partial(_to_pkg, extras=extras), process_fns)
+                calls = (functools.partial(_to_pkg, extras=extras),
+                         process_fns)
                 objs = [chaincalls(p, *calls) for p in ygh.installed]
             else:
                 objs = [chaincalls(p, _to_pkg, process_fns) for p in
