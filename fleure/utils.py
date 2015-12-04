@@ -49,7 +49,36 @@ def concat(xss):
     return list(itertools.chain.from_iterable(xs for xs in xss))
 
 
-def uniq(vals, sort=True, key=None, reverse=False, use_set=False):
+def chaincalls(obj, *callables):
+    """
+    Apply `callables` to `obj` one by one.
+
+    :param obj: Object to apply callables
+    :param callables:
+        callables, functions or callable classes, to apply to obj in this order
+
+    >>> chaincalls(0, str, int, lambda x: x + 1, None)
+    1
+    >>> chaincalls(0, *([lambda a: a + 1, lambda b: b + 2]))
+    3
+    >>> chaincalls(0)
+    0
+    >>> chaincalls(0, "aaa")
+    Traceback (most recent call last):
+    ValueError: Not callable: "'aaa'"
+    """
+    for fun in callables:
+        if fun is None:  # Just ignore it.
+            continue
+
+        if not callable(fun):
+            raise ValueError("Not callable: %r" % repr(fun))
+        obj = fun(obj)
+
+    return obj
+
+
+def uniq(vals, sort=True, key=None, reverse=False, callables=None):
     """
     Returns new list of no duplicated items.
     If ``sort`` is True, result list will be sorted.
@@ -62,10 +91,14 @@ def uniq(vals, sort=True, key=None, reverse=False, use_set=False):
         It's much faster than naive implementation but items must be hash-able
         objects as :function:`set` requires this as its inputs. Also, result
         list will be sorted even if ``sort`` is not True in this case.
+    :param callables:
+        callables, functions or callable classes, to apply to obj in this order
 
     >>> uniq([])
     []
     >>> uniq([0, 3, 1, 2, 1, 0, 4, 5])
+    [0, 1, 2, 3, 4, 5]
+    >>> uniq([0, 3, 1, 2, 1, 0, 4, 5], callables=(str, int))
     [0, 1, 2, 3, 4, 5]
     >>> uniq([0, 3, 1, 2, 1, 0, 4, 5], reverse=True)
     [5, 4, 3, 2, 1, 0]
@@ -74,13 +107,14 @@ def uniq(vals, sort=True, key=None, reverse=False, use_set=False):
     >>> uniq((0, 3, 1, 2, 1, 0, 4, 5), sort=False)
     [0, 3, 1, 2, 4, 5]
     """
-    if use_set:
-        return sorted(set(vals), key=key, reverse=reverse)
+    # TBD:
+    # if use_set and not callables:
+    #    return sorted(set(vals), key=key, reverse=reverse)
 
     acc = []
     for val in vals:
         if val not in acc:
-            acc.append(val)
+            acc.append(chaincalls(val, *callables) if callables else val)
 
     return sorted(acc, key=key, reverse=reverse) if sort else acc
 
