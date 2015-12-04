@@ -179,14 +179,14 @@ class Base(fleure.base.Base):
                 for repo in self.base.repos.findRepos(rid):
                     repo.enable()
 
-    def _make_list_of(self, pkgnarrow, process_fn=None):
+    def _make_list_of(self, pkgnarrow, process_fns=None):
         """
         List installed or update RPMs similar to
         "repoquery --pkgnarrow=updates --all --plugins --qf '%{nevra}'".
 
         :param pkgnarrow: Package list narrowing factor or 'errata'
-        :param process_fn:
-            Any callable object to process item or None to do nothing with it
+        :param process_fns:
+            Any callable objects to process item or None to do nothing with it
         :return: A dict contains lists of dicts of packages
         """
         if pkgnarrow in _PKG_NARROWS:
@@ -194,10 +194,10 @@ class Base(fleure.base.Base):
 
             if pkgnarrow == "installed":
                 extras = [p["name"] for p in self._make_list_of("extras")]
-                calls = (functools.partial(_to_pkg, extras=extras), process_fn)
+                calls = (functools.partial(_to_pkg, extras=extras), process_fns)
                 objs = [chaincalls(p, *calls) for p in ygh.installed]
             else:
-                objs = [chaincalls(p, _to_pkg, process_fn) for p in
+                objs = [chaincalls(p, _to_pkg, process_fns) for p in
                         getattr(ygh, pkgnarrow, [])]
 
             self._packages[pkgnarrow] = objs
@@ -210,7 +210,7 @@ class Base(fleure.base.Base):
             nps = itertools.ifilter(None,
                                     (chaincalls(t, *calls) for t in
                                      self.base.up.getUpdatesTuples()))
-            calls = (operator.itemgetter(1), _notice_to_errata, process_fn)
+            calls = (operator.itemgetter(1), _notice_to_errata, process_fns)
             ers = itertools.chain(*((chaincalls(t, *calls) for t in ts)
                                     for ts in nps))
             objs = list(ers)
