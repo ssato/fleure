@@ -9,6 +9,7 @@ from __future__ import absolute_import
 import functools
 import inspect
 import multiprocessing
+import os
 
 
 def ref_to_original(fnc):
@@ -78,8 +79,14 @@ def async(fnc):
     @functools.wraps(fnc)
     def decorated(*args, **kwargs):
         """Decorated one"""
-        if not isinstance(async.pool, multiprocessing.pool.Pool):
-            raise ValueError("async.pool is not initialized yet!")
+        if os.getenv("_FLEURE_ASYNC", 0) == 1:
+            return fnc(*args, **kwargs)
+
+        if hasattr(async, "pool"):
+            if not isinstance(async.pool, multiprocessing.pool.Pool):
+                raise ValueError("async.pool is not initialized yet!")
+        else:
+            setattr(async, "pool", multiprocessing.Pool())
 
         return async.pool.apply_async(fnc, args, kwargs)
 
