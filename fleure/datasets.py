@@ -206,7 +206,7 @@ def _errata_to_int(errata):
 
 def complement_errata_g(ers, updates, score=0):
     """
-    TODO: What should be complemented?
+    TBD: What should be complemented?
 
     :param ers: A list of errata
     :param updates: A list of update packages
