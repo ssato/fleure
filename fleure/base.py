@@ -127,7 +127,7 @@ class Base(object):
         """
         return self._get_list_of("installed", process_fn=process_fn)
 
-    def list_updates(self, **kwargs):
+    def list_updates(self, process_fn=None, **kwargs):
         """List update RPMs.
 
         :param process_fn:
@@ -135,7 +135,7 @@ class Base(object):
         """
         return self._get_list_of("updates", process_fn=process_fn)
 
-    def list_errata(self, **kwargs):
+    def list_errata(self, process_fn=None, **kwargs):
         """List Errata.
 
         :param process_fn:
