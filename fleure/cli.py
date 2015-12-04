@@ -45,7 +45,7 @@ def period_type(period_s):
         "YYYY[-MM[-DD]][,YYYY[-MM[-DD]]], ex. " "'2014-10-01,2014-12-31',
         '2014-01-01'.
 
-    .. seealso:: :func:`period_to_dates` and its friends in fleure.datasets
+    .. seealso:: :func:`period_to_dates` and its friends in fleure.dates
     """
     if not period_s:
         return []
