@@ -12,6 +12,7 @@ from __future__ import absolute_import
 from operator import itemgetter
 
 import datetime
+import functools
 import logging
 import os.path
 import os
@@ -222,19 +223,23 @@ def analyze(host):
                     generated=datetime.datetime.now().strftime("%F %T"))
     host.save(metadata, "metadata")
 
-    ups = host.base.list_updates()
-    ers = host.base.list_errata()
-    ers = fleure.datasets.complement_errata(ers, ups, host.cvss_min_score)
+    LOG.info(_("%s: Analyzing errata and packages ..."), host.hid)
+    host.updates = ups = host.base.list_updates()
+
+    p2na = itemgetter("name", "arch")
+    calls = (functools.partial(fleure.datasets.complement_an_errata,
+                               updates=set(p2na(u) for u in ups),
+                               to_update_fn=p2na,
+                               score=host.cvss_min_score),
+             )
+    host.errata = ers = host.base.list_errata(calls)
+
     host.save(dict(data=ers, ), "errata")
     host.save(dict(data=ups, ), "updates")
     LOG.info(_("%s: Found %d errata and %d updates, saved the lists"),
              host.hid, len(ers), len(ups))
 
-    host.errata = ers
-    host.updates = ups
     ips = host.installed
-
-    LOG.info(_("%s: Analyzing errata and packages ..."), host.hid)
     dump_results(host, ips, ers, ups)
     LOG.info(_("%s: Saved analysis results in %s"), host.workdir)
 
