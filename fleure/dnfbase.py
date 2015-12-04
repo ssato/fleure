@@ -28,21 +28,26 @@ LOG = logging.getLogger(__name__)
 Package = collections.namedtuple("Package", "name epoch version release arch")
 
 
-def _list_installed(root, extras=None):
+def _list_installed(root, extras=None, process_fn=None):
     """
     DNF (hawkey) does not provide some RPM info for installed RPMs such like
     buildhost, vendor. This is an workaround for that.
 
     :param root: Root dir of RPM DBs
     :param extras: List of extra packages installed but not availabe from repos
+    :param process_fn:
+        Any callable to work as a factory function of item or None to do
+        nothing with it.
 
     :return: A list of packages :: [dict]
     """
     # see :class:`~fleure.package.Package`
     keys = ("name", "version", "release", "arch", "epoch", "summary", "vendor",
             "buildhost")
-    enames = set(e.name for e in extras)
-    return [fleure.package.Package(*[h[k] for k in keys], extra_names=enames)
+    ens = set(e.name for e in extras)
+    _to_p = lambda params: fleure.package.Package(*params, extra_names=ens)
+
+    return [fleure.utils.chaincalls([h[k] for k in keys], _to_p, process_fn)
             for h in fleure.rpmutils.rpm_transactionset(root).dbMatch()]
 
 
@@ -228,13 +233,16 @@ class Base(fleure.base.Base):
         # self.base.conf.cachedir = self.cachedir   # Required?
         self._hpackages = collections.defaultdict(list)
 
-    def _make_list_of(self, item):
+    def _make_list_of(self, item, process_fn=None):
         """
         :param item:
             Name of the items to make a list, e.g. 'installed', 'updates',
             'errata'.
+        :param process_fn:
+            Any callable to work as a factory function of item or None to do
+            nothing with it.
         """
-        if item in ("installed", "updates", "obsoletes"):  # TODO: others.
+        if item in ("installed", "updates", "obsoletes"):  # TBD: others.
             query = self.base.sack.query()
 
             if item == "installed":
@@ -245,7 +253,8 @@ class Base(fleure.base.Base):
                 # and :func:`extras_pkgs` in dnf.query module.
                 extras = [p for p in hpkgs if p not in query.available()]
                 self._hpackages["extras"] = extras  # Cache it also.
-                self._packages[item] = _list_installed(self.root, extras)
+                self._packages[item] = _list_installed(self.root, extras,
+                                                       process_fn)
                 return self._packages[item]
             elif item == "updates":
                 hpkgs = query.upgrades().latest()
@@ -256,16 +265,17 @@ class Base(fleure.base.Base):
                 hpkgs = hpkgs.run()
 
             self._hpackages[item] = hpkgs
-            self._packages[item] = objs = [_to_pkg(p) for p in hpkgs]
+            objs = [fleure.utils.chaincalls(p, _to_pkg, process_fn) for p
+                    in hpkgs]
+            self._packages[item] = objs
 
         elif item == "errata":
             ips = self._hpackages.get("installed",
                                       self._make_list_of("installed"))
-
-            advs = itertools.chain(*(p.get_advisories(hawkey.GT) for p in ips))
-            advs = fleure.utils.uniq(advs, key=operator.attrgetter("id"))
-            self._hpackages["errata"] = advs
-            self._packages["errata"] = objs = [hadv_to_errata(a) for a in advs]
+            aitr = itertools.chain(*(p.get_advisories(hawkey.GT) for p in ips))
+            advs = fleure.utils.uniq(aitr, key=operator.attrgetter("id"),
+                                     callables=(hadv_to_errata, process_fn))
+            self._packages["errata"] = objs = advs
 
         return objs
 
