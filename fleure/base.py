@@ -86,13 +86,13 @@ class Base(object):
                 if fleure.rpmutils.check_rpmdb_root(self.root, readonly=True):
                     self.populate()
 
-    def _make_list_of(self, item, process_fn=None):
+    def _make_list_of(self, item, process_fns=None):
         """placeholder.
 
         :param item: Name of the items to return, e.g. 'installed', 'errata'
-        :param process_fn:
-            Any callable to work as a factory function of item or None to do
-            nothing with it.
+        :param process_fns:
+            Any callables to process item (transform, modification, etc.), or
+            None to do nothing with it.
         """
         raise NotImplementedError("Inherited class must implement this!")
 
@@ -105,42 +105,46 @@ class Base(object):
         if not self.ready():
             raise BaseNotReadyError("Not ready yet! Populate it before " + tsk)
 
-    def _get_list_of(self, item, process_fn=None):
+    def _get_list_of(self, item, process_fns=None):
         """Make a list of items if not and return it.
 
         :param item: Name of the items to return, e.g. 'installed', 'errata'
-        :param process_fn:
-            Any callable object to process item or None to do nothing with it.
+        :param process_fns:
+            Any callables to process item (transform, modification, etc.), or
+            None to do nothing with it.
         """
         self._assert_if_not_ready("getting a list of %s." % item)
         items = self._packages.get(item, None)
         if items is None:  # Indicates it's not initialized.
-            items = self._make_list_of(item, process_fn=process_fn)
+            items = self._make_list_of(item, process_fns=process_fns)
 
         return items
 
-    def list_installed(self, process_fn=None):
+    def list_installed(self, process_fns=None):
         """List installed RPMs.
 
-        :param process_fn:
-            Any callable object to process item or None to do nothing with it.
+        :param process_fns:
+            Any callables to process objects represent installed packages or
+            None to do nothing with it
         """
-        return self._get_list_of("installed", process_fn=process_fn)
+        return self._get_list_of("installed", process_fns=process_fns)
 
-    def list_updates(self, process_fn=None, **kwargs):
+    def list_updates(self, process_fns=None, **kwargs):
         """List update RPMs.
 
-        :param process_fn:
-            Any callable object to process item or None to do nothing with it.
+        :param process_fns:
+            Any callables to process objects represent update packages or None
+            to do nothing with it
         """
-        return self._get_list_of("updates", process_fn=process_fn)
+        return self._get_list_of("updates", process_fns=process_fns)
 
-    def list_errata(self, process_fn=None, **kwargs):
+    def list_errata(self, process_fns=None, **kwargs):
         """List Errata.
 
-        :param process_fn:
-            Any callable object to process item or None to do nothing with it.
+        :param process_fns:
+            Any callables to process objects represent update packages or None
+            to do nothing with it
         """
-        return self._get_list_of("errata", process_fn=process_fn)
+        return self._get_list_of("errata", process_fns=process_fns)
 
 # vim:sw=4:ts=4:et:
