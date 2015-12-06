@@ -94,7 +94,7 @@ def _hids_from_apaths(apaths):
     return [_gen_hid(p, sfx) for p in apaths]
 
 
-def prepare(hosts_datadir, workdir=None, **kwargs):
+def configure(hosts_datadir, workdir=None, **kwargs):
     """
     Scan and collect hosts' basic data (installed rpms list, etc.).
 
@@ -131,7 +131,7 @@ def prepare(hosts_datadir, workdir=None, **kwargs):
         kwargs["workdir"] = hworkdir
         kwargs["cachedir"] = cachedir
 
-        yield fleure.main.prepare(hroot, **kwargs)
+        yield fleure.main.configure(hroot, **kwargs)
 
 
 def p2nevra(pkg):
@@ -185,7 +185,9 @@ def main(hosts_datadir, workdir=None, verbosity=0, multiproc=False, **kwargs):
         in parallel as much as possible if True
     """
     fleure.main.set_loglevel(verbosity)
-    all_hosts = list(prepare(hosts_datadir, workdir=workdir, **kwargs))
+    all_hosts = list(configure(hosts_datadir, workdir=workdir, **kwargs))
+    for host in all_hosts:
+        fleure.main.prepare(host)
     hosts = [h for h in all_hosts if h.available]
 
     LOG.info(_("Analyze %d/%d hosts"), len(hosts), len(all_hosts))

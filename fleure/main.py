@@ -168,7 +168,7 @@ def dump_results(host, rpms, errata, updates, dumpdir=None):
 
 
 @profile
-def prepare(root_or_arc_path, hid=None, **kwargs):
+def configure(root_or_arc_path, hid=None, **kwargs):
     """
     :param root_or_arc_path:
         Path to the root dir of RPM DB files or Archive (tar.xz, tar.gz, zip,
@@ -185,12 +185,21 @@ def prepare(root_or_arc_path, hid=None, **kwargs):
     host = fleure.config.Host(root_or_arc_path, hid=hid, **kwargs)
     host.configure()  # Extract archive, setup root and repos, etc.
 
+    return host
+
+
+@profile
+def prepare(host):
+    """
+    :param host: Configured host, an instance of :class:`fleure.config.Host`
+    :return: An instance of :class:`fleure.config.Host`
+    """
     if not host.has_valid_root():
         LOG.error(_("Root dir is not ready. Error was: %s"), host.error)
-        return host
+        return
 
     LOG.info(_("%s: Start to initialize: root=%s, backend=%s"),
-             host.hid, host.root, kwargs.get("backend", "maybe yum"))
+             host.hid, host.root, host.backend)
     base = host.init_base()
     base.prepare()
     LOG.info(_("%s[%s]: Initialization completed, start to analyze ..."),
@@ -207,8 +216,6 @@ def prepare(root_or_arc_path, hid=None, **kwargs):
 
     if base.ready():
         host.available = True
-
-    return host
 
 
 @profile
@@ -328,7 +335,8 @@ def main(root_or_arc_path, hid=None, verbosity=0, **kwargs):
     :return: Workdir where results exist or path to archive of results
     """
     set_loglevel(verbosity)
-    host = prepare(root_or_arc_path, hid, **kwargs)
+    host = configure(root_or_arc_path, hid, **kwargs)
+    prepare(host)
 
     if host.available:
         LOG.info(_("Anaylize the host: %s"), host.hid)
