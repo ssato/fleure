@@ -258,7 +258,7 @@ def analyze(host):
         (start, end) = host.period
         LOG.info(_("%s: Analyzing errata and packages [%s ~ %s]"),
                  host.hid, start, end)
-        pes = [e for e in ers if fleure.datas.in_period(e, start, end)]
+        pes = [e for e in ers if fleure.dates.in_period(e, start, end)]
 
         pdir = os.path.join(host.workdir, "%s_%s" % (start, end))
         if not os.path.exists(pdir):
@@ -342,7 +342,7 @@ def main(root_or_arc_path, hid=None, verbosity=0, **kwargs):
     host = configure(root_or_arc_path, hid, **kwargs)
     if host is None:
         LOG.error(_("Failed to configure the host: root=%s"),
-                  root_or_arc_path))
+                  root_or_arc_path)
         return None
 
     prepare(host)
