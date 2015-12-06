@@ -188,8 +188,6 @@ def _pathjoin(*paths):
 
 class Base(fleure.base.Base):
     """Dnf backend.
-
-    TODO: Implement cacheonly mode.
     """
     _name = "dnf"
 
