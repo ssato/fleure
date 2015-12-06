@@ -53,6 +53,9 @@ def dump_results(host, rpms, errata, updates, dumpdir=None):
     :param updates: A list of update RPMs
     :param dumpdir: Dir to save results
     """
+    if dumpdir is None:
+        dumpdir = host.workdir
+
     dargs = (host.cvss_min_score, host.errata_keywords, host.core_rpms)
     rpmkeys = host.rpmkeys
 
@@ -147,8 +150,7 @@ def dump_results(host, rpms, errata, updates, dumpdir=None):
                                 _("RPMs from other vendors"), rpmdkeys,
                                 lrpmdkeys))
 
-    dump_xls(mds, os.path.join(host.workdir if dumpdir is None else dumpdir,
-                               "errata_summary.xls"))
+    dump_xls(mds, os.path.join(dumpdir, "errata_summary.xls"))
 
     if host.details:
         dds = [make_dataset(errata, _("Errata Details"),
@@ -162,9 +164,7 @@ def dump_results(host, rpms, errata, updates, dumpdir=None):
                make_dataset(updates, _("Update RPMs"), rpmkeys, lrpmkeys),
                make_dataset(rpms, _("Installed RPMs"), rpmdkeys, lrpmdkeys)]
 
-        dump_xls(dds,
-                 os.path.join(host.workdir if dumpdir is None else dumpdir,
-                              "errata_details.xls"))
+        dump_xls(dds, os.path.join(dumpdir, "errata_details.xls"))
 
 
 @profile
@@ -258,16 +258,16 @@ def analyze(host):
         (start, end) = host.period
         LOG.info(_("%s: Analyzing errata and packages [%s ~ %s]"),
                  host.hid, start, end)
-        pes = [e for e in ers
-               if fleure.dates.in_period(e["issue_date"], start, end)]
         pdir = os.path.join(host.workdir, "%s_%s" % (start, end))
         if not os.path.exists(pdir):
             LOG.debug(_("%s: Creating period working dir %s"), host.hid, pdir)
             os.makedirs(pdir)
 
+        pes = [e for e in ers
+               if fleure.dates.in_period(e["issue_date"], start, end)]
         dump_results(host, ips, pes, ups, pdir)
-        LOG.info(_("%s: Saved analysis results [%s ~ %s] in %s"),
-                 host.hid, start, end, pdir)
+        LOG.info(_("%s [%s ~ %s]: Found %d errata and saved"),
+                 host.hid, start, end, len(pes))
 
     if host.refdir:
         LOG.debug(_("%s [delta]: Analyze delta errata data by refering %s"),
