@@ -258,8 +258,8 @@ def analyze(host):
         (start, end) = host.period
         LOG.info(_("%s: Analyzing errata and packages [%s ~ %s]"),
                  host.hid, start, end)
-        pes = [e for e in ers if fleure.dates.in_period(e, start, end)]
-
+        pes = [e for e in ers
+               if fleure.dates.in_period(e["issue_date"], start, end)]
         pdir = os.path.join(host.workdir, "%s_%s" % (start, end))
         if not os.path.exists(pdir):
             LOG.debug(_("%s: Creating period working dir %s"), host.hid, pdir)
