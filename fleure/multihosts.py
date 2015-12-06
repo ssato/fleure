@@ -20,7 +20,7 @@ import os.path
 import os
 import shutil
 
-from fleure.globals import _
+from fleure.globals import _, profile
 
 import fleure.archive
 import fleure.main
@@ -94,6 +94,7 @@ def _hids_from_apaths(apaths):
     return [_gen_hid(p, sfx) for p in apaths]
 
 
+@profile
 def configure(hosts_datadir, workdir=None, **kwargs):
     """
     Scan and collect hosts' basic data (installed rpms list, etc.).
@@ -132,6 +133,41 @@ def configure(hosts_datadir, workdir=None, **kwargs):
         kwargs["cachedir"] = cachedir
 
         yield fleure.main.configure(hroot, **kwargs)
+
+
+@profile
+def prepare_itr(hosts):
+    """
+    Prepare hosts, prepare cache dir, populate repo metadata, etc.
+
+    :param hosts: A list of :class:`~fleure.config.Host` objects
+
+    :return: A list of available :class:`~fleure.config.Host` objects
+    """
+    for hgs in fleure.utils.sgroupby(hosts, operator.attrgetter("repos")):
+        if hgs:
+            (ref, rest) = (hgs[0], hgs[1:])
+            for host in rest:  # These refer same repos as the host `ref`.
+                host.cachedir = ref.cachedir
+                host.cacheonly = True
+                host.configure()  # Re-configure it.
+
+    for host in hosts:
+        fleure.main.prepare(host)
+        if host.available:
+            yield host
+
+
+@profile
+def prepare(hosts):
+    """
+    Prepare hosts, prepare cache dir, populate repo metadata, etc.
+
+    :param hosts: A list of :class:`~fleure.config.Host` objects
+
+    :return: A list of available :class:`~fleure.config.Host` objects
+    """
+    return list(prepare_itr(hosts))
 
 
 def p2nevra(pkg):
@@ -186,9 +222,7 @@ def main(hosts_datadir, workdir=None, verbosity=0, multiproc=False, **kwargs):
     """
     fleure.main.set_loglevel(verbosity)
     all_hosts = list(configure(hosts_datadir, workdir=workdir, **kwargs))
-    for host in all_hosts:
-        fleure.main.prepare(host)
-    hosts = [h for h in all_hosts if h.available]
+    hosts = prepare(all_hosts)
 
     LOG.info(_("Analyze %d/%d hosts"), len(hosts), len(all_hosts))
     ilen = lambda h: len(h.installed)
