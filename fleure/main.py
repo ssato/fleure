@@ -185,6 +185,10 @@ def configure(root_or_arc_path, hid=None, **kwargs):
     host = fleure.config.Host(root_or_arc_path, hid=hid, **kwargs)
     host.configure()  # Extract archive, setup root and repos, etc.
 
+    if not host.has_valid_root():
+        LOG.error(_("Root dir is not ready. Error was: %s"), host.error)
+        return None
+
     return host
 
 
@@ -336,6 +340,11 @@ def main(root_or_arc_path, hid=None, verbosity=0, **kwargs):
     """
     set_loglevel(verbosity)
     host = configure(root_or_arc_path, hid, **kwargs)
+    if host is None:
+        LOG.error(_("Failed to configure the host: root=%s"),
+                  root_or_arc_path))
+        return None
+
     prepare(host)
 
     if host.available:
