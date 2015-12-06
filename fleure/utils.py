@@ -129,6 +129,25 @@ def uconcat(xss, **uniq_options):
     return uniq(concat(xss), **uniq_options)
 
 
+def sgroupby(items, kfn, kfn2=None):
+    """
+    :param items: Iterable object, e.g. a list, a tuple, etc.
+    :param kfn: Key function to sort `items` and group it
+    :param kfn2: Key function to sort each group in result
+
+    :return: A generator to yield items in `items` grouped by `kf`
+
+    >>> from operator import itemgetter
+    >>> items = [(1, 2, 10), (3, 4, 2), (3, 2, 1), (1, 10, 5)]
+    >>> list(sgroupby(items, itemgetter(0)))
+    [[(1, 2, 10), (1, 10, 5)], [(3, 4, 2), (3, 2, 1)]]
+    >>> list(sgroupby(items, itemgetter(0), itemgetter(2)))
+    [[(1, 10, 5), (1, 2, 10)], [(3, 2, 1), (3, 4, 2)]]
+    """
+    return (list(g) if kfn2 is None else sorted(g, key=kfn2) for _k, g
+            in itertools.groupby(sorted(items, key=kfn), kfn))
+
+
 def copen(path, flag='r', encoding="utf-8"):
     """An wrapper of codecs.open
     """

@@ -24,31 +24,14 @@ from fleure.globals import _
 LOG = logging.getLogger("fleure")
 
 
-def _sgroupby(items, kfn, kfn2=None):
-    """
-    :param items: Iterable object, e.g. a list, a tuple, etc.
-    :param kfn: Key function to sort `items` and group it
-    :param kfn2: Key function to sort each group in result
-
-    :return: A generator to yield items in `items` grouped by `kf`
-
-    >>> items = [(1, 2, 10), (3, 4, 2), (3, 2, 1), (1, 10, 5)]
-    >>> list(_sgroupby(items, itemgetter(0)))
-    [[(1, 2, 10), (1, 10, 5)], [(3, 4, 2), (3, 2, 1)]]
-    >>> list(_sgroupby(items, itemgetter(0), itemgetter(2)))
-    [[(1, 10, 5), (1, 2, 10)], [(3, 2, 1), (3, 4, 2)]]
-    """
-    return (list(g) if kfn2 is None else sorted(g, key=kfn2) for _k, g
-            in itertools.groupby(sorted(items, key=kfn), kfn))
-
-
 def list_latest_errata_by_updates(ers):
     """
     :param ers: A list of errata dict
     :return: A list of items in `ers` grouped by update names
     """
     ung = lambda e: sorted(set(u["name"] for u in e.get("updates", [])))
-    return [xs[-1] for xs in _sgroupby(ers, ung, itemgetter("issue_date"))]
+    return [xs[-1] for xs
+            in fleure.utils.sgroupby(ers, ung, itemgetter("issue_date"))]
 
 
 def list_updates_from_errata(ers):
@@ -58,7 +41,7 @@ def list_updates_from_errata(ers):
     ups = sorted(fleure.utils.uconcat(e.get("updates", []) for e in ers),
                  key=itemgetter("name"))
     return [sorted(g, cmp=fleure.utils.pcmp, reverse=True)[0] for g
-            in _sgroupby(ups, itemgetter("name"))]
+            in fleure.utils.sgroupby(ups, itemgetter("name"))]
 
 
 _STEMMER = nltk.PorterStemmer()
