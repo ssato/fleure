@@ -159,7 +159,7 @@ def main(argv=None):
                archive=args.archive)
 
     rpath = os.path.join(args.root_or_archive, fleure.globals.RPMDB_SUBDIR)
-    if args.multihost and os.path.exists(rpath)
+    if args.multihost and os.path.exists(rpath):
         LOG.warn(_("Found a RPM data of a host, go back to single host mode."))
         args.multihost = False
 
