@@ -30,6 +30,8 @@ except ImportError:
 # from fleure.decorators import async  # TBD
 import fleure.globals
 
+from fleure.globals import _
+
 
 LOG = logging.getLogger(__name__)
 
@@ -52,7 +54,7 @@ def _is_bsd_hashdb(dbpath):
 
         bsddb.hashopen(dbpath, 'r')
     except (OSError, IOError):
-        LOG.warn("Not a Berkley DB?: %s", dbpath)
+        LOG.warn(_("Not a Berkley DB?: %s"), dbpath)
         return False
 
     return True
@@ -74,12 +76,12 @@ def check_rpmdb_root(root, readonly=True, system=False,
     rpmdbdir = os.path.join(root, fleure.globals.RPMDB_SUBDIR)
 
     if not os.path.exists(rpmdbdir):
-        LOG.error("RPM DB dir %s does not exist!", rpmdbdir)
+        LOG.error(_("RPM DB dir %s does not exist!"), rpmdbdir)
         return False
 
     pkgdb = os.path.join(rpmdbdir, "Packages")
     if not _is_bsd_hashdb(pkgdb):
-        LOG.error("%s does not look a RPM DB (Packages) file!", pkgdb)
+        LOG.error(_("%s does not look a RPM DB (Packages) file!"), pkgdb)
         return False
 
     for dbn in dbnames:
@@ -87,7 +89,7 @@ def check_rpmdb_root(root, readonly=True, system=False,
 
         if not os.path.exists(dbpath):
             # NOTE: It's not an error at once.
-            LOG.info("RPM DB %s looks missing", dbn)
+            LOG.info(_("RPM DB %s looks missing"), dbn)
 
         if readonly and os.access(dbpath, os.W_OK) and not system:
             os.chmod(dbpath, 0o444)

@@ -27,6 +27,8 @@ except ImportError:
     import urllib2
     from urllib2 import HTTPError, URLError
 
+from fleure.globals import _
+
 
 LOG = logging.getLogger(__name__)
 
@@ -158,14 +160,14 @@ def cvss_metrics(cvss, metrics_map=None):
         metric = metrics_map.get(key, False)
 
         if not metric:
-            LOG.error("Unknown CVSS metric abbrev: %s", key)
+            LOG.error(_("Unknown CVSS metric abbrev: %s"), key)
             return metrics
 
         label = metric["label"]
         val = metric["metrics"].get(val, False)
 
         if not val:
-            LOG.error("Uknown value for CVSS metric '%s': %s", metric, val)
+            LOG.error(_("Uknown value for CVSS metric '%s': %s"), metric, val)
             return metrics
 
         metrics.append((label, val))
@@ -189,7 +191,7 @@ def get_cvss_for_cve(cve):
         if year < 2009:  # No CVSS
             return None
     else:
-        LOG.warn("Invalid CVE: %s", cve)
+        LOG.warn(_("Invalid CVE: %s"), cve)
         return None
 
     def has_cvss_link(tag):
@@ -220,7 +222,7 @@ def get_cvss_for_cve(cve):
                     url=url_fmt % (cve, cvss_base_metrics))
 
     except Exception as exc:
-        LOG.warn("Could not get CVSS data: err=%s", str(exc))
+        LOG.warn(_("Could not get CVSS data: err=%s"), str(exc))
 
     return None
 

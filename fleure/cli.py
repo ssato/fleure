@@ -158,9 +158,10 @@ def main(argv=None):
                backend=args.backend, tpaths=args.tpaths, hid=args.hid,
                archive=args.archive)
 
-    if os.path.exists(os.path.join(args.root_or_archive, "var/lib/rpm")):
+    rpath = os.path.join(args.root_or_archive, fleure.globals.RPMDB_SUBDIR)
+    if args.multihost and os.path.exists(rpath)
+        LOG.warn(_("Found a RPM data of a host, go back to single host mode."))
         args.multihost = False
-        LOG.info("Found a data of single host. Go backed to single host mode.")
 
     fnc = fleure.multihosts.main if args.multihost else fleure.main.main
     fnc(args.root_or_archive, **cnf)

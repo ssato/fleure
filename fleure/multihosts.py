@@ -192,7 +192,7 @@ def mk_symlinks_to_ref(href, hsrest):
         for src in glob.glob(os.path.join(href_workdir, '*.*')):
             dst = os.path.basename(src)
             if not os.path.exists(dst):
-                LOG.debug("Make a symlink to %s", src)
+                LOG.debug(_("Make a symlink to %s"), src)
                 os.symlink(src, dst)
 
         metadatafile = os.path.join(href_workdir, "metadata.json")

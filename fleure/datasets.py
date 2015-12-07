@@ -194,7 +194,7 @@ def _errata_to_int(errata):
 
     match = reg.match(errata["advisory"])
     if not match:
-        LOG.warn("Not an errata advisory ? : %(advisory)s", errata)
+        LOG.warn(_("Not an errata advisory ? : %(advisory)s"), errata)
         return 0
 
     dic = match.groupdict()

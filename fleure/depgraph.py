@@ -30,6 +30,8 @@ import yum  # TODO: Remove dependency to yum and switch to dnf.
 import fleure.globals
 import fleure.utils
 
+from fleure.globals import _
+
 
 _E_ATTRS = dict(weight=1.0, )
 LOG = logging.getLogger(__name__)
@@ -210,7 +212,7 @@ def dump_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
     if rcode != 0:
         if not err:
             err = "Maybe timeout occurs"
-        LOG.warn("Failed to generate a SVG file: in=%s, out=%s, out/err=%s/%s",
-                 output, output2, out, err)
+        LOG.warn(_("Failed to generate a SVG file: in=%s, out=%s, "
+                   "out/err=%s/%s"), output, output2, out, err)
 
 # vim:sw=4:ts=4:et:

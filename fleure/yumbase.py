@@ -19,6 +19,7 @@ import fleure.package
 import fleure.rpmutils
 import fleure.utils
 
+from fleure.globals import _
 from fleure.utils import chaincalls
 
 
@@ -237,7 +238,7 @@ class Base(fleure.base.Base):
         activated and it should be going to take some time to finish.
         """
         if not self._populated:
-            LOG.info("Loading yum repo metadata from repos: %s",
+            LOG.info(_("Loading yum repo metadata from repos: %s"),
                      ','.join(r.id for r in self.base.repos.listEnabled()))
             # self.base._getTs()
             self.base._getSacks()

@@ -24,6 +24,8 @@ import zipfile
 import fleure.globals
 import fleure.utils
 
+from fleure.globals import _
+
 
 LOG = logging.getLogger(__name__)
 
@@ -151,7 +153,7 @@ def safe_unzip(arcfile, destdir, files=None):
     with zipfile.ZipFile(arcfile) as zipf:
         for filepath in zipf.namelist():
             if files and filepath not in files:
-                LOG.info("Skip %s as not in the list", filepath)
+                LOG.info(_("Skip %s as not in the list"), filepath)
                 continue
 
             if _is_bad_path(filepath):
@@ -200,7 +202,7 @@ def extract_rpmdb_archive(arc_path, root=None):
 
     if root is None:
         root = tempfile.mkdtemp(dir="/tmp", prefix="%s-" % __name__)
-        LOG.info("Created a root dir of RPM DBs: %s", root)
+        LOG.info(_("Created a root dir of RPM DBs: %s"), root)
     else:
         root = os.path.abspath(root)  # Ensure it's an absolute path.
 

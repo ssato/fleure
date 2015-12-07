@@ -316,8 +316,8 @@ def archive_report(reportdir, output):
         LOG.info(_("Archived results: %s"), arcpath)
         return arcpath
 
-    LOG.warn("Reprot files (%s) do not exist. Do no make a report archives",
-             ", ".join(filenames))
+    LOG.warn(_("Reprot files (%s) do not exist. Do no make a report "
+               "archives"), ", ".join(filenames))
     return None
 
 
