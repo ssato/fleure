@@ -14,17 +14,22 @@ _VENDOR_MAPS = {_VENDOR_RH: ("redhat", ".redhat.com"),
                 "Fedora Project": ("fedora", ".fedoraproject.org")}
 
 
-def may_be_rebuilt(vendor, buildhost, vbmap=None):
+def may_be_rebuilt(vendor, buildhost, vbmap=None, sfx=".redhat.com"):
     """
     >>> may_be_rebuilt("Red Hat, Inc.", "abc.builder.redhat.com")
     False
     >>> may_be_rebuilt("Red Hat, Inc.", "localhost.localdomain")
     True
+    >>> may_be_rebuilt("ZABBIX-JP", "abc.builder.redhat.com")
+    False
     >>> may_be_rebuilt("Example, Inc.", "abc.builder.redhat.com")
     False
     >>> may_be_rebuilt("Example, Inc.", "localhost.localdomain")
     False
     """
+    if buildhost.endswith(sfx):
+        return False
+
     if vbmap is None:
         vbmap = _VENDOR_MAPS
 
