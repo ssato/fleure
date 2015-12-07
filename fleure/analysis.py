@@ -17,6 +17,7 @@ import tablib
 
 import fleure.globals
 import fleure.utils
+import fleure.rpmutils
 
 from fleure.globals import _
 
@@ -40,7 +41,7 @@ def list_updates_from_errata(ers):
     """
     ups = sorted(fleure.utils.uconcat(e.get("updates", []) for e in ers),
                  key=itemgetter("name"))
-    return [sorted(g, cmp=fleure.utils.pcmp, reverse=True)[0] for g
+    return [sorted(g, cmp=fleure.rpmutils.pcmp, reverse=True)[0] for g
             in fleure.utils.sgroupby(ups, itemgetter("name"))]
 
 
