@@ -6,11 +6,15 @@
 """
 from __future__ import absolute_import
 
-import line_profiler
 import os.path
 import os
 import sys
 import tempfile
+
+try:
+    import line_profiler
+except ImportError:
+    sys.exit(0)
 
 sys.path.insert(0, os.path.join(os.curdir, ".."))
 
