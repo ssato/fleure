@@ -33,7 +33,8 @@ class Test00(unittest.TestCase):
         tds.append((1, 2, 3))
 
         xlspath = os.path.join(self.workdir, "test.xls")
-        fnc = getattr(TT, fleure.decorators.ref_to_original(TT.dump_xls))
+        fnc = getattr(TT, fleure.decorators.ref_to_original(TT.dump_xls),
+                      TT.dump_xls)
         fnc([tds], xlspath)
 
         self.assertTrue(os.path.exists(xlspath))
