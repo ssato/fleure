@@ -27,14 +27,13 @@ import fleure.datasets
 import fleure.utils
 import fleure.yumbase
 
-from fleure.globals import _, profile, async
+from fleure.globals import _, profile
 from fleure.datasets import make_dataset
 
 
 LOG = logging.getLogger("fleure")
 
 
-@async
 def dump_xls(dataset, filepath):
     """XLS dump function"""
     book = tablib.Databook(dataset)
@@ -42,7 +41,6 @@ def dump_xls(dataset, filepath):
         out.write(book.xls)
 
 
-@async
 def dump_results(host, rpms, errata, updates, dumpdir=None):
     """
     Dump package level static analysis results.
