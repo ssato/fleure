@@ -209,7 +209,7 @@ class Host(bunch.Bunch):
         if not os.path.exists(savedir):
             os.makedirs(savedir)
 
-        anyconfig.dump(obj, filepath)
+        anyconfig.dump(obj, fleure.utils.copen(filepath, 'w'))
 
     def load(self, name, savedir=None):
         """
@@ -219,6 +219,6 @@ class Host(bunch.Bunch):
         savedir = self.workdir if savedir is None else savedir
         filepath = os.path.join(savedir, "%s.json" % name)
 
-        return anyconfig.load(filepath)
+        return anyconfig.load(fleure.utils.copen(filepath))
 
 # vim:sw=4:ts=4:et:
