@@ -38,9 +38,8 @@ def _h_to_pkg(rpmh, extras=None):
     nevra_keys = "name epoch version release arch".split()
     nevra = operator.itemgetter(*nevra_keys)(rpmh)
     info = dict((k, rpmh[k]) for k in "summary vendor buildhost".split())
-    info["extra_names"] = extras
 
-    return fleure.package.factory(nevra, **info)
+    return fleure.package.factory(nevra, extra_names=extras, **info)
 
 
 def _list_installed(root, extras=None, process_fns=None):
