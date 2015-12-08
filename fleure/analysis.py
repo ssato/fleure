@@ -15,6 +15,7 @@ import logging
 import nltk
 import tablib
 
+import fleure.decorators
 import fleure.globals
 import fleure.utils
 import fleure.rpmutils
@@ -48,6 +49,16 @@ def list_updates_from_errata(ers):
 _STEMMER = nltk.PorterStemmer()
 
 
+@fleure.decorators.memoize
+def tokenize(strs, stemmer=None):
+    """Tokenize given strings.
+    """
+    if callable(stemmer):
+        return set(stemmer(w) for w in nltk.wordpunct_tokenize(strs))
+    else:
+        return set(nltk.wordpunct_tokenize(strs))
+
+
 def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
                          stemming=True):
     """
@@ -76,14 +87,9 @@ def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
     >>> ert1 in ers
     False
     """
-    if stemming:
-        _stem = _STEMMER.stem
-
+    stemmer = _STEMMER.stem if stemming else None
     for ert in ers:
-        tokens = set(nltk.wordpunct_tokenize(ert["description"]))
-        if stemming:
-            tokens = set(_stem(w) for w in tokens)
-
+        tokens = tokenize(ert["description"], stemmer)
         mks = [k for k in keywords if k in tokens]
         if mks:
             ert["keywords"] = mks
