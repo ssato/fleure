@@ -143,7 +143,7 @@ def _assert_if_not_exist(path, desc):
         raise IOError("Reference %s not found: %s" % (desc, path))
 
 
-def compute_delta(refdir, ers, updates, nevra_keys=fleure.globals.RPM_KEYS):
+def compute_delta(host, refdir, ers, updates):
     """
     :param refdir: Dir has reference data files: packages.json, errata.json
         and updates.json
@@ -151,15 +151,11 @@ def compute_delta(refdir, ers, updates, nevra_keys=fleure.globals.RPM_KEYS):
     :param updates: A list of update packages
     """
     _assert_if_not_exist(refdir, "data dir")
+    nevra_keys = fleure.globals.RPM_KEYS
 
-    ref_es_file = os.path.join(refdir, "errata.json")
-    ref_us_file = os.path.join(refdir, "updates.json")
-    _assert_if_not_exist(ref_es_file, "errata file")
-    _assert_if_not_exist(ref_us_file, "updates file")
-
-    ref_es_data = fleure.utils.json_load(ref_es_file)
-    ref_us_data = fleure.utils.json_load(ref_us_file)
-    LOG.debug(_("Loaded reference errata and updates file"))
+    ref_es_data = host.load("errata", refdir)
+    ref_us_data = host.load("updates", refdir)
+    LOG.debug(_("Loaded reference errata and updates files in %s"), refdir)
 
     ref_eadvs = set(e["advisory"] for e in ref_es_data["data"])
     ref_nevras = set((p[k] for k in nevra_keys) for p in ref_us_data["data"])
