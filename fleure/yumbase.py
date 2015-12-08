@@ -125,7 +125,7 @@ def _to_pkg(pkg, extras=None):
     info = dict(summary=pkg.summary, vendor=pkg.vendor,
                 buildhost=pkg.buildhost)
 
-    return fleure.package.factory(nevra, extra_names=extra_names, **info)
+    return fleure.package.factory(nevra, extra_names=extras, **info)
 
 
 class Base(fleure.base.Base):
