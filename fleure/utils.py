@@ -14,9 +14,7 @@ Misc utility routines for fleure.
 from __future__ import absolute_import
 
 import anyconfig.utils
-import codecs
 import itertools
-import json
 import logging
 import os.path
 import os
@@ -146,31 +144,6 @@ def sgroupby(items, kfn, kfn2=None):
     """
     return (list(g) if kfn2 is None else sorted(g, key=kfn2) for _k, g
             in itertools.groupby(sorted(items, key=kfn), kfn))
-
-
-def copen(path, flag='r', encoding="utf-8"):
-    """An wrapper of codecs.open
-    """
-    return codecs.open(path, flag, encoding)
-
-
-def json_load(filepath, encoding="utf-8"):
-    """
-    Load ``filepath`` in JSON format and return data.
-
-    :param filepath: Output file path
-    """
-    return json.load(copen(filepath, encoding=encoding))
-
-
-def json_dump(data, filepath):
-    """
-    Dump given ``data`` into ``filepath`` in JSON format.
-
-    :param data: Data to dump
-    :param filepath: Output file path
-    """
-    json.dump(data, copen(filepath, 'w'))
 
 
 def all_eq(iterable):
