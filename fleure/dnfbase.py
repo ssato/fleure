@@ -11,6 +11,7 @@ from __future__ import absolute_import
 
 import collections
 import dnf
+import functools
 import hawkey
 import itertools
 import logging
@@ -25,7 +26,21 @@ import fleure.utils
 
 
 LOG = logging.getLogger(__name__)
-Package = collections.namedtuple("Package", "name epoch version release arch")
+NEVRA = collections.namedtuple("NEVRA", fleure.globals.RPM_KEYS)
+
+
+def _h_to_pkg(rpmh, extras):
+    """Make a namedtuple package object from rpm header object.
+
+    :param rpmh: RPM Header object holding package metadata
+    :param extras: A list of name of packages not available from repos
+    """
+    nevra_keys = "name epoch version release arch".split()
+    nevra = operator.itemgetter(*nevra_keys)(rpmh)
+    info = dict((k, rpmh[k]) for k in "summary vendor buildhost".split())
+    info["extra_names"] = extras
+
+    return fleure.package.factory(nevra, **info)
 
 
 def _list_installed(root, extras=None, process_fns=None):
@@ -39,37 +54,23 @@ def _list_installed(root, extras=None, process_fns=None):
         Any callable objects to process installed package object or None to do
         nothing with it
 
-    :return: A list of packages :: [dict]
+    :return: A list of namedtuple package objects
     """
-    # see :class:`~fleure.package.Package`
-    keys = ("name", "version", "release", "arch", "epoch", "summary", "vendor",
-            "buildhost")
-    ens = set(e.name for e in extras)
-    calls = (lambda params: fleure.package.Package(*params, extra_names=ens),
+    # see :func:`~fleure.package.factory`
+    calls = (functools.partial(_h_to_pkg, extras=set(e.name for e in extras)),
              process_fns)
 
-    return [fleure.utils.chaincalls([h[k] for k in keys], *calls)
-            for h in fleure.rpmutils.rpm_transactionset(root).dbMatch()
+    pkgs = [fleure.utils.chaincalls(h, *calls) for h
+            in fleure.rpmutils.rpm_transactionset(root).dbMatch()
             if h["name"] != "gpg-pubkey"]
+    return pkgs
 
 
 def _to_pkg(pkg):
+    """Make a namedtuple package object from :class:`~hawkey.Package` object.
     """
-    Convert Package object :: hawkey.Package to a dict object
-    :: fleure.package.Package object.
-
-    :param pkg: Package object which base.list_installed(), etc. returns
-    :param extras:
-        True if given package is extras, not available from given yum repos.
-    """
-    if isinstance(pkg, collections.Mapping):
-        return pkg  # Conversion should be done already.
-
-    originally_from = "Unknown"
-
-    return fleure.package.Package(pkg.name, pkg.v, pkg.r, pkg.a, pkg.epoch,
-                                  pkg.summary, pkg.packager, "N/A",
-                                  originally_from=originally_from)
+    return fleure.package.factory((pkg.name, pkg.epoch, pkg.v, pkg.r, pkg.a),
+                                  pkg.summary, pkg.packager, "N/A")
 
 
 # see dnf.cli.commands.updateinfo.UpdateInfoCommand.TYPE2LABEL:
@@ -334,7 +335,7 @@ class Base(fleure.base.Base):
         def _trans_to_pkg(trans):
             """Convert transaction object (erased) to a pkg tuple
             """
-            return Package(trans.name, trans.e, trans.v, trans.r, trans.a)
+            return NEVRA(trans.name, trans.e, trans.v, trans.r, trans.a)
 
         self._assert_if_not_ready("excluding ...")
         excls = list(_excludes_from_removed(excludes))
