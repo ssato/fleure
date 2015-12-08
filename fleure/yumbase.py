@@ -7,7 +7,6 @@
 """
 from __future__ import absolute_import
 
-import collections
 import functools
 import itertools
 import logging
@@ -113,18 +112,20 @@ def _to_pkg(pkg, extras=None):
     yum.sqlitesack..YumAvailablePackageSqlite, etc., to
     fleure.base.Package object.
 
-    :param pkg: Package object which Base.list_installed(), etc. returns
-    :param extras: A list of names of extra packages which is installed
-        but not available from yum repos available.
-
-    NOTE: Take care of rpm db session.
+    :param pkg:
+        Package object (namedtuple) which Base.list_installed(), etc. return
+    :param extras:
+        A list of package names of extra packages which is installed but not
+        available from specified yum repos
     """
-    if isinstance(pkg, collections.Mapping):
-        return pkg
+    if extras is not None and pkg.name in extras:
+        return None
 
-    return fleure.package.Package(pkg.name, pkg.version, pkg.release, pkg.arch,
-                                  pkg.epoch, pkg.summary, pkg.vendor,
-                                  pkg.buildhost, extras)
+    nevra = (pkg.name, pkg.epoch, pkg.version, pkg.release, pkg.arch)
+    info = dict(summary=pkg.summary, vendor=pkg.vendor,
+                buildhost=pkg.buildhost, extra_names=extras)
+
+    return fleure.package.factory(nevra, **info)
 
 
 class Base(fleure.base.Base):
@@ -194,10 +195,10 @@ class Base(fleure.base.Base):
             ygh = self.base.doPackageLists(pkgnarrow)
 
             if pkgnarrow == "installed":
-                extras = [p["name"] for p in self._make_list_of("extras")]
+                extras = [p.name for p in self._make_list_of("extras")]
                 calls = (functools.partial(_to_pkg, extras=extras),
                          process_fns)
-                objs = [chaincalls(p, *calls) for p in ygh.installed]
+                objs = [chaincalls(p, *calls) for p in ygh.installed if p]
             else:
                 objs = [chaincalls(p, _to_pkg, process_fns) for p in
                         getattr(ygh, pkgnarrow, [])]
