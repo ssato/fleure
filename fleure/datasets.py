@@ -93,45 +93,51 @@ def _fmt_bzs(bzs, summary=False):
     return bzs
 
 
-def _make_cell_data(obj, key, default="N/A"):
+def _make_cell_data(obj, key, getter, default="N/A"):
     """Make up cell data.
     """
     if key == "cves":
-        cves = obj.get("cves", [])
+        cves = getter(obj, "cves", [])
         try:
             return ", ".join(_fmt_cvess(cves)) if cves else default
         except Exception as exc:
-            raise RuntimeError("Wrong CVEs: %s, exc=%s" % (str(cves),
-                                                           str(exc)))
+            raise RuntimeError("Wrong CVEs: %r, exc=%r" % (cves, exc))
     elif key == "bzs":
-        bzs = obj.get("bzs", [])
+        bzs = getter(obj, "bzs", [])
         return ", ".join(_fmt_bzs(bzs)) if bzs else default
 
     else:
-        val = obj.get(key, default)
+        val = getter(obj, key, default)
         return ", ".join(val) if isinstance(val, (list, tuple)) else val
 
 
-def make_dataset(list_data, title=None, headers=None, lheaders=None):
+def make_dataset(list_data, title=None, headers=None, lheaders=None,
+                 is_tuple=False):
     """
-    :param list_data: List of data
+    :param list_data: List of data, may be consists of [[namedtuple]]
     :param title: Dataset title to be used as worksheet's name
     :param headers: Dataset headers to be used as column headers, etc.
     :param lheaders: Localized version of `headers`
+    :param is_tuple: True if list_data consists of [namedtuple]
 
     TODO: Which is better?
         - tablib.Dataset(); [tablib.append(vals) for vals in list_data]
         - tablib.Dataset(*list_data, header=...)
     """
+    if is_tuple:
+        getter = lambda obj, key, default=None: getattr(obj, key, default)
+    else:
+        getter = lambda obj, key, default=None: obj.get(key, default)
+
     # .. note::
     #    We need to check title as valid worksheet name, length <= 31, etc.
     #    See also xlwt.Utils.valid_sheet_name.
     if headers is not None:
         headers = headers if lheaders is None else lheaders
-        tdata = [[_make_cell_data(val, h) for h in headers] for val in
-                 list_data]
+        tdata = [[_make_cell_data(val, h, getter) for h in headers] for val
+                 in list_data]
     else:
-        tdata = [val.values() for val in list_data]
+        tdata = [val if is_tuple else val.values() for val in list_data]
 
     return tablib.Dataset(*tdata, title=title[:30], headers=headers)
 
@@ -148,21 +154,21 @@ def compute_delta(host, refdir, ers, updates):
     :param refdir: Dir has reference data files: packages.json, errata.json
         and updates.json
     :param ers: A list of errata
-    :param updates: A list of update packages
+    :param updates: A list of update packages :: [namedtuple]
     """
     _assert_if_not_exist(refdir, "data dir")
     nevra_keys = fleure.globals.RPM_KEYS
 
-    ref_es_data = host.load("errata", refdir)
-    ref_us_data = host.load("updates", refdir)
+    ref_es = host.load("errata", refdir)["data"]  # :: [dict]
+    ref_us = host.load("updates", refdir)["data"]  # :: [dict]
     LOG.debug(_("Loaded reference errata and updates files in %s"), refdir)
 
-    ref_eadvs = set(e["advisory"] for e in ref_es_data["data"])
-    ref_nevras = set((p[k] for k in nevra_keys) for p in ref_us_data["data"])
+    ref_eadvs = set(e["advisory"] for e in ref_es)
+    ref_nevras = set((u[k] for k in nevra_keys) for u in ref_us)
 
     return ([e for e in ers if e["advisory"] not in ref_eadvs],
             [u for u in updates
-             if (u[k] for k in nevra_keys) not in ref_nevras])
+             if (getattr(u, k) for k in nevra_keys) not in ref_nevras])
 
 
 def _errata_to_int(errata):
@@ -200,22 +206,18 @@ def _errata_to_int(errata):
                                  dic["year"], dic["seq"], rev))
 
 
-def complement_an_errata(ert, updates=None, to_update_fn=None, score=-1):
+def complement_an_errata(ert, updates=None, score=-1):
     """
     TBD: What should be complemented?
 
     :param ert: An errata dict
     :param updates: A list of update packages
-    :param to_update_fn:
-        A callable to convert pacakge object to compare with update packages
     :param score: CVSS score
     """
     if updates is None:
         updates = []
 
-    if to_update_fn is None:
-        to_update_fn = operator.itemgetter("name", "arch")
-
+    to_update_fn = operator.itemgetter("name", "arch")
     ert["id"] = _errata_to_int(ert)  # It will be used as sorting key
     ert["updates"] = fleure.utils.uniq(p for p in ert.get("packages", [])
                                        if to_update_fn(p) in updates)
