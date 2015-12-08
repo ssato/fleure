@@ -67,9 +67,12 @@ def _list_installed(root, extras=None, process_fns=None):
 
 def _to_pkg(pkg):
     """Make a namedtuple package object from :class:`~hawkey.Package` object.
+
+    :see: :func:`fleure.package.factory`
     """
     return fleure.package.factory((pkg.name, pkg.epoch, pkg.v, pkg.r, pkg.a),
-                                  pkg.summary, pkg.packager, "N/A")
+                                  summary=pkg.summary, vendor=pkg.packager,
+                                  buildhost="N/A")
 
 
 # see dnf.cli.commands.updateinfo.UpdateInfoCommand.TYPE2LABEL:
