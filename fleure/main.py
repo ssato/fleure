@@ -14,6 +14,7 @@ from operator import itemgetter
 import datetime
 import functools
 import logging
+import operator
 import os.path
 import os
 import tablib
@@ -216,7 +217,7 @@ def prepare(host):
              host.hid, len(host.installed),
              len([p for p in host.installed if p.rebuilt]),
              len([p for p in host.installed if p.replaced]))
-    host.save(dict(data=[i._asdict() for i in host.installed], ), "packages")
+    host.save(dict(data=asdicts(host.installed), ), "packages")
 
     if base.ready():
         host.available = True
@@ -234,18 +235,18 @@ def analyze(host):
                     generated=datetime.datetime.now().strftime("%F %T"))
     host.save(metadata, "metadata")
 
-    # .. note:: ups is a list of collections.namedtuple objects not dicts.
     LOG.info(_("%s: Analyzing errata and packages ..."), host.hid)
-    host.updates = ups = [u._asdict() for u in host.base.list_updates()]
+    host.updates = ups = host.base.list_updates()
 
-    p2na = itemgetter("name", "arch")
+    p2na = operator.attrgetter("name", "arch")
     calls = (functools.partial(fleure.datasets.complement_an_errata,
                                updates=set(p2na(u) for u in ups),
                                score=host.cvss_min_score),
              )
     host.errata = ers = host.base.list_errata(calls)
 
-    host.save(dict(data=ups, ), "updates")
+    # .. note:: ups is a list of collections.namedtuple objects not dicts.
+    host.save(dict(data=asdicts(ups), ), "updates")
     host.save(dict(data=ers, ), "errata")
     LOG.info(_("%s: Found %d errata and %d updates, saved the lists"),
              host.hid, len(ers), len(ups))
@@ -274,7 +275,7 @@ def analyze(host):
                   host.hid, host.refdir)
         (ers, ups) = fleure.datasets.compute_delta(host, host.refdir, ers, ups)
         host.save(dict(data=ers, ), "errata", subdir="delta")
-        host.save(dict(data=ups, ), "updates", subdir="delta")
+        host.save(dict(data=asdicts(ups), ), "updates", subdir="delta")
         LOG.info(_("%s [delta]: Found %d errata and %d updates, save the "
                    "lists"), host.hid, len(ers), len(ups))
 
