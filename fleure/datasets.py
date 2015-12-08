@@ -99,16 +99,18 @@ def _make_cell_data(obj, key, getter, default="N/A"):
     if key == "cves":
         cves = getter(obj, "cves", [])
         try:
-            return ", ".join(_fmt_cvess(cves)) if cves else default
+            ret = ", ".join(_fmt_cvess(cves)) if cves else default
         except Exception as exc:
             raise RuntimeError("Wrong CVEs: %r, exc=%r" % (cves, exc))
     elif key == "bzs":
         bzs = getter(obj, "bzs", [])
-        return ", ".join(_fmt_bzs(bzs)) if bzs else default
+        ret = ", ".join(_fmt_bzs(bzs)) if bzs else default
 
     else:
         val = getter(obj, key, default)
-        return ", ".join(val) if isinstance(val, (list, tuple)) else val
+        ret = ", ".join(val) if isinstance(val, (list, tuple)) else str(val)
+
+    return ret.encode("utf-8")
 
 
 def make_dataset(list_data, title=None, headers=None, lheaders=None,
@@ -217,10 +219,10 @@ def complement_an_errata(ert, updates=None, score=-1):
     if updates is None:
         updates = []
 
-    to_update_fn = operator.itemgetter("name", "arch")
+    p2na = operator.itemgetter("name", "arch")
     ert["id"] = _errata_to_int(ert)  # It will be used as sorting key
     ert["updates"] = fleure.utils.uniq(p for p in ert.get("packages", [])
-                                       if to_update_fn(p) in updates)
+                                       if p2na(p) in updates)
     ert["update_names"] = list(set(u["name"] for u in ert["updates"]))
 
     # NOTE: Quick hack to strip extra white spaces at the top and the end
