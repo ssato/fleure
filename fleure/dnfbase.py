@@ -29,7 +29,7 @@ LOG = logging.getLogger(__name__)
 NEVRA = collections.namedtuple("NEVRA", fleure.globals.RPM_KEYS)
 
 
-def _h_to_pkg(rpmh, extras):
+def _h_to_pkg(rpmh, extras=None):
     """Make a namedtuple package object from rpm header object.
 
     :param rpmh: RPM Header object holding package metadata
