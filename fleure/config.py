@@ -203,14 +203,22 @@ class Host(bunch.Bunch):
         :param name: File base name to save
         :param savedir: Directory to save results
         """
-        if savedir is None:
-            filepath = os.path.join(self.workdir, "%s.json" % name)
-        else:
-            filepath = os.path.join(savedir, "%s.json" % name)
+        savedir = self.workdir if savedir is None else savedir
+        filepath = os.path.join(savedir, "%s.json" % name)
 
-        if not os.path.exists(os.path.dirname(filepath)):
-            os.makedirs(os.path.dirname(filepath))
+        if not os.path.exists(savedir):
+            os.makedirs(savedir)
 
-        fleure.utils.json_dump(obj, filepath)
+        anyconfig.dump(obj, filepath)
+
+    def load(self, name, savedir=None):
+        """
+        :param name: File base name to save
+        :param savedir: Directory to save results
+        """
+        savedir = self.workdir if savedir is None else savedir
+        filepath = os.path.join(savedir, "%s.json" % name)
+
+        return anyconfig.load(filepath)
 
 # vim:sw=4:ts=4:et:
