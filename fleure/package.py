@@ -6,12 +6,16 @@
 """
 from __future__ import absolute_import
 
+import collections
+
 
 _VENDOR_RH = "Red Hat, Inc."
 _VENDOR_MAPS = {_VENDOR_RH: ("redhat", ".redhat.com"),
                 "Symantec Corporation": ("symantec", ".veritas.com"),
                 "ZABBIX-JP": ("zabbixjp", ".zabbix.jp"),
                 "Fedora Project": ("fedora", ".fedoraproject.org")}
+
+CACHE = dict()
 
 
 def may_be_rebuilt(vendor, buildhost, vbmap=None, sfx=".redhat.com"):
@@ -40,75 +44,63 @@ def may_be_rebuilt(vendor, buildhost, vbmap=None, sfx=".redhat.com"):
     return False
 
 
-def inspect_origin(name, vendor, buildhost, extra_names=None,
-                   vbmap=None, exp_vendor=_VENDOR_RH):
+def inspect_origin(name, vendor, buildhost, extra_names=None):
     """
     Inspect package info and detect its origin, etc.
 
     :param name: Package name
     :param vendor: Package vendor
     :param buildhost: Package buildhost
-    :param extras: Extra packages not available from yum repos
     :param extra_names: Extra (non-vendor-origin) package names
-    """
-    if vbmap is None:
-        vbmap = _VENDOR_MAPS
 
-    origin = vbmap.get(vendor, ("unknown", ))[0]
+    :return: A tuple of (origin, rebuilt, replaced)
+    """
+    origin = _VENDOR_MAPS.get(vendor, ("unknown", ))[0]
 
     # Cases that it may be rebuilt or replaced.
     if extra_names is not None and name not in extra_names:
-        rebuilt = may_be_rebuilt(vendor, buildhost, vbmap)
-        replaced = vendor != exp_vendor
-        return dict(origin=origin, rebuilt=rebuilt, replaced=replaced)
+        return (origin, may_be_rebuilt(vendor, buildhost, _VENDOR_MAPS),
+                vendor != _VENDOR_RH)
 
-    return dict(origin=origin, rebuilt=False, replaced=False)
+    return (origin, False, False)
 
 
-class Package(dict):
-    """Package object holding parameters necessary for analysis.
+def norm_nevra(name, epoch, version, release, arch):
+    """Normalize epoch to unsigned int and return result (nevra).
     """
+    return (name, 0 if epoch is None else int(epoch), version, release, arch)
 
-    def __init__(self, name, version, release, arch, epoch=None, summary=None,
-                 vendor=None, buildhost=None, extra_names=None, **kwargs):
-        """
-        :param name: Package name
-        """
-        super(Package, self).__init__()
 
-        self["name"] = name
-        self["version"] = version
-        self["release"] = release
-        self["arch"] = arch
-        self["epoch"] = 0 if epoch is None else int(epoch)
-        self["summary"] = summary
-        self["vendor"] = vendor
-        self["buildhost"] = buildhost
+def factory(nevra, cache=None, **info):
+    """
+    Factory to create a package info object.
 
-        dic = inspect_origin(name, vendor, buildhost, extra_names)
-        self.update(**dic)
+    :param nevra: A tuple of (name, epoch, version, release, arch)
+    :param info:
+        Other package info such as summary, vendor, buildhost, extra_names
+        (extra package names)
 
-        for key, val in kwargs.items():
-            self[key] = val
+    :return:
+        An instance of :class:`collections.namedtuple` holding package info
+    """
+    if cache is None:
+        cache = CACHE
 
-    def __str__(self):
-        """to string method"""
-        return "({name}, {version}, {release}, {epoch}, {arch})".format(**self)
+    nevra = norm_nevra(*nevra)
+    if nevra in cache:
+        return cache[nevra]
 
-    @classmethod
-    def from_dict(cls, pkg):
-        """
-        Factory method to create a :class:`Package` instance from a dict.
+    vbes = (info["vendor"], info["buildhost"], info.get("extra_names", None))
+    orr = inspect_origin(nevra[0], *vbes)
 
-        >>> pkgd = dict(name="foo", version="0.0.1", release="1",
-        ...             arch="x86_64", epoch=0, buildhost="localhost")
-        >>> pkg = Package.from_dict(pkgd)
-        >>> isinstance(pkg, Package)
-        True
-        """
-        kwargs = dict((key, val) for key, val in pkg.items()
-                      if key not in ("name", "version", "release", "arch"))
-        return cls(pkg["name"], pkg["version"], pkg["release"], pkg["arch"],
-                   **kwargs)
+    keys = ("name epoch version release arch summary vendor buildhost "
+            "origin rebuilt replaced").split()
+    extra_keys = sorted(k for k in info.keys() if k not in keys)
+    Package = collections.namedtuple("Package", keys + extra_keys)
+
+    pkg = Package(*(nevra + (info["summary"], vbes[0], vbes[1]) + orr +
+                    tuple(info[k] for k in extra_keys)))
+    cache[nevra] = pkg
+    return pkg
 
 # vim:sw=4:ts=4:et:
