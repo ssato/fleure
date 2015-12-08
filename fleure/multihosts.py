@@ -184,9 +184,14 @@ def mk_symlinks_to_ref(href, hsrest):
     :param hsrest: A list of hosts having same installed rpms as `href`
     """
     orgdir = os.path.abspath(os.curdir)
+    href_workdir = os.path.join('..', href.hid)  # TODO: Keep consistency.
+
+    metadatafile = os.path.join(href_workdir, "metadata.json")
+    shutil.copy2(metadatafile, metadatafile + ".save")
+    metadata = href.load("metadata", href_workdir)
+
     for hst in hsrest:
         os.chdir(hst.workdir)
-        href_workdir = os.path.join('..', href.hid)  # TODO: Keep consistency.
         LOG.info(_("%s: Make symlinks to results in %s/"),
                  hst.hid, href_workdir)
         for src in glob.glob(os.path.join(href_workdir, '*.*')):
@@ -195,13 +200,10 @@ def mk_symlinks_to_ref(href, hsrest):
                 LOG.debug(_("Make a symlink to %s"), src)
                 os.symlink(src, dst)
 
-        metadatafile = os.path.join(href_workdir, "metadata.json")
-        shutil.copy2(metadatafile, metadatafile + ".save")
-        metadata = fleure.utils.json_load(metadatafile)
         metadata["hosts"].append(hst.hid)
-        fleure.utils.json_dump(metadata, metadatafile)
-
         os.chdir(orgdir)
+
+    href.save(metadata, "metadata", href_workdir)
 
 
 def analyze(args):
