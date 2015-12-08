@@ -135,9 +135,9 @@ def make_dataset(list_data, title=None, headers=None, lheaders=None,
     #    We need to check title as valid worksheet name, length <= 31, etc.
     #    See also xlwt.Utils.valid_sheet_name.
     if headers is not None:
-        headers = headers if lheaders is None else lheaders
         tdata = [[_make_cell_data(val, h, getter) for h in headers] for val
                  in list_data]
+        headers = headers if lheaders is None else lheaders
     else:
         tdata = [val if is_tuple else val.values() for val in list_data]
 
