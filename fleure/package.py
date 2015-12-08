@@ -71,11 +71,13 @@ def norm_nevra(name, epoch, version, release, arch):
     return (name, 0 if epoch is None else int(epoch), version, release, arch)
 
 
-def factory(nevra, cache=None, **info):
+def factory(nevra, cache=None, extra_names=None, **info):
     """
     Factory to create a package info object.
 
     :param nevra: A tuple of (name, epoch, version, release, arch)
+    :param cache: Global package (namedtuple) cache
+    :param extra_names: Extra (non-vendor-origin) package names
     :param info:
         Other package info such as summary, vendor, buildhost, extra_names
         (extra package names)
@@ -90,7 +92,7 @@ def factory(nevra, cache=None, **info):
     if nevra in cache:
         return cache[nevra]
 
-    vbes = (info["vendor"], info["buildhost"], info.get("extra_names", None))
+    vbes = (info["vendor"], info["buildhost"], extra_names)
     orr = inspect_origin(nevra[0], *vbes)
 
     keys = ("name epoch version release arch summary vendor buildhost "
