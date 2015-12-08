@@ -20,6 +20,7 @@
 """
 from __future__ import absolute_import
 
+import anyconfig
 import anytemplate
 import logging
 import networkx
@@ -197,7 +198,8 @@ def dump_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
         workdir = root
 
     ctx = _make_depgraph_context(root, ers)
-    fleure.utils.json_dump(ctx, os.path.join(workdir, outname + ".json"))
+    out = fleure.utils.copen(os.path.join(workdir, outname + ".json"), 'w')
+    anyconfig.dump(ctx, out)
 
     output = os.path.join(workdir, outname + ".dot")
     opts = dict(at_paths=tpaths, at_engine="jinja2", at_ask_missing=True)
