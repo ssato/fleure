@@ -9,7 +9,7 @@
 """Fleure's main module
 """
 from __future__ import absolute_import
-from operator import itemgetter
+from operator import itemgetter, attrgetter
 
 import datetime
 import functools
@@ -208,13 +208,14 @@ def prepare(host):
              host.hid, base.name)
 
     host.installed = sorted(base.list_installed(),
-                            key=itemgetter(*host.rpmkeys))
+                            key=attrgetter(*host.rpmkeys))
     LOG.info(_("%s: Found %d (rebuilt=%d, replaced=%d) installed RPMs"),
              host.hid, len(host.installed),
              len([p for p in host.installed if p.get("rebuilt", False)]),
              len([p for p in host.installed if p.get("replaced", False)]))
 
-    host.save(dict(data=host.installed, ), "packages")
+    # .. note:: host.installed is a list of collections.namedtuple.
+    host.save(dict(data=[i._asdict() for i in host.installed], ), "packages")
 
     if base.ready():
         host.available = True
@@ -232,8 +233,9 @@ def analyze(host):
                     generated=datetime.datetime.now().strftime("%F %T"))
     host.save(metadata, "metadata")
 
+    # .. note:: ups is a list of collections.namedtuple.
     LOG.info(_("%s: Analyzing errata and packages ..."), host.hid)
-    host.updates = ups = host.base.list_updates()
+    host.updates = ups = [u._asdict() for u in host.base.list_updates()]
 
     p2na = itemgetter("name", "arch")
     calls = (functools.partial(fleure.datasets.complement_an_errata,
@@ -243,8 +245,8 @@ def analyze(host):
              )
     host.errata = ers = host.base.list_errata(calls)
 
-    host.save(dict(data=ers, ), "errata")
     host.save(dict(data=ups, ), "updates")
+    host.save(dict(data=ers, ), "errata")
     LOG.info(_("%s: Found %d errata and %d updates, saved the lists"),
              host.hid, len(ers), len(ups))
 
@@ -270,7 +272,7 @@ def analyze(host):
     if host.refdir:
         LOG.debug(_("%s [delta]: Analyze delta errata data by refering %s"),
                   host.hid, host.refdir)
-        (ers, ups) = fleure.datasets.compute_delta(host.refdir, ers, ups)
+        (ers, ups) = fleure.datasets.compute_delta(host, host.refdir, ers, ups)
         host.save(dict(data=ers, ), "errata", subdir="delta")
         host.save(dict(data=ups, ), "updates", subdir="delta")
         LOG.info(_("%s [delta]: Found %d errata and %d updates, save the "
