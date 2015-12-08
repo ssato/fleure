@@ -241,7 +241,6 @@ def analyze(host):
     p2na = itemgetter("name", "arch")
     calls = (functools.partial(fleure.datasets.complement_an_errata,
                                updates=set(p2na(u) for u in ups),
-                               to_update_fn=p2na,
                                score=host.cvss_min_score),
              )
     host.errata = ers = host.base.list_errata(calls)
