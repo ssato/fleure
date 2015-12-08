@@ -14,6 +14,7 @@ Misc utility routines for fleure.
 from __future__ import absolute_import
 
 import anyconfig.utils
+import codecs
 import itertools
 import logging
 import os.path
@@ -170,6 +171,26 @@ def all_eq(iterable):
     return all(x == iterable[0] for x in iterable[1:]) if iterable else False
 
 
+def namedtuples_to_dicts(ntpls):
+    """
+    Convert namedtuple objects to dicts.
+
+    >>> from collections import namedtuple
+    >>> Point = namedtuple("Point", "x y")
+    >>> points = [Point(1, 2), Point(0, 0), Point(3, 2)]
+    >>> namedtuples_to_dicts(points)  # doctest: +NORMALIZE_WHITESPACE
+    [OrderedDict([('x', 1), ('y', 2)]), OrderedDict([('x', 0), ('y', 0)]),
+     OrderedDict([('x', 3), ('y', 2)])]
+    """
+    if not ntpls:
+        return []
+
+    if not isinstance(ntpls[0], tuple):
+        raise ValueError("Not look tuples: %r, ..." % ntpls[0])
+
+    return [t._asdict() for t in ntpls]
+
+
 def longest_common_prefix(*args):
     """
     Variant of LCS = Longest Common Sub-sequence. For LCS, see
@@ -222,5 +243,11 @@ def subproc_call(cmd_s, cwd=os.curdir, timeout=None, **kwargs):
 
     except subprocess.CalledProcessError as exc:
         return (rcode, None, str(exc))
+
+
+def copen(path, flag='r', encoding="utf-8"):
+    """An wrapper of codecs.open
+    """
+    return codecs.open(path, flag, encoding)
 
 # vim:sw=4:ts=4:et:
