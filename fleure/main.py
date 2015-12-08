@@ -9,7 +9,7 @@
 """Fleure's main module
 """
 from __future__ import absolute_import
-from operator import itemgetter, attrgetter
+from operator import itemgetter
 
 import datetime
 import functools
@@ -207,14 +207,13 @@ def prepare(host):
     LOG.info(_("%s[%s]: Initialization completed, start to analyze ..."),
              host.hid, base.name)
 
-    host.installed = sorted(base.list_installed(),
-                            key=attrgetter(*host.rpmkeys))
+    # .. note::
+    #    host.installed is a list of collections.namedtuple objects not dicts.
+    host.installed = sorted(base.list_installed())
     LOG.info(_("%s: Found %d (rebuilt=%d, replaced=%d) installed RPMs"),
              host.hid, len(host.installed),
-             len([p for p in host.installed if p.get("rebuilt", False)]),
-             len([p for p in host.installed if p.get("replaced", False)]))
-
-    # .. note:: host.installed is a list of collections.namedtuple.
+             len([p for p in host.installed if p.rebuilt]),
+             len([p for p in host.installed if p.replaced]))
     host.save(dict(data=[i._asdict() for i in host.installed], ), "packages")
 
     if base.ready():
@@ -233,7 +232,7 @@ def analyze(host):
                     generated=datetime.datetime.now().strftime("%F %T"))
     host.save(metadata, "metadata")
 
-    # .. note:: ups is a list of collections.namedtuple.
+    # .. note:: ups is a list of collections.namedtuple objects not dicts.
     LOG.info(_("%s: Analyzing errata and packages ..."), host.hid)
     host.updates = ups = [u._asdict() for u in host.base.list_updates()]
 
