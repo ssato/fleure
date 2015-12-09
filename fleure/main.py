@@ -36,14 +36,14 @@ from fleure.utils import namedtuples_to_dicts as asdicts
 LOG = logging.getLogger("fleure")
 
 
-def dump_xls(dataset, filepath):
+def save_to_xls(dataset, filepath):
     """XLS dump function"""
     book = tablib.Databook(dataset)
     with open(filepath, 'wb') as out:
         out.write(book.xls)
 
 
-def dump_results(host, rpms, errata, updates, dumpdir=None):
+def save_results(host, rpms, errata, updates, dumpdir=None):
     """
     Dump package level static analysis results.
 
@@ -149,7 +149,7 @@ def dump_results(host, rpms, errata, updates, dumpdir=None):
                                 _("RPMs from other vendors"), rpmdkeys,
                                 lrpmdkeys, is_tuple=True))
 
-    dump_xls(mds, os.path.join(dumpdir, "errata_summary.xls"))
+    save_to_xls(mds, os.path.join(dumpdir, "errata_summary.xls"))
 
     if host.details:
         dds = [make_dataset(errata, _("Errata Details"),
@@ -165,7 +165,7 @@ def dump_results(host, rpms, errata, updates, dumpdir=None):
                make_dataset(asdicts(rpms), _("Installed RPMs"), rpmdkeys,
                             lrpmdkeys, is_tuple=True)]
 
-        dump_xls(dds, os.path.join(dumpdir, "errata_details.xls"))
+        save_to_xls(dds, os.path.join(dumpdir, "errata_details.xls"))
 
 
 @profile
@@ -252,7 +252,7 @@ def analyze(host):
              host.hid, len(ers), len(ups))
 
     ips = host.installed
-    dump_results(host, ips, ers, ups)
+    save_results(host, ips, ers, ups)
     LOG.info(_("%s: Saved analysis results in %s"), host.workdir)
 
     if host.period:
@@ -266,7 +266,7 @@ def analyze(host):
 
         pes = [e for e in ers
                if fleure.dates.in_period(e["issue_date"], start, end)]
-        dump_results(host, ips, pes, ups, pdir)
+        save_results(host, ips, pes, ups, pdir)
         LOG.info(_("%s [%s ~ %s]: Found %d errata and saved"),
                  host.hid, start, end, len(pes))
 
@@ -280,7 +280,7 @@ def analyze(host):
                    "lists"), host.hid, len(ers), len(ups))
 
         LOG.info(_("%s: Analyzing delta errata and packages ..."), host.hid)
-        dump_results(host, ips, ers, ups)
+        save_results(host, ips, ers, ups)
         LOG.info(_("%s: Saved delta analysis results in %s"), host.workdir)
 
 
