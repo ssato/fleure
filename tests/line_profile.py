@@ -2,7 +2,7 @@
 # Copyright (C) 2015 Satoru SATOH <ssato@redhat.com>
 # License: MIT
 #
-"""fleure's CLI frontend.
+"""profiling fleure with line_profiler.
 """
 from __future__ import absolute_import
 
@@ -15,8 +15,6 @@ try:
     import line_profiler
 except ImportError:
     sys.exit(0)
-
-sys.path.insert(0, os.path.join(os.curdir, ".."))
 
 import fleure.analysis
 import fleure.datasets
