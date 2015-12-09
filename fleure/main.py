@@ -36,7 +36,7 @@ from fleure.utils import namedtuples_to_dicts as asdicts
 LOG = logging.getLogger("fleure")
 
 
-def save_to_xls(dataset, filepath):
+def save_xls(dataset, filepath):
     """XLS dump function"""
     book = tablib.Databook(dataset)
     with open(filepath, 'wb') as out:
@@ -149,7 +149,7 @@ def save_results(host, rpms, errata, updates, dumpdir=None):
                                 _("RPMs from other vendors"), rpmdkeys,
                                 lrpmdkeys, is_tuple=True))
 
-    save_to_xls(mds, os.path.join(dumpdir, "errata_summary.xls"))
+    save_xls(mds, os.path.join(dumpdir, "errata_summary.xls"))
 
     if host.details:
         dds = [make_dataset(errata, _("Errata Details"),
@@ -165,7 +165,7 @@ def save_results(host, rpms, errata, updates, dumpdir=None):
                make_dataset(asdicts(rpms), _("Installed RPMs"), rpmdkeys,
                             lrpmdkeys, is_tuple=True)]
 
-        save_to_xls(dds, os.path.join(dumpdir, "errata_details.xls"))
+        save_xls(dds, os.path.join(dumpdir, "errata_details.xls"))
 
 
 @profile
