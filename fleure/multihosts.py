@@ -170,14 +170,6 @@ def prepare(hosts):
     return list(prepare_itr(hosts))
 
 
-def p2nevra(pkg):
-    """
-    :param pkg: A dict represents package info including N, E, V, R, A
-    """
-    return operator.itemgetter("name", "epoch", "version", "release",
-                               "arch")(pkg)
-
-
 def mk_symlinks_to_ref(href, hsrest):
     """
     :param href: Reference host object
@@ -227,6 +219,7 @@ def main(hosts_datadir, workdir=None, verbosity=0, multiproc=False, **kwargs):
     hosts = prepare(all_hosts)
 
     LOG.info(_("Analyze %d/%d hosts"), len(hosts), len(all_hosts))
+    p2nevra = operator.attrgetter(*fleure.globals.RPM_KEYS)
     ilen = lambda h: len(h.installed)
     hps = lambda h: [p2nevra(p) for p in h.installed]
     gby = lambda xs, kf: itertools.groupby(sorted(xs, key=kf), kf)
