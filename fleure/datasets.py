@@ -107,9 +107,12 @@ def _make_cell_data(obj, key, default="N/A"):
         ret = ", ".join(_fmt_bzs(bzs)) if bzs else default
     else:
         val = obj.get(key, default)
-        ret = ", ".join(val) if isinstance(val, (list, tuple)) else str(val)
-
-    return ret
+        ret = ", ".join(val) if isinstance(val, (list, tuple)) else val
+    try:
+        return ret.encode("utf-8")
+    except Exception as exc:
+        LOG.warn("Failed to encode %r", ret)
+        return ret
 
 
 def make_dataset(list_data, title=None, headers=None, lheaders=None):
