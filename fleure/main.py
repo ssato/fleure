@@ -160,8 +160,10 @@ def analyze_and_save_results(host, rpms, errata, updates, savedir=None):
                              _("synopsis"), _("description"), _("issue_date"),
                              _("update_date"), _("url"), _("cves"),
                              _("bzs"), _("update_names"))),
-               make_dataset(updates, _("Update RPMs"), rpmkeys, lrpmkeys, True),
-               make_dataset(rpms, _("Installed RPMs"), rpmdkeys, lrpmdkeys, True)]
+               make_dataset(asdicts(updates), _("Update RPMs"), rpmkeys,
+                            lrpmkeys)
+               make_dataset(asdicts(rpms), _("Installed RPMs"), rpmdkeys,
+                            lrpmdkeys)]
 
         save_xls(dds, os.path.join(savedir, "errata_details.xls"))
 
