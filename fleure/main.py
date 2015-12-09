@@ -161,7 +161,7 @@ def analyze_and_save_results(host, rpms, errata, updates, savedir=None):
                              _("update_date"), _("url"), _("cves"),
                              _("bzs"), _("update_names"))),
                make_dataset(asdicts(updates), _("Update RPMs"), rpmkeys,
-                            lrpmkeys)
+                            lrpmkeys),
                make_dataset(asdicts(rpms), _("Installed RPMs"), rpmdkeys,
                             lrpmdkeys)]
 
@@ -241,8 +241,7 @@ def analyze(host):
     p2na = operator.attrgetter("name", "arch")
     calls = (functools.partial(fleure.datasets.complement_an_errata,
                                updates=set(p2na(u) for u in ups),
-                               score=host.cvss_min_score),
-             )
+                               score=host.cvss_min_score), )
     host.errata = ers = host.base.list_errata(calls)
 
     # .. note:: ups is a list of collections.namedtuple objects not dicts.
