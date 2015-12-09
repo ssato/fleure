@@ -93,53 +93,45 @@ def _fmt_bzs(bzs, summary=False):
     return bzs
 
 
-def _make_cell_data(obj, key, getter, default="N/A"):
+def _make_cell_data(obj, key, default="N/A"):
     """Make up cell data.
     """
     if key == "cves":
-        cves = getter(obj, "cves", [])
+        cves = obj.get("cves", [])
         try:
             ret = ", ".join(_fmt_cvess(cves)) if cves else default
         except Exception as exc:
             raise RuntimeError("Wrong CVEs: %r, exc=%r" % (cves, exc))
     elif key == "bzs":
-        bzs = getter(obj, "bzs", [])
+        bzs = obj.get("bzs", [])
         ret = ", ".join(_fmt_bzs(bzs)) if bzs else default
-
     else:
-        val = getter(obj, key, default)
+        val = obj.get(key, default)
         ret = ", ".join(val) if isinstance(val, (list, tuple)) else str(val)
 
     return ret.encode("utf-8")
 
 
-def make_dataset(list_data, title=None, headers=None, lheaders=None,
-                 is_tuple=False):
+def make_dataset(list_data, title=None, headers=None, lheaders=None):
     """
     :param list_data: List of data, may be consists of [[namedtuple]]
     :param title: Dataset title to be used as worksheet's name
     :param headers: Dataset headers to be used as column headers, etc.
     :param lheaders: Localized version of `headers`
-    :param is_tuple: True if list_data consists of [namedtuple]
 
     TODO: Which is better?
         - tablib.Dataset(); [tablib.append(vals) for vals in list_data]
         - tablib.Dataset(*list_data, header=...)
     """
-    if is_tuple:
-        getter = lambda obj, key, default=None: getattr(obj, key, default)
-    else:
-        getter = lambda obj, key, default=None: obj.get(key, default)
-
     # .. note::
     #    We need to check title as valid worksheet name, length <= 31, etc.
     #    See also xlwt.Utils.valid_sheet_name.
     if headers is not None:
-        tdata = [[_make_cell_data(val, h, getter) for h in headers] for val
+        tdata = [[_make_cell_data(val, h) for h in headers] for val
                  in list_data]
         headers = headers if lheaders is None else lheaders
     else:
-        tdata = [val if is_tuple else val.values() for val in list_data]
+        tdata = [val.values() for val in list_data]
 
     return tablib.Dataset(*tdata, title=title[:30], headers=headers)
 
