@@ -43,7 +43,7 @@ def save_xls(dataset, filepath):
         out.write(book.xls)
 
 
-def save_results(host, rpms, errata, updates, dumpdir=None):
+def analyze_and_save_results(host, rpms, errata, updates, dumpdir=None):
     """
     Dump package level static analysis results.
 
@@ -252,7 +252,7 @@ def analyze(host):
              host.hid, len(ers), len(ups))
 
     ips = host.installed
-    save_results(host, ips, ers, ups)
+    analyze_and_save_results(host, ips, ers, ups)
     LOG.info(_("%s: Saved analysis results in %s"), host.workdir)
 
     if host.period:
@@ -266,7 +266,7 @@ def analyze(host):
 
         pes = [e for e in ers
                if fleure.dates.in_period(e["issue_date"], start, end)]
-        save_results(host, ips, pes, ups, pdir)
+        analyze_and_save_results(host, ips, pes, ups, pdir)
         LOG.info(_("%s [%s ~ %s]: Found %d errata and saved"),
                  host.hid, start, end, len(pes))
 
@@ -280,7 +280,7 @@ def analyze(host):
                    "lists"), host.hid, len(ers), len(ups))
 
         LOG.info(_("%s: Analyzing delta errata and packages ..."), host.hid)
-        save_results(host, ips, ers, ups)
+        analyze_and_save_results(host, ips, ers, ups)
         LOG.info(_("%s: Saved delta analysis results in %s"), host.workdir)
 
 
