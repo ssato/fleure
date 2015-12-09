@@ -109,7 +109,7 @@ def _make_cell_data(obj, key, default="N/A"):
         val = obj.get(key, default)
         ret = ", ".join(val) if isinstance(val, (list, tuple)) else str(val)
 
-    return ret.encode("utf-8")
+    return ret
 
 
 def make_dataset(list_data, title=None, headers=None, lheaders=None):
