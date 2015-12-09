@@ -138,18 +138,16 @@ def analyze_and_save_results(host, rpms, errata, updates, savedir=None):
 
     if data["installed"]["list_rebuilt"]:
         mds.append(make_dataset(data["installed"]["list_rebuilt"],
-                                _("Rebuilt RPMs"), rpmdkeys, lrpmdkeys,
-                                is_tuple=True))
+                                _("Rebuilt RPMs"), rpmdkeys, lrpmdkeys))
 
     if data["installed"]["list_replaced"]:
         mds.append(make_dataset(data["installed"]["list_replaced"],
-                                _("Replaced RPMs"), rpmdkeys, lrpmdkeys,
-                                is_tuple=True))
+                                _("Replaced RPMs"), rpmdkeys, lrpmdkeys))
 
     if data["installed"]["list_from_others"]:
         mds.append(make_dataset(data["installed"]["list_from_others"],
                                 _("RPMs from other vendors"), rpmdkeys,
-                                lrpmdkeys, is_tuple=True))
+                                lrpmdkeys))
 
     save_xls(mds, os.path.join(savedir, "errata_summary.xls"))
 
@@ -162,10 +160,8 @@ def analyze_and_save_results(host, rpms, errata, updates, savedir=None):
                              _("synopsis"), _("description"), _("issue_date"),
                              _("update_date"), _("url"), _("cves"),
                              _("bzs"), _("update_names"))),
-               make_dataset(asdicts(updates), _("Update RPMs"), rpmkeys,
-                            lrpmkeys, is_tuple=True),
-               make_dataset(asdicts(rpms), _("Installed RPMs"), rpmdkeys,
-                            lrpmdkeys, is_tuple=True)]
+               make_dataset(updates, _("Update RPMs"), rpmkeys, lrpmkeys, True),
+               make_dataset(rpms, _("Installed RPMs"), rpmdkeys, lrpmdkeys, True)]
 
         save_xls(dds, os.path.join(savedir, "errata_details.xls"))
 
