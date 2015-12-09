@@ -43,7 +43,7 @@ def save_xls(dataset, filepath):
         out.write(book.xls)
 
 
-def analyze_and_save_results(host, rpms, errata, updates, dumpdir=None):
+def analyze_and_save_results(host, rpms, errata, updates, savedir=None):
     """
     Dump package level static analysis results.
 
@@ -51,10 +51,10 @@ def analyze_and_save_results(host, rpms, errata, updates, dumpdir=None):
     :param rpms: A list of installed RPMs
     :param errata: A list of applicable errata
     :param updates: A list of update RPMs
-    :param dumpdir: Dir to save results
+    :param savedir: Dir to save results
     """
-    if dumpdir is None:
-        dumpdir = host.workdir
+    if savedir is None:
+        savedir = host.workdir
 
     dargs = (host.cvss_min_score, host.errata_keywords, host.core_rpms)
     rpmkeys = host.rpmkeys
@@ -79,9 +79,8 @@ def analyze_and_save_results(host, rpms, errata, updates, dumpdir=None):
                                    (_("packages not need updates"),
                                     nps - nus)]))
 
-    host.save(data, "summary", dumpdir)
-    fleure.depgraph.dump_depgraph(host.root, ers, host.workdir,
-                                  tpaths=host.tpaths)
+    host.save(data, "summary", savedir)
+
     # TODO: Keep DRY principle.
     lrpmkeys = [_("name"), _("epoch"), _("version"), _("release"), _("arch")]
 
@@ -149,7 +148,7 @@ def analyze_and_save_results(host, rpms, errata, updates, dumpdir=None):
                                 _("RPMs from other vendors"), rpmdkeys,
                                 lrpmdkeys, is_tuple=True))
 
-    save_xls(mds, os.path.join(dumpdir, "errata_summary.xls"))
+    save_xls(mds, os.path.join(savedir, "errata_summary.xls"))
 
     if host.details:
         dds = [make_dataset(errata, _("Errata Details"),
@@ -165,7 +164,7 @@ def analyze_and_save_results(host, rpms, errata, updates, dumpdir=None):
                make_dataset(asdicts(rpms), _("Installed RPMs"), rpmdkeys,
                             lrpmdkeys, is_tuple=True)]
 
-        save_xls(dds, os.path.join(dumpdir, "errata_details.xls"))
+        save_xls(dds, os.path.join(savedir, "errata_details.xls"))
 
 
 @profile
@@ -253,6 +252,8 @@ def analyze(host):
 
     ips = host.installed
     analyze_and_save_results(host, ips, ers, ups)
+    fleure.depgraph.dump_depgraph(host.root, ers, host.workdir,
+                                  tpaths=host.tpaths)
     LOG.info(_("%s: Saved analysis results in %s"), host.workdir)
 
     if host.period:
