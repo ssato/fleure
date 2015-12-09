@@ -112,7 +112,7 @@ def _make_cell_data(obj, key, default="N/A"):
         return ret.encode("utf-8")
     except Exception as exc:
         LOG.warn("Failed to encode %r", ret)
-        return ret
+        return str(ret)
 
 
 def make_dataset(list_data, title=None, headers=None, lheaders=None):
