@@ -80,6 +80,9 @@ def analyze_and_save_results(host, rpms, errata, updates, savedir=None):
                                     nps - nus)]))
 
     host.save(data, "summary", savedir)
+    if savedir is None:  # Indicates that it's basic data.
+        fleure.depgraph.dump_depgraph(host.root, ers, host.workdir,
+                                      tpaths=host.tpaths)
 
     # TODO: Keep DRY principle.
     lrpmkeys = [_("name"), _("epoch"), _("version"), _("release"), _("arch")]
@@ -252,8 +255,6 @@ def analyze(host):
 
     ips = host.installed
     analyze_and_save_results(host, ips, ers, ups)
-    fleure.depgraph.dump_depgraph(host.root, ers, host.workdir,
-                                  tpaths=host.tpaths)
     LOG.info(_("%s: Saved analysis results in %s"), host.workdir)
 
     if host.period:
