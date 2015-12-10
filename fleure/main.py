@@ -273,8 +273,8 @@ def analyze(host):
         LOG.debug(_("%s [delta]: Analyze delta errata data by refering %s"),
                   host.hid, host.refdir)
         (ers, ups) = fleure.datasets.compute_delta(host, host.refdir, ers, ups)
-        host.save(dict(data=ers, ), "errata", subdir="delta")
-        host.save(dict(data=ups, ), "updates", subdir="delta")
+        host.save(dict(data=ers, ), "errata", savedir="delta")
+        host.save(dict(data=ups, ), "updates", savedir="delta")
         LOG.info(_("%s [delta]: Found %d errata and %d updates, save the "
                    "lists"), host.hid, len(ers), len(ups))
 
