@@ -19,6 +19,7 @@
 """
 from __future__ import absolute_import
 
+import collections
 import datetime
 import gettext
 import logging
@@ -60,6 +61,8 @@ ERRATA_KEYWORDS = ("crash", "panic", "hang", "SEGV", "segmentation fault",
                    "data corruption")
 CORE_RPMS = ("kernel", "glibc", "bash", "openssl", "zlib")
 CVSS_MIN_SCORE = 0  # PCIDSS: 4.0
+
+NEVRA = collections.namedtuple("NEVRA", RPM_KEYS)
 
 TODAY = datetime.datetime.now().strftime("%F")
 
