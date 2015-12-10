@@ -217,7 +217,7 @@ def prepare(host):
              host.hid, len(host.installed),
              len([p for p in host.installed if p.rebuilt]),
              len([p for p in host.installed if p.replaced]))
-    host.save(dict(data=asdicts(host.installed), ), "packages")
+    host.save(dict(data=host.installed, ), "packages")
 
     if base.ready():
         host.available = True
@@ -245,7 +245,7 @@ def analyze(host):
     host.errata = ers = host.base.list_errata(calls)
 
     # .. note:: ups is a list of collections.namedtuple objects not dicts.
-    host.save(dict(data=asdicts(ups), ), "updates")
+    host.save(dict(data=ups, ), "updates")
     host.save(dict(data=ers, ), "errata")
     LOG.info(_("%s: Found %d errata and %d updates, saved the lists"),
              host.hid, len(ers), len(ups))
@@ -274,7 +274,7 @@ def analyze(host):
                   host.hid, host.refdir)
         (ers, ups) = fleure.datasets.compute_delta(host, host.refdir, ers, ups)
         host.save(dict(data=ers, ), "errata", subdir="delta")
-        host.save(dict(data=asdicts(ups), ), "updates", subdir="delta")
+        host.save(dict(data=ups, ), "updates", subdir="delta")
         LOG.info(_("%s [delta]: Found %d errata and %d updates, save the "
                    "lists"), host.hid, len(ers), len(ups))
 
