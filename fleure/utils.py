@@ -175,20 +175,28 @@ def namedtuples_to_dicts(ntpls):
     """
     Convert namedtuple objects to dicts.
 
+    :param ntpls: A list of maybe-namedtuples or other objects like dicts
+
     >>> from collections import namedtuple
     >>> Point = namedtuple("Point", "x y")
     >>> points = [Point(1, 2), Point(0, 0), Point(3, 2)]
     >>> namedtuples_to_dicts(points)  # doctest: +NORMALIZE_WHITESPACE
     [OrderedDict([('x', 1), ('y', 2)]), OrderedDict([('x', 0), ('y', 0)]),
      OrderedDict([('x', 3), ('y', 2)])]
+    >>> points2 = [(1, 2), (0, 0), (3, 2)]
+    >>> namedtuples_to_dicts(points2)  # Do nothing
+    [(1, 2), (0, 0), (3, 2)]
+    >>> dicts = [{'a': 1}]
+    >>> namedtuples_to_dicts(dicts)  # Do nothing
+    [{'a': 1}]
     """
     if not ntpls:
         return []
 
-    if not isinstance(ntpls[0], tuple):
-        raise ValueError("Not look tuples: %r, ..." % ntpls[0])
-
-    return [t._asdict() for t in ntpls]
+    if isinstance(ntpls[0], tuple) and getattr(ntpls[0], "_asdict", False):
+        return [t._asdict() for t in ntpls]
+    else:
+        return ntpls
 
 
 def longest_common_prefix(*args):
