@@ -96,17 +96,22 @@ def _fmt_bzs(bzs, summary=False):
 def _make_cell_data(obj, key, default="N/A"):
     """Make up cell data.
     """
+    if isinstance(obj, tuple) and hasattr(obj, "_asdict"):
+        _get = lambda obj, key, default: getattr(obj, key, default)
+    else:
+        _get = lambda obj, key, default: obj.get(key, default)
+
     if key == "cves":
-        cves = obj.get("cves", [])
+        cves = _get(obj, "cves", [])
         try:
             ret = ", ".join(_fmt_cvess(cves)) if cves else default
         except Exception as exc:
             raise RuntimeError("Wrong CVEs: %r, exc=%r" % (cves, exc))
     elif key == "bzs":
-        bzs = obj.get("bzs", [])
+        bzs = _get(obj, "bzs", [])
         ret = ", ".join(_fmt_bzs(bzs)) if bzs else default
     else:
-        val = obj.get(key, default)
+        val = _get(obj, key, default)
         ret = ", ".join(val) if isinstance(val, (list, tuple)) else val
     try:
         return ret.encode("utf-8")
