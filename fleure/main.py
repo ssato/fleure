@@ -222,6 +222,26 @@ def prepare(host):
         host.available = True
 
 
+def compute_in_period(host, start, end):
+    """
+    Compute and return a tuple of (errata, updates) in given period.
+
+    :param host: host object function :function:`prepare` returns
+    :param errata: A list of errata :: [dict] (yet)
+    :param updates: A list of update packages :: [namedtuple]
+    :param start: Date to start the period
+    :param end: Date to end the period
+    """
+    pers = sorted(e for e in host.errata
+                  if fleure.dates.in_period(e["issue_date"], start, end))
+    keys = fleure.globals.RPM_KEYS
+    ucat = fleure.utils.uconcat
+    eups = ucat([itemgetter(*keys)(u) for u in e.get("updates", [])]
+                for e in pers)  # updates in the period
+
+    return (pers, eups)
+
+
 @profile
 def analyze(host):
     """
@@ -265,11 +285,10 @@ def analyze(host):
             LOG.debug(_("%s: Creating period working dir %s"), host.hid, pdir)
             os.makedirs(pdir)
 
-        pers = [e for e in ers
-                if fleure.dates.in_period(e["issue_date"], start, end)]
-        analyze_and_save_results(host, pers, ups, pdir)
+        (pers, pups) = compute_in_period(host, start, end)
+        analyze_and_save_results(host, pers, pups, pdir)
         LOG.info(_("%s [%s ~ %s]: Found %d errata and saved"),
-                 host.hid, start, end, len(pes))
+                 host.hid, start, end, len(pers))
 
     if host.refdir:
         LOG.debug(_("%s [delta]: Analyze delta errata data by refering %s"),
