@@ -10,8 +10,8 @@ from __future__ import absolute_import
 
 import anyconfig
 import anyconfig.mergeabledict
-import collections
 import bunch
+import collections
 import os.path
 import tempfile
 import uuid
@@ -95,12 +95,19 @@ def to_mdict(obj):
                                     ('z', OrderedDict([('a', 0),
                                                        ('b', 1),
                                                        ('c', 2)]))]))])
+    >>> obj2 = [ABC(a='aa', b=0, c=(1, 2))]
+    >>> to_mdict(obj2)
+    [OrderedDict([('a', 'aa'), ('b', 0), ('c', (1, 2))])]
     """
+    _dict = collections.OrderedDict
     if isinstance(obj, tuple) and hasattr(obj, "_asdict"):
-        return collections.OrderedDict((k, to_mdict(getattr(obj, k))) for k
-                                       in obj._fields)
+        return _dict((k, to_mdict(getattr(obj, k))) for k in obj._fields)
+    elif anyconfig.mergeabledict.is_dict_like(obj):
+        return dict((k, to_mdict(v)) for k, v in obj.items())
+    elif anyconfig.mergeabledict.is_iterable(obj):
+        return type(obj)(to_mdict(v) for v in obj)
     else:
-        return anyconfig.mergeabledict.convert_to(obj)
+        return obj
 
 
 class Host(bunch.Bunch):
