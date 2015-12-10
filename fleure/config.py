@@ -9,6 +9,8 @@
 from __future__ import absolute_import
 
 import anyconfig
+import anyconfig.mergeabledict
+import collections
 import bunch
 import os.path
 import tempfile
@@ -74,6 +76,31 @@ def load_config_from_files():
                     rpm_vendor=fleure.globals.RPM_VENDOR,
                     cvss_min_score=fleure.globals.CVSS_MIN_SCORE,
                     repos_map=fleure.globals.REPOS_MAP)
+
+
+def to_mdict(obj):
+    """
+    Custom version of :class:`~anyconfig.mergeabledict.MergeableDict`
+    may convert collections.namedtuple objects to dicts recursively.
+
+    .. note:: Merge this into anyconfig?
+
+    >>> import collections
+    >>> ABC = collections.namedtuple("ABC", "a b c")
+    >>> XYZ = collections.namedtuple("XYZ", "x y z")
+    >>> obj = ABC(a='aa', b=0, c=XYZ(x=1, y=2, z=ABC(a=0, b=1, c=2)))
+    >>> to_mdict(obj)  # doctest: +NORMALIZE_WHITESPACE
+    OrderedDict([('a', 'aa'), ('b', 0),
+                 ('c', OrderedDict([('x', 1), ('y', 2),
+                                    ('z', OrderedDict([('a', 0),
+                                                       ('b', 1),
+                                                       ('c', 2)]))]))])
+    """
+    if isinstance(obj, tuple) and hasattr(obj, "_asdict"):
+        return collections.OrderedDict((k, to_mdict(getattr(obj, k))) for k
+                                       in obj._fields)
+    else:
+        return anyconfig.mergeabledict.convert_to(obj)
 
 
 class Host(bunch.Bunch):
@@ -209,7 +236,7 @@ class Host(bunch.Bunch):
         if not os.path.exists(savedir):
             os.makedirs(savedir)
 
-        anyconfig.dump(obj, fleure.utils.copen(filepath, 'w'))
+        anyconfig.dump(to_mdict(obj), fleure.utils.copen(filepath, 'w'))
 
     def load(self, name, savedir=None):
         """

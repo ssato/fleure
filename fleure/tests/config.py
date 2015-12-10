@@ -5,6 +5,7 @@
 # pylint: disable=missing-docstring
 from __future__ import absolute_import
 
+import collections
 import os.path
 import os
 import unittest
@@ -42,7 +43,8 @@ class HostTest10(unittest.TestCase):
         self.host = TT.Host(self.workdir, workdir=workdir)
 
     def tearDown(self):
-        fleure.tests.common.cleanup_workdir(self.workdir)
+        # fleure.tests.common.cleanup_workdir(self.workdir)
+        pass
 
     def test_20_configure(self):
         self.host.configure()
@@ -53,5 +55,21 @@ class HostTest10(unittest.TestCase):
         base = self.host.init_base()
         base.prepare()
         self.assertNotEquals(base.list_installed(), [])
+
+    def test_40_save_and_load(self):
+        abc = collections.namedtuple("abc", "a b c")
+        xyz = collections.namedtuple("xyz", "x y z")
+        obj = abc("aaa", 0, xyz(1, 2, abc("aa", "bb", "cc")))  # nested.
+
+        name = "abc_xyz"
+        fname = name + ".json"
+        self.host.save(obj, name)
+        self.assertTrue(os.path.exists(os.path.join(self.host.workdir, fname)))
+        self.assertTrue(self.host.load(name))
+
+        savedir = os.path.join(self.host.workdir, "saved")
+        self.host.save(obj, name, savedir)
+        self.assertTrue(os.path.exists(os.path.join(savedir, fname)))
+        self.assertTrue(self.host.load(name, savedir))
 
 # vim:sw=4:ts=4:et:
