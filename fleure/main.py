@@ -151,7 +151,7 @@ def analyze_and_save_results(host, errata, updates, savedir=None):
     save_xls(mds, os.path.join(savedir, "errata_summary.xls"))
 
     if host.details:
-        dds = [make_dataset(asdicts(errata), _("Errata Details"),
+        dds = [make_dataset(errata, _("Errata Details"),
                             ("advisory", "type", "severity", "synopsis",
                              "description", "issue_date", "update_date", "url",
                              "cves", "bzs", "update_names"),
