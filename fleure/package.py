@@ -7,6 +7,7 @@
 from __future__ import absolute_import
 
 import collections
+import hashlib
 
 
 _VENDOR_RH = "Red Hat, Inc."
@@ -16,6 +17,27 @@ _VENDOR_MAPS = {_VENDOR_RH: ("redhat", ".redhat.com"),
                 "Fedora Project": ("fedora", ".fedoraproject.org")}
 
 CACHE = dict()
+
+
+def to_id(obj):
+    """
+    :param obj: Any object can become str.
+
+    .. note::
+       This function may be an alternative to id() might have collision issue,
+       that is, these become same (confirmed w/ 2.6 and 3.4):
+
+       - id(('Red Hat, Inc.', 'aaa', 'foo package'))
+       - id(('Red Hat, Inc.', 'aaa', 'foo packagejj'))
+
+       Of course, it still has limitations such like it cannot distinguish
+       different objects degenerate to same string by repr() or same IDs due to
+       sha1 collisions.
+
+    >>> to_id(('foo', 0, '0.0.1', '1', 'x86_64'))
+    'f118f9302e66db830ff96fcdcfa8b6db3f602fef'
+    """
+    return hashlib.sha1(repr(obj)).hexdigest()
 
 
 def may_be_rebuilt(vendor, buildhost, vbmap=None, sfx=".redhat.com"):
@@ -88,21 +110,22 @@ def factory(nevra, cache=None, extra_names=None, **info):
     if cache is None:
         cache = CACHE
 
-    nevra = norm_nevra(*nevra)
-    if nevra in cache:
-        return cache[nevra]
+    nnevra = norm_nevra(*nevra)
+    pkgid = to_id(nnevra + tuple(sorted(info.values())))
+    if pkgid in cache:
+        return cache[pkgid]
 
     vbes = (info["vendor"], info["buildhost"], extra_names)
-    orr = inspect_origin(nevra[0], *vbes)
+    orr = inspect_origin(nnevra[0], *vbes)
 
-    keys = ("name epoch version release arch summary vendor buildhost "
+    keys = ("id name epoch version release arch summary vendor buildhost "
             "origin rebuilt replaced").split()
     extra_keys = sorted(k for k in info.keys() if k not in keys)
-    Package = collections.namedtuple("Package", keys + extra_keys)
+    package = collections.namedtuple("Package", keys + extra_keys)
 
-    pkg = Package(*(nevra + (info["summary"], vbes[0], vbes[1]) + orr +
-                    tuple(info[k] for k in extra_keys)))
-    cache[nevra] = pkg
+    pkg = package(*((pkgid, ) + nnevra + (info["summary"], vbes[0], vbes[1]) +
+                    orr + tuple(info[k] for k in extra_keys)))
+    cache[pkgid] = pkg
     return pkg
 
 # vim:sw=4:ts=4:et:
