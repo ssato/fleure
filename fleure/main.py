@@ -80,7 +80,7 @@ def analyze_and_save_results(host, errata, updates, savedir=None):
 
     host.save(data, "summary", savedir)
     if savedir is None:  # Indicates that it's basic data.
-        fleure.depgraph.dump_depgraph(host.root, ers, host.workdir,
+        fleure.depgraph.dump_depgraph(host.root, errata, host.workdir,
                                       tpaths=host.tpaths)
 
     # TODO: Keep DRY principle.
