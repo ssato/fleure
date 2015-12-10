@@ -111,7 +111,6 @@ def _make_cell_data(obj, key, default="N/A"):
     try:
         return ret.encode("utf-8")
     except Exception as exc:
-        LOG.warn("Failed to encode %r", ret)
         return str(ret)
 
 
