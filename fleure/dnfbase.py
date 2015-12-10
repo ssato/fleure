@@ -272,8 +272,11 @@ class Base(fleure.base.Base):
             self._packages[item] = objs
 
         elif item == "errata":
-            ips = self._hpackages.get("installed",
-                                      self._make_list_of("installed"))
+            ips = self._hpackages.get("installed", None)
+            if ips is None:
+                ips = self.base.sack.query().installed()
+                self._hpackages["installed"] = ips
+
             aitr = itertools.chain(*(p.get_advisories(hawkey.GT) for p in ips))
             advs = fleure.utils.uniq(aitr, key=operator.itemgetter("id"),
                                      callables=(hadv_to_errata, process_fns))
