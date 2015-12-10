@@ -72,7 +72,7 @@ def analyze_and_save_results(host, errata, updates, savedir=None):
                                list_rebuilt=rpms_rebuilt,
                                list_replaced=rpms_replaced,
                                list_from_others=rpms_from_others,
-                               list_by_vendor=rpms_by_vendor)),
+                               list_by_vendor=rpms_by_vendor),
                 updates=dict(list=updates,
                              rate=[(_("packages need updates"), nus),
                                    (_("packages not need updates"),
