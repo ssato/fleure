@@ -176,11 +176,11 @@ def mk_symlinks_to_ref(href, hsrest):
     :param hsrest: A list of hosts having same installed rpms as `href`
     """
     orgdir = os.path.abspath(os.curdir)
-    href_workdir = os.path.join('..', href.hid)  # TODO: Keep consistency.
-
+    href_workdir = os.path.abspath(href.workdir)
+    LOG.info("href_workdir=%s", href_workdir)
     metadatafile = os.path.join(href_workdir, "metadata.json")
     shutil.copy2(metadatafile, metadatafile + ".save")
-    metadata = href.load("metadata", href_workdir)
+    metadata = href.load("metadata")
 
     for hst in hsrest:
         os.chdir(hst.workdir)
@@ -195,7 +195,7 @@ def mk_symlinks_to_ref(href, hsrest):
         metadata["hosts"].append(hst.hid)
         os.chdir(orgdir)
 
-    href.save(metadata, "metadata", href_workdir)
+    href.save(metadata, "metadata")
 
 
 def analyze(args):
