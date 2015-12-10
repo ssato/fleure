@@ -239,7 +239,7 @@ def compute_in_period(host, start, end):
     eups = ucat([itemgetter(*keys)(u) for u in e.get("updates", [])]
                 for e in pers)  # updates in the period
 
-    return (pers, eups)
+    return (pers, [fleure.globals.NEVRA(*u) for u in eups])
 
 
 @profile
