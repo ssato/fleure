@@ -26,15 +26,15 @@ class Test00(unittest.TestCase):
         fleure.tests.common.cleanup_workdir(self.workdir)
 
     @fleure.tests.common.skip_if_not(TT is not None)
-    def test_10_dump_xl(self):
+    def test_10_save_xls(self):
         tds = tablib.Dataset()
         tds.title = "Test"
         tds.headres = ('a', 'b', 'c')
         tds.append((1, 2, 3))
 
         xlspath = os.path.join(self.workdir, "test.xls")
-        fnc = getattr(TT, fleure.decorators.ref_to_original(TT.dump_xls),
-                      TT.dump_xls)
+        fnc = getattr(TT, fleure.decorators.ref_to_original(TT.save_xls),
+                      TT.save_xls)
         fnc([tds], xlspath)
 
         self.assertTrue(os.path.exists(xlspath))
