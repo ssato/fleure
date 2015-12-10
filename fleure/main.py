@@ -43,14 +43,13 @@ def save_xls(dataset, filepath):
         out.write(book.xls)
 
 
-def analyze_and_save_results(host, rpms, errata, updates, savedir=None):
+def analyze_and_save_results(host, errata, updates, savedir=None):
     """
     Dump package level static analysis results.
 
     :param host: host object function :function:`prepare` returns
-    :param rpms: A list of installed RPMs
-    :param errata: A list of applicable errata
-    :param updates: A list of update RPMs
+    :param errata: A list of errata
+    :param updates: A list of update RPMs (latest only)
     :param savedir: Dir to save results
     """
     if savedir is None:
@@ -59,6 +58,7 @@ def analyze_and_save_results(host, rpms, errata, updates, savedir=None):
     dargs = (host.cvss_min_score, host.errata_keywords, host.core_rpms)
     rpmkeys = host.rpmkeys
 
+    rpms = host.installed
     rpms_rebuilt = [p for p in rpms if p.rebuilt]
     rpms_replaced = [p for p in rpms if p.replaced]
     rpms_from_others = [p for p in rpms if p.origin != host.rpm_vendor]
@@ -67,14 +67,13 @@ def analyze_and_save_results(host, rpms, errata, updates, savedir=None):
     nps = len(rpms)
     nus = len(updates)
 
-    ers = fleure.analysis.analyze_errata(errata, *dargs)
-    data = dict(errata=ers,
-                installed=dict(list=asdicts(rpms),
-                               list_rebuilt=asdicts(rpms_rebuilt),
-                               list_replaced=asdicts(rpms_replaced),
-                               list_from_others=asdicts(rpms_from_others),
-                               list_by_vendor=asdicts(rpms_by_vendor)),
-                updates=dict(list=asdicts(updates),
+    data = dict(errata=fleure.analysis.analyze_errata(errata, *dargs),
+                installed=dict(list=rpms,
+                               list_rebuilt=rpms_rebuilt,
+                               list_replaced=rpms_replaced,
+                               list_from_others=rpms_from_others,
+                               list_by_vendor=rpms_by_vendor)),
+                updates=dict(list=updates,
                              rate=[(_("packages need updates"), nus),
                                    (_("packages not need updates"),
                                     nps - nus)]))
@@ -152,7 +151,7 @@ def analyze_and_save_results(host, rpms, errata, updates, savedir=None):
     save_xls(mds, os.path.join(savedir, "errata_summary.xls"))
 
     if host.details:
-        dds = [make_dataset(errata, _("Errata Details"),
+        dds = [make_dataset(asdicts(errata), _("Errata Details"),
                             ("advisory", "type", "severity", "synopsis",
                              "description", "issue_date", "update_date", "url",
                              "cves", "bzs", "update_names"),
@@ -244,14 +243,17 @@ def analyze(host):
                                score=host.cvss_min_score), )
     host.errata = ers = host.base.list_errata(calls)
 
+    # TBD: summary.json is enough to get the list errata and updates.
+    # updates.json and errata.json is not needed to be saved. So we should be
+    # able to remove this part.
+    #
     # .. note:: ups is a list of collections.namedtuple objects not dicts.
     host.save(dict(data=ups, ), "updates")
     host.save(dict(data=ers, ), "errata")
     LOG.info(_("%s: Found %d errata and %d updates, saved the lists"),
              host.hid, len(ers), len(ups))
 
-    ips = host.installed
-    analyze_and_save_results(host, ips, ers, ups)
+    analyze_and_save_results(host, ers, ups)
     LOG.info(_("%s: Saved analysis results in %s"), host.workdir)
 
     if host.period:
@@ -263,9 +265,9 @@ def analyze(host):
             LOG.debug(_("%s: Creating period working dir %s"), host.hid, pdir)
             os.makedirs(pdir)
 
-        pes = [e for e in ers
-               if fleure.dates.in_period(e["issue_date"], start, end)]
-        analyze_and_save_results(host, ips, pes, ups, pdir)
+        pers = [e for e in ers
+                if fleure.dates.in_period(e["issue_date"], start, end)]
+        analyze_and_save_results(host, pers, ups, pdir)
         LOG.info(_("%s [%s ~ %s]: Found %d errata and saved"),
                  host.hid, start, end, len(pes))
 
@@ -279,7 +281,7 @@ def analyze(host):
                    "lists"), host.hid, len(ers), len(ups))
 
         LOG.info(_("%s: Analyzing delta errata and packages ..."), host.hid)
-        analyze_and_save_results(host, ips, ers, ups)
+        analyze_and_save_results(host, ers, ups)
         LOG.info(_("%s: Saved delta analysis results in %s"), host.workdir)
 
 
