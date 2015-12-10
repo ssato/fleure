@@ -25,12 +25,13 @@ class Test00(unittest.TestCase):
         self.assertEquals(pkg.arch, nevra[4])
         for key in info.keys():
             self.assertEquals(getattr(pkg, key), info[key])
-        self.assertTrue(nevra in pcache)
+        self.assertTrue(pkg.id in pcache)
 
         pkg1 = TT.factory(nevra, pcache, **info)  # Cached one.
+        self.assertEquals(pkg, pkg1)
         self.assertEquals(id(pkg), id(pkg1))
 
-        nevra2 = nevra[0:1] + (None, ) + nevra[2:]
+        nevra2 = (nevra[0], None) + nevra[2:]
         pkg2 = TT.factory(nevra2, pcache, **info)
         self.assertEquals(pkg2.epoch, 0)
         self.assertNotEquals(id(pkg), id(pkg2))
