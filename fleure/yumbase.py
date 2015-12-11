@@ -221,8 +221,9 @@ class Base(fleure.base.Base):
                                    **kwargs)
         self.base = yum.YumBase()
 
-        # TODO: In some versions of yum, yum.YumBase.preconf.root might needs
-        # to be set instead of yum.YumBase.conf.installroot.
+        # .. note::
+        #    In some versions of yum, yum.YumBase.preconf.root might needs to
+        #    be set instead of yum.YumBase.conf.installroot.
         self.base.conf.installroot = self.root
         self.base.conf.cachedir = self.cachedir
         self.base.logger = self.base.verbose_logger = LOG
