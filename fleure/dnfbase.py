@@ -19,14 +19,16 @@ import operator
 import os.path
 
 import fleure.base
+import fleure.errata
 import fleure.globals
 import fleure.package
 import fleure.rpmutils
 import fleure.utils
 
+from fleure.globals imoprt NEVRA
+
 
 LOG = logging.getLogger(__name__)
-NEVRA = collections.namedtuple("NEVRA", fleure.globals.RPM_KEYS)
 
 
 def _h_to_pkg(rpmh, extras=None):
