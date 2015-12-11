@@ -23,8 +23,36 @@ _ERRATA_SEVS = collections.defaultdict(int, dict(Low=2, Moderate=4,
 _ERRATA_ADV_RE = re.compile(r"^RH(?P<echar>(E|B|S))A-(?P<year>\d{4}):"
                             r"(?P<seq>\d{4,5})(?:-(?P<rev>\d+))?$")
 
-Bugzilla = collections.namedtuple("Bugzilla", "id summary url")
-CVE = collections.namedtuple("CVE", "id cve url score")
+
+def make_rhbz(bzid, summary):
+    """
+    Make a namedtuple represents Red Hat Bugzilla ticket.
+
+    :param bzid: Bugzilla ID, ex. 771389
+    :param summary: Bugzilla summary text
+    """
+    url = "https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=%d" % bzid
+    rhbz = collections.namedtuple("RHBZ", "id summary url")
+    return rhbz(bzid, summary, url)
+
+
+def make_cve(cveid, score=0, metrics=None):
+    """
+    Make a namedtuple represents CVE info.
+
+    :param cveid: CVE ID, e.g. CVE-2012-2102
+    :param score: CVSS v2 base score, e.g. 4.0
+    :param metrics: CVSS v2 base metrics, e.g. AV:N/AC:L/Au:S/C:N/I:N/A:P
+    """
+    # ex. "https://www.redhat.com/security/data/cve/CVE-2012-2102.html"
+    url = "https://www.redhat.com/security/data/cve/%s.html" % cveid
+    keys = "id url score"
+    vals = (cveid, url, score)
+    if metrics is not None:
+        keys += " metrics"
+        vals += (metrics, )
+    cve = collections.namedtuple("CVE", keys)
+    return cve(*vals)
 
 
 def _to_int(advisory, severity=False):
@@ -70,7 +98,8 @@ def factory(advisory, updates=None, cache=None, **info):
     :param advisory: Advisory name
     :param updates: Update packages relevant to this errata :: [namedtuple]
     :param bzs:
-        List of Bugzilla tickets relevant to this errata :: [namedtuple]
+        List of Red Hat Bugzilla tickets relevant to this errata
+        :: [namedtuple]
     :param cache: Global errata cache
     :param info: Other basic errata info such as
 
@@ -80,7 +109,7 @@ def factory(advisory, updates=None, cache=None, **info):
         - description: long description
         - issue_date: Issued date
         - update_date: Last updated date
-        - bzs: List of relevant Bugzilla tickets :: [namedtuple]
+        - bzs: List of relevant Red Hat Bugzilla tickets :: [namedtuple]
         - cves: List of relevant CVEs :: [namedtuple]
 
     :return:
@@ -99,12 +128,18 @@ def factory(advisory, updates=None, cache=None, **info):
     url = fleure.rpmutils.errata_url(advisory)
     uns = list(set(u.name for u in updates))
 
-    # TODO: How to update fields later ?
+    # .. note::
+    #    Update is not permitted by default and maybe new tuple will be created
+    #    on demanad to add fields later.
     keys = ("id advisory url synopsis description update_date issue_date "
             "type severity bzs cves updates update_names").split()
     extra_keys = sorted(k for k in info.keys() if k not in keys)
 
     errata = collections.namedtuple("errata", keys + extra_keys)
+    setattr(errata, "__eq__",
+            lambda self, other: self.advisory == other.advisory)
+    setattr(errata, "__lt__", lambda self, other: self.id <= other.id)
+
     ert = errata(eid, advisory, url,
                  info["synopsis"].strip(), info["description"].strip(),
                  info["update_date"], info["issue_date"], info["type"],
