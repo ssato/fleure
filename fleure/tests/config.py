@@ -43,8 +43,7 @@ class HostTest10(unittest.TestCase):
         self.host = TT.Host(self.workdir, workdir=workdir)
 
     def tearDown(self):
-        # fleure.tests.common.cleanup_workdir(self.workdir)
-        pass
+        fleure.tests.common.cleanup_workdir(self.workdir)
 
     def test_20_configure(self):
         self.host.configure()
