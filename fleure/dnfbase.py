@@ -164,6 +164,27 @@ def hadv_to_errata(hadv):
     return errata
 
 
+def _eref_to_nevra(eref):
+    """
+    Try to convert package info in errata references to a namedtuple object,
+    fleure.globals.NEVRA.
+
+    :param eref: _hawkey.AdvisoryPkg object from errata references
+    :return: A namedtuple (fleure.globals.NEVRA) object
+    """
+    evr = getattr(eref, "evr", None)
+    if evr is None:
+        raise ValueError("Not _hawkey.AdvisoryPkg ?: %r" % eref)
+
+    (ver, rel) = evr.rsplit('-')
+    if ':' in ver:
+        (epoch, ver) = ver.split(':')
+    else:
+        epoch = 0
+
+    return NEVRA(eref.name, int(epoch), ver, rel, eref.arch)
+
+
 def _pathjoin(*paths):
     """
     :param paths: A list of paths to join
