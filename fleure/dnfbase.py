@@ -25,7 +25,7 @@ import fleure.package
 import fleure.rpmutils
 import fleure.utils
 
-from fleure.globals imoprt NEVRA
+from fleure.globals import NEVRA
 
 
 LOG = logging.getLogger(__name__)
