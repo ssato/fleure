@@ -122,6 +122,7 @@ def factory(nevra, cache=None, extra_names=None, **info):
             "origin rebuilt replaced").split()
     extra_keys = sorted(k for k in info.keys() if k not in keys)
     package = collections.namedtuple("Package", keys + extra_keys)
+    setattr(package, "__eq__", lambda self, other: self.id == other.id)
 
     pkg = package(*((pkgid, ) + nnevra + (info["summary"], vbes[0], vbes[1]) +
                     orr + tuple(info[k] for k in extra_keys)))
