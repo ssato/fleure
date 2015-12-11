@@ -185,6 +185,35 @@ def _eref_to_nevra(eref):
     return NEVRA(eref.name, int(epoch), ver, rel, eref.arch)
 
 
+def hadv_to_errata_2(hadv, cache=None):
+    """
+    Make an errata namedtuple object from _hawkey.Advisory object.
+
+    :param hadv: A _hawkey.Advisory object
+    :param cache: Global errata object cache
+
+    :return: A namedtuple object, see :func:`fleure.errata.factory`.
+    """
+    adv = getattr(hadv, "id", None)
+    if adv is None:
+        raise ValueError("Not _hawkey.Advisory ?: %r" % hadv)
+
+    update_date = hadv.updated.strftime("%Y-%m-%d")
+    ups = [_eref_to_nevra(p) for p in hadv.packages]
+    bzs = [fleure.errata.make_rhbz(r.id, r.title, r.url) for r
+           in hadv.references if r.type == hawkey.REFERENCE_BUGZILLA]
+    cves = [fleure.errata.make_cve(r.id, r.url) for r
+            in hadv.references if r.type == hawkey.REFERENCE_CVE]
+
+    info = dict(type=type_from_hawkey_adv(hadv),
+                severity=get_severity_from_hadv(hadv),
+                synopsis=hadv.title, description=hadv.description,
+                update_date=update_date, issue_date=update_date,  # missing?
+                bzs=bzs, cves=cves)
+
+    return fleure.errata.factory(adv, ups, cache, **info)
+
+
 def _pathjoin(*paths):
     """
     :param paths: A list of paths to join
