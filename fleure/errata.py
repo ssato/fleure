@@ -24,19 +24,21 @@ _ERRATA_ADV_RE = re.compile(r"^RH(?P<echar>(E|B|S))A-(?P<year>\d{4}):"
                             r"(?P<seq>\d{4,5})(?:-(?P<rev>\d+))?$")
 
 
-def make_rhbz(bzid, summary):
+def make_rhbz(bzid, summary, url=None):
     """
     Make a namedtuple represents Red Hat Bugzilla ticket.
 
     :param bzid: Bugzilla ID, ex. 771389
     :param summary: Bugzilla summary text
+    :param url: Bugzilla URL
     """
-    url = "https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=%d" % bzid
+    if url is None:
+        url = "https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=%d" % bzid
     rhbz = collections.namedtuple("RHBZ", "id summary url")
     return rhbz(bzid, summary, url)
 
 
-def make_cve(cveid, score=0, metrics=None):
+def make_cve(cveid, url=None, score=0, metrics=None):
     """
     Make a namedtuple represents CVE info.
 
@@ -45,7 +47,8 @@ def make_cve(cveid, score=0, metrics=None):
     :param metrics: CVSS v2 base metrics, e.g. AV:N/AC:L/Au:S/C:N/I:N/A:P
     """
     # ex. "https://www.redhat.com/security/data/cve/CVE-2012-2102.html"
-    url = "https://www.redhat.com/security/data/cve/%s.html" % cveid
+    if url is None:
+        url = "https://www.redhat.com/security/data/cve/%s.html" % cveid
     keys = "id url score"
     vals = (cveid, url, score)
     if metrics is not None:
