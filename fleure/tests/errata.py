@@ -59,6 +59,7 @@ class Test00(unittest.TestCase):
             ert1 = TT.factory(eri.adv, eri.ups, ecache, **eri.info)
             self.assertEquals(ert0, ert1)
             self.assertEquals(id(ert0), id(ert1))
+            self.assertEquals(hash(ert0), hash(ert1))
 
     def test_20_factory__comp(self):
         ecache = dict()
