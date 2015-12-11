@@ -14,11 +14,12 @@ import operator
 import yum
 
 import fleure.base
+import fleure.errata
 import fleure.package
 import fleure.rpmutils
 import fleure.utils
 
-from fleure.globals import _
+from fleure.globals import _, NEVRA
 from fleure.utils import chaincalls
 
 
@@ -104,6 +105,69 @@ def _notice_to_errata(notice):
     errata["url"] = fleure.rpmutils.errata_url(errata["advisory"])
 
     return errata
+
+
+def _notice_to_errata_2(notice, cache=None):
+    """
+    Convert 'notice' object which (YumBase)base.upinfo.get_applicable_notices()
+    returns to an namedtuple object represents errata.
+
+    'notice' object is a complex nested dict holding some other data related to
+    the errtata such as packages, update packages by the errata, and cves.
+
+    Some data related to the errata (noice) examples:
+
+    - packages:
+
+     'pkglist': [
+        {'name': 'Red Hat Enterprise Linux Server (v. 6 for 64-bit x86_64)',
+         'packages': [
+            {'arch': 'x86_64',
+             'epoch': '0',
+             'filename': 'xorg-x11-drv-fbdev-0.4.3-16.el6.x86_64.rpm',
+             'name': 'xorg-x11-drv-fbdev',
+             'release': '16.el6',
+             'src': 'xorg-x11-drv-fbdev-0.4.3-16.el6.src.rpm',
+             'sum': ('sha256', '8f3da83bb19c3776053c543002c9...'),
+             'version': '0.4.3'},
+             ...
+        },
+        ...
+     ]
+
+    - cve in notice_metadata["references"]:
+
+    {'href': 'https://www.redhat.com/security/data/cve/CVE-2013-1994.html',
+     'id': 'CVE-2013-1994',
+     'title': 'CVE-2013-1994',
+     'type': 'cve'}
+    """
+    if notice is None:
+        return notice
+
+    if not getattr(notice, "get_metadata", False):
+        raise ValueError("Not a notice object expected ?: %r" % notice)
+
+    nmd = notice.get_metadata()
+    adv = nmd["update_id"]
+
+    refs = nmd.get("references", [])
+    if refs:
+        bzs = [fleure.errata.make_rhbz(r["id"], r["title"]) for r in refs
+               if r.get("type") == "bugzilla"]
+        cves = [fleure.errata.make_cve(r["id"], r["href"]) for r in refs
+                if r.get("type") == "cve"]
+    else:
+        bzs = cves = []
+    ups = [NEVRA(u["name"], int(u["epoch"]), u["version"], u["release"],
+                 u["arch"]) for u in nmd.get("pkglist", [])]
+    info = dict(type=nmd["type"], severity=nmd.get("severity", "N/A"),
+                synopsis=nmd["title"], description=nmd["description"],
+                update_date=nmd["updated"], issue_date=nmd["issued"],
+                bzs=bzs, cves=cves)
+    # solution=nmd["solution"])  # TBD to use this.
+
+    return fleure.errata.factory(adv, ups, cache, **info)
 
 
 def _to_pkg(pkg, extras=None):
