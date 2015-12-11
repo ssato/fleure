@@ -67,6 +67,7 @@ def _to_int(advisory, severity=False):
     - RHBA-2013:0212 > RHBA-2012:1422 (year)
     - RHBA-2013:0212 > RHBA-2013:0210 (sequential id)
     - RHBA-2013:0212-1 > RHBA-2013:0212 (revision)
+    - RHBA-2013:02123-1 > RHBA-2013:02123 (revision)
 
     .. note::
        It cannot process non-RH errata such as fedroa's, e.g.
@@ -76,9 +77,11 @@ def _to_int(advisory, severity=False):
     :param severity: Severity of security errata if given
 
     >>> _to_int("RHBA-2012:1422-1")
-    202012142201
+    20201200142201
     >>> _to_int("RHSA-2014:0422", "Moderate")
-    342014042200
+    34201400042200
+    >>> _to_int("RHSA-2014:09999", "Moderate")
+    34201400999900
     """
     match = _ERRATA_ADV_RE.match(advisory)
     if not match:
@@ -88,10 +91,10 @@ def _to_int(advisory, severity=False):
     dic = match.groupdict()
     params = (_ERRATA_CHARS[dic["echar"]],
               _ERRATA_SEVS[severity] if severity else 0,
-              dic["year"], dic["seq"],
+              dic["year"], int(dic["seq"]),
               0 if dic["rev"] is None else int(dic["rev"]))
 
-    return int("%d%d%s%s%02d" % params)
+    return int("%d%d%s%06d%02d" % params)
 
 
 def factory(advisory, updates=None, cache=None, **info):
