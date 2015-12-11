@@ -142,6 +142,7 @@ def factory(advisory, updates=None, cache=None, **info):
     extra_keys = sorted(k for k in info.keys() if k not in keys)
 
     errata = collections.namedtuple("errata", keys + extra_keys)
+    setattr(errata, "__hash__", lambda e: e.id)
     setattr(errata, "__eq__",
             lambda self, other: self.advisory == other.advisory)
     setattr(errata, "__lt__", lambda self, other: self.id <= other.id)
