@@ -132,7 +132,7 @@ def factory(advisory, updates=None, cache=None, **info):
 
     eid = _to_int(advisory, info.get("severity", False))  # sorting key
     url = fleure.rpmutils.errata_url(advisory)
-    uns = list(set(u.name for u in updates))
+    uns = sorted(set(u.name for u in updates))
 
     # .. note::
     #    Update is not permitted by default and maybe new tuple will be created
