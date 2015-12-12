@@ -48,8 +48,8 @@ def analyze_and_save_results(host, errata, updates, savedir=None):
     Dump package level static analysis results.
 
     :param host: host object function :function:`prepare` returns
-    :param errata: A list of errata
-    :param updates: A list of update RPMs (latest only)
+    :param errata: A list of errata :: [namedtuple]
+    :param updates: A list of update RPMs (latest only) :: [namedtuple]
     :param savedir: Dir to save results
     """
     if savedir is None:
