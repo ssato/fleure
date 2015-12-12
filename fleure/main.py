@@ -256,12 +256,7 @@ def analyze(host):
 
     LOG.info(_("%s: Analyzing errata and packages ..."), host.hid)
     host.updates = ups = host.base.list_updates()
-
-    p2na = operator.attrgetter("name", "arch")
-    calls = (functools.partial(fleure.datasets.complement_an_errata,
-                               updates=set(p2na(u) for u in ups),
-                               score=host.cvss_min_score), )
-    host.errata = ers = host.base.list_errata(calls)
+    host.errata = ers = host.base.list_errata()
 
     # TBD: summary.json is enough to get the list errata and updates.
     # updates.json and errata.json is not needed to be saved. So we should be
