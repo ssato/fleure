@@ -140,6 +140,33 @@ def pcmp(lhs, rhs):
     return yum.compareEVR(p2evr(lhs), p2evr(rhs))
 
 
+def pcmp2(lhs, rhs):
+    """
+    Compare packages by these NVRAEs only with rpmlib's help w/o yum.
+
+    :param lhs: fleure.globals.NEVRA object (namedtuple)
+    :param rhs: fleure.globals.NEVRA object (namedtuple)
+
+    >>> from fleure.globals import NEVRA
+    >>> nevras = (NEVRA("kernel", 0, "2.6.38.8", "32", "x86_64"),
+    ...           NEVRA("kernel", 0, "2.6.38.8", "35", "x86_64"))
+    >>> pcmp2(*nevras) < 0
+    True
+
+    >>> nevras = (NEVRA("rsync", 0, "2.6.8", "3.1", "x86_64"),
+    ...           NEVRA("rsync", 0, "3.0.6", "4.el5", "x86_64"))
+    >>> pcmp2(*nevras) < 0
+    True
+
+    >>> nevras = (NEVRA("rsync", 0, "3.0.6", "4.el5", "x86_64"),
+    ...           NEVRA("rsync", 2, "2.6.8", "3.1", "x86_64"))
+    >>> pcmp2(*nevras) < 0
+    True
+    """
+    evr = lambda nevra: (str(nevra.epoch), nevra.version, nevra.release)
+    return rpm.labelCompare(evr(lhs), evr(rhs))
+
+
 def errata_url(advisory):
     """
     :param errata: Red Hat Errata Advisory name :: str
