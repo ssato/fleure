@@ -278,11 +278,10 @@ class Base(fleure.base.Base):
             nps = itertools.ifilter(None,
                                     (chaincalls(t, *calls) for t in
                                      self.base.up.getUpdatesTuples()))
-            calls = (operator.itemgetter(1), _notice_to_errata, process_fns)
+            calls = (operator.itemgetter(1), _notice_to_errata_2, process_fns)
             ers = itertools.chain(*((chaincalls(t, *calls) for t in ts)
                                     for ts in nps))
-            objs = list(ers)
-            self._packages[pkgnarrow] = objs
+            self._packages[pkgnarrow] = objs = list(ers)
 
         else:
             raise ValueError("Invalid list item was given: %s", pkgnarrow)

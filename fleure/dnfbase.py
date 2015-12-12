@@ -329,9 +329,10 @@ class Base(fleure.base.Base):
                 ips = self.base.sack.query().installed()
                 self._hpackages["installed"] = ips
 
+            # if errata is a dict, sort lists with operator.itemgetter("id").
             aitr = itertools.chain(*(p.get_advisories(hawkey.GT) for p in ips))
-            advs = fleure.utils.uniq(aitr, key=operator.itemgetter("id"),
-                                     callables=(hadv_to_errata, process_fns))
+            advs = fleure.utils.uniq(aitr, callables=(hadv_to_errata_2,
+                                                      process_fns))
             self._packages["errata"] = objs = advs
 
         return objs
