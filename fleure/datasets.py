@@ -53,7 +53,8 @@ def _make_cell_data(obj, key, default="N/A"):
         vals = getattr(obj, key, None)
         if vals is None or not vals:
             ret = default
-        ret = ", ".join(str(v) for v in vals)
+        else:
+            ret = ", ".join(str(v) for v in vals)
     else:
         val = getattr(obj, key, default)
         ret = ", ".join(val) if isinstance(val, (list, tuple)) else val
