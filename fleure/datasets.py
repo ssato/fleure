@@ -49,7 +49,7 @@ def _cve_details(cve, cve_cvss_map=None):
 def _make_cell_data(obj, key, default="N/A"):
     """Make up cell data.
     """
-    if key in ("cves", "bzs"):
+    if key in ("cves", "bzs", "keywords"):
         vals = getattr(obj, key, None)
         if vals is None or not vals:
             ret = default
