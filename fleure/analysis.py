@@ -16,6 +16,7 @@ import operator
 import nltk
 import tablib
 
+import fleure.cveinfo
 import fleure.decorators
 import fleure.globals
 import fleure.utils
@@ -230,6 +231,24 @@ def analyze_rhba(rhba, keywords=fleure.globals.ERRATA_KEYWORDS,
             'list_updates_by_kwds': list_updates_from_errata(rhba_by_kwds),
             'list_n_by_pnames': list_updates_by_num_of_errata(rhba_ues),
             'list_by_packages': rhba_ues}
+
+
+def _cve_details(cve, cve_cvss_map=None):
+    """
+    :param cve: A CVE namedtuple object
+    :param cve_cvss_map: A dict :: {cve: cve_and_cvss_data}
+
+    :return: A dict represents CVE and its CVSS metrics
+    """
+    if cve_cvss_map is not None:
+        dcve = cve_cvss_map.get(cve.id, False)
+
+    if not dcve:
+        dcve = fleure.cveinfo.get_cvss_for_cve(cve.id)
+        if dcve is None:
+            return cve  # Do nothing with it.
+
+    return fleure.utils.update_namedtuple(cve, list(dcve.items()))
 
 
 def _cve_socre_ge(cve, score=0, default=False):

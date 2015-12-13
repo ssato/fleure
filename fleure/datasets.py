@@ -18,34 +18,6 @@ from fleure.globals import _
 LOG = logging.getLogger(__name__)
 
 
-def _cve_details(cve, cve_cvss_map=None):
-    """
-    :param cve: A dict represents CVE :: {id:, url:, ...}
-    :param cve_cvss_map: A dict :: {cve: cve_and_cvss_data}
-
-    :return: A dict represents CVE and its CVSS metrics
-    """
-    cveid = cve.get("id", cve.get("cve"))
-
-    if cve_cvss_map is not None:
-        dcve = cve_cvss_map.get(cveid)
-
-    if dcve:
-        cve.update(**dcve)
-        return cve
-
-    dcve = fleure.cveinfo.get_cvss_for_cve(cveid)
-
-    if dcve is None:
-        dcve = dict(cve=cveid, )
-    else:
-        dcve["nvd_url"] = dcve["url"]
-        dcve["url"] = cve["url"]
-        cve.update(**dcve)
-
-    return cve
-
-
 def _make_cell_data(obj, key, default="N/A"):
     """Make up cell data.
     """
