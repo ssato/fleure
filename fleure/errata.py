@@ -169,7 +169,7 @@ def make(advisory, updates=None, cache=None, **info):
             "type severity bzs cves updates update_names").split()
     extra_keys = sorted(k for k in info.keys() if k not in keys)
 
-    errata = collections.namedtuple("errata", keys + extra_keys + ["extras"])
+    errata = collections.namedtuple("errata", keys + extra_keys)
     _set_special_methods(errata)
 
     ert = errata(eid, advisory, url,
@@ -177,8 +177,7 @@ def make(advisory, updates=None, cache=None, **info):
                  info["update_date"], info["issue_date"], info["type"],
                  info.get("severity", "N/A"),
                  info.get("bzs", []), info.get("cves", []),
-                 updates, uns, *[info[k] for k in extra_keys],
-                 extras={})  # This is a backdoor to set/update values later.
+                 updates, uns, *[info[k] for k in extra_keys])
 
     cache[advisory] = ert
     return ert
