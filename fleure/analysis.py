@@ -94,8 +94,8 @@ def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
     >>> ers1 = list(errata_of_keywords_g(ers, ("hang", ), True))
     >>> attrgetter("advisory", "keywords")(ers1[0])  # matches w/ stemming.
     ('RHSA-2015:XXX1', ['hang'])
-    >>> ers2 = list(errata_of_keywords_g(ers, ("hang", ), False))
-    >>> ers2[0].keywords  # not match w/o stemming.
+    >>> list(errata_of_keywords_g(ers, ("hang", ),
+    ...                           False))  # not match w/o stemming.
     []
     >>> ers3 = list(errata_of_keywords_g(ers, ("hang", "crash"), False))
     >>> attrgetter("advisory", "keywords")(ers3[0])
