@@ -82,10 +82,10 @@ def analyze_and_save_results(host, errata, updates, savedir=None):
                                       host.workdir, tpaths=host.tpaths)
 
     # TODO: Keep DRY principle.
-    lrpmkeys = [_("name"), _("epoch"), _("version"), _("release"), _("arch")]
+    lrpmkeys = (_("name"), _("epoch"), _("version"), _("release"), _("arch"))
 
-    rpmdkeys = list(rpmkeys) + ["summary", "vendor", "buildhost"]
-    lrpmdkeys = lrpmkeys + [_("summary"), _("vendor"), _("buildhost")]
+    rpmdkeys = rpmkeys + ("summary", "vendor", "buildhost")
+    lrpmdkeys = lrpmkeys + (_("summary"), _("vendor"), _("buildhost"))
 
     sekeys = ("advisory", "severity", "synopsis", "url", "update_names")
     lsekeys = (_("advisory"), _("severity"), _("synopsis"), _("url"),
