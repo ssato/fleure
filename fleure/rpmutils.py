@@ -176,7 +176,8 @@ def errata_url(advisory):
     >>> errata_url("RHSA-2007:0967-2")
     'http://rhn.redhat.com/errata/RHSA-2007-0967.html'
     """
-    assert isinstance(advisory, str), "Not a string: %s" % str(advisory)
+    # python 2.6: (str, unicode), 3.x: (str, )
+    # assert isinstance(advisory, str), "Not a string: %r" % advisory
     assert _RHERRATA_RE.match(advisory), "Not a errata advisory: %s" % advisory
 
     if advisory[-2] == "-":  # degenerate advisory names
