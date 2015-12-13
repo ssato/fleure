@@ -93,7 +93,7 @@ def norm_nevra(name, epoch, version, release, arch):
     return (name, 0 if epoch is None else int(epoch), version, release, arch)
 
 
-def factory(nevra, cache=None, extra_names=None, **info):
+def make(nevra, cache=None, extra_names=None, **info):
     """
     Factory to create a package info object.
 

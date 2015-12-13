@@ -115,7 +115,7 @@ def _to_int(advisory, severity=False):
     return int("%d%d%s%06d%02d" % params)
 
 
-def factory(advisory, updates=None, cache=None, **info):
+def make(advisory, updates=None, cache=None, **info):
     """
     TBD: What should be a member of errata?
 
