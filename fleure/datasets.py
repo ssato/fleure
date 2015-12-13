@@ -69,6 +69,9 @@ def _make_cell_data(obj, key, default="N/A"):
         val = _get(obj, key, default)
         ret = ", ".join(val) if isinstance(val, (list, tuple)) else val
     try:
+        if ret is None or isinstance(ret, int):
+            ret = str(ret)
+
         return ret.encode("utf-8")
     except Exception as exc:
         LOG.debug("error when encoding: %r, exc=%r", ret, exc)
