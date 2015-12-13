@@ -115,6 +115,16 @@ def _to_int(advisory, severity=False):
     return int("%d%d%s%06d%02d" % params)
 
 
+def _set_special_methods(errata):
+    """
+    Set special methods to errata (namedtuple) object.
+    """
+    setattr(errata, "__hash__", lambda e: e.id)
+    setattr(errata, "__eq__",
+            lambda self, other: self.advisory == other.advisory)
+    setattr(errata, "__lt__", lambda self, other: self.id <= other.id)
+
+
 def make(advisory, updates=None, cache=None, **info):
     """
     TBD: What should be a member of errata?
@@ -160,10 +170,7 @@ def make(advisory, updates=None, cache=None, **info):
     extra_keys = sorted(k for k in info.keys() if k not in keys)
 
     errata = collections.namedtuple("errata", keys + extra_keys + ["extras"])
-    setattr(errata, "__hash__", lambda e: e.id)
-    setattr(errata, "__eq__",
-            lambda self, other: self.advisory == other.advisory)
-    setattr(errata, "__lt__", lambda self, other: self.id <= other.id)
+    _set_special_methods(errata)
 
     ert = errata(eid, advisory, url,
                  info["synopsis"].strip(), info["description"].strip(),
