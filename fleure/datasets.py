@@ -52,47 +52,6 @@ def _cve_details(cve, cve_cvss_map=None):
     return cve
 
 
-def _fmt_cve(cve):
-    """CVE formatter"""
-    if 'score' in cve:
-        return '%(cve)s (score=%(score)s, metrics=%(metrics)s, url=%(url)s)'
-    else:
-        return '%(cve)s (CVSS=N/A)'
-
-
-def _fmt_cvess(cves):
-    """
-    :param cves: List of CVE dict {cve, score, url, metrics} or str "cve".
-    :return: List of CVE strings
-    """
-    try:
-        cves = [_fmt_cve(c) % c for c in cves]
-    except KeyError:
-        pass
-    except Exception as exc:
-        raise RuntimeError("Wrong CVEs: %s, exc=%s" % (str(cves), str(exc)))
-
-    return cves
-
-
-def _fmt_bzs(bzs, summary=False):
-    """
-    :param cves: List of CVE dict {cve, score, url, metrics} or str "cve".
-    :return: List of CVE strings
-    """
-    def fmt(bze):
-        """bugzilla entry formatter"""
-        return ("bz#%(id)s: "
-                "%(summary)s " if summary and "summary" in bze else ""
-                "(%(url)s)")
-    try:
-        bzs = [fmt(bz) % bz for bz in bzs]
-    except KeyError:
-        LOG.warn(_("BZ Key error: %s"), str(bzs))
-
-    return bzs
-
-
 def _make_cell_data(obj, key, default="N/A"):
     """Make up cell data.
     """
@@ -101,15 +60,11 @@ def _make_cell_data(obj, key, default="N/A"):
     else:
         _get = lambda obj, key, default: obj.get(key, default)
 
-    if key == "cves":
-        cves = _get(obj, "cves", [])
-        try:
-            ret = ", ".join(_fmt_cvess(cves)) if cves else default
-        except Exception as exc:
-            raise RuntimeError("Wrong CVEs: %r, exc=%r" % (cves, exc))
-    elif key == "bzs":
-        bzs = _get(obj, "bzs", [])
-        ret = ", ".join(_fmt_bzs(bzs)) if bzs else default
+    if key in ("cves", "bzs"):
+        vals = getattr(obj, key, None)
+        if vals is None or not vals:
+            ret = default
+        ret = ", ".join(str(v) for v in vals)
     else:
         val = _get(obj, key, default)
         ret = ", ".join(val) if isinstance(val, (list, tuple)) else val
@@ -154,7 +109,7 @@ def compute_delta(host, refdir, ers, updates):
     """
     :param refdir: Dir has reference data files: packages.json, errata.json
         and updates.json
-    :param ers: A list of errata
+    :param ers: A list of errata :: [namedtuple]
     :param updates: A list of update packages :: [namedtuple]
     """
     _assert_if_not_exist(refdir, "data dir")
@@ -167,7 +122,7 @@ def compute_delta(host, refdir, ers, updates):
     ref_eadvs = set(e["advisory"] for e in ref_es)
     ref_nevras = set((u[k] for k in nevra_keys) for u in ref_us)
 
-    return ([e for e in ers if e["advisory"] not in ref_eadvs],
+    return ([e for e in ers if e.advisory not in ref_eadvs],
             [u for u in updates
              if (getattr(u, k) for k in nevra_keys) not in ref_nevras])
 

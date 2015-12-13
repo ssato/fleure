@@ -8,10 +8,11 @@
 """Fleure's main module
 """
 from __future__ import absolute_import
-from operator import itemgetter
+from operator import attrgetter
 
 import itertools
 import logging
+import operator
 import nltk
 import tablib
 
@@ -28,22 +29,37 @@ LOG = logging.getLogger("fleure")
 
 def list_latest_errata_by_updates(ers):
     """
-    :param ers: A list of errata dict
+    :param ers: A list of errata namedtuples
     :return: A list of items in `ers` grouped by update names
     """
-    ung = lambda e: sorted(set(u["name"] for u in e.get("updates", [])))
-    return [xs[-1] for xs
-            in fleure.utils.sgroupby(ers, ung, itemgetter("issue_date"))]
+    # see :func:`fleure.errata.factory`
+    kfns = (attrgetter("update_names"), attrgetter("issue_date"))
+    return [xs[-1] for xs in fleure.utils.sgroupby(ers, *kfns)]
 
 
 def list_updates_from_errata(ers):
     """
-    :param ers: A list of errata dict
+    :param ers: A list of errata namedtuples
+
+    >>> from collections import namedtuple
+    >>> from fleure.globals import NEVRA
+    >>> errata = namedtuple("errata", "advisory updates")
+    >>> ers = [errata("RHSA-2015:XXX1",
+    ...               [NEVRA("kernel", 0, "2.6.32", "573.8.1.el6", "x86_64"),
+    ...                NEVRA("tzdata", 0, "2015g", "2.el6", "noarch")]),
+    ...        errata("RHSA-2014:XXX2",
+    ...               [NEVRA("glibc", 0, "2.12", "1.166.el6_7.3", "x86_64"),
+    ...                NEVRA("tzdata", 0, "2015g", "11.el6", "noarch")])]
+    >>> ups = [tuple(u) for u in list_updates_from_errata(ers)]
+    >>> ups  # doctest: +NORMALIZE_WHITESPACE
+    [('glibc', 0, '2.12', '1.166.el6_7.3', 'x86_64'),
+     ('kernel', 0, '2.6.32', '573.8.1.el6', 'x86_64'),
+     ('tzdata', 0, '2015g', '11.el6', 'noarch')]
     """
-    ups = sorted(fleure.utils.uconcat(e.get("updates", []) for e in ers),
-                 key=itemgetter("name"))
-    return [sorted(g, cmp=fleure.rpmutils.pcmp, reverse=True)[0] for g
-            in fleure.utils.sgroupby(ups, itemgetter("name"))]
+    ups = sorted(fleure.utils.uconcat(e.updates for e in ers),
+                 key=attrgetter("name"))
+    return [sorted(g, cmp=fleure.rpmutils.pcmp2, reverse=True)[0] for g
+            in fleure.utils.sgroupby(ups, attrgetter("name"))]
 
 
 _STEMMER = nltk.PorterStemmer()
@@ -69,75 +85,74 @@ def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
         A generator to yield errata of which description contains any of
         given keywords
 
-    >>> ert0 = dict(advisory="RHSA-2015:XXX1",
-    ...             description="system hangs, or crash...")
-    >>> ert1 = dict(advisory="RHEA-2015:XXX2",
-    ...             description="some enhancement and changes")
-    >>> ers = list(errata_of_keywords_g([ert0], ("hang", ), True))
-    >>> ert0 in ers
+    >>> from collections import namedtuple
+    >>> errata = namedtuple("errata", "advisory description extras")
+    >>> ers = [errata("RHSA-2015:XXX1", "system hangs, or crash...",
+    ...               {"keywords": []}),
+    ...        errata("RHEA-2015:XXX2", "some enhancement and changes",
+    ...               {"keywords": []})]
+    >>> ret = list(errata_of_keywords_g(ers, ("hang", ), True))
+    >>> ers[0] in ret
     True
-    >>> ers[0]["keywords"]  # 'hangs' matches with stemming.
+    >>> ers[0].extras["keywords"]  # 'hangs' matches with stemming.
     ['hang']
-    >>> ers = list(errata_of_keywords_g([ert0, ert1], ("hang", "crash"),
-    ...                                 stemming=False))
-    >>> ert0 in ers
+    >>> ret2 = list(errata_of_keywords_g(ers, ("hang", "crash"),
+    ...                                  stemming=False))
+    >>> ers[0] in ret2
     True
-    >>> ers[0]["keywords"]  # 'hangs' does not match with 'hang'.
+    >>> ers[0].extras["keywords"]  # 'hangs' does not match with 'hang'.
     ['crash']
-    >>> ert1 in ers
+    >>> ers[1] in ret2
     False
     """
     stemmer = _STEMMER.stem if stemming else None
     for ert in ers:
-        tokens = tokenize(ert["description"], stemmer)
+        tokens = tokenize(ert.description, stemmer)
         mks = [k for k in keywords if k in tokens]
         if mks:
-            ert["keywords"] = mks
+            ert.extras["keywords"] = mks
             yield ert
 
 
 def errata_of_rpms_g(ers, rpms=fleure.globals.CORE_RPMS):
     """
-    :param ers: A list of errata
+    :param ers: A list of errata :: [namedtuple]
     :param rpms: A list of RPM names to select relevant errata
     :return: A generator to yield errata relevant to any of given RPM names
 
-    >>> ert0 = dict(advisory="RHSA-2015:XXX1",
-    ...             update_names=["kernel", "tzdata"])
-    >>> ert1 = dict(advisory="RHSA-2015:XXX2",
-    ...             update_names=["glibc", "tzdata"])
-    >>> ers = errata_of_rpms_g([ert0, ert1], ("kernel", ))
-    >>> ert0 in ers
+    >>> from collections import namedtuple
+    >>> errata = namedtuple("errata", "advisory update_names")
+    >>> ers = [errata("RHSA-2015:XXX1", ["kernel", "tzdata"]),
+    ...        errata("RHSA-2014:XXX2", ["glibc", "tzdata"])]
+    >>> res = sorted(errata_of_rpms_g(ers, ("kernel", )))
+    >>> ers[0] in res
     True
-    >>> ert1 in ers
+    >>> ers[1] in res
     False
     """
     for ert in ers:
-        if any(n in ert["update_names"] for n in rpms):
+        if any(n in ert.update_names for n in rpms):
             yield ert
 
 
 def list_update_errata_pairs(ers):
     """
-    :param ers: A list of errata dict
+    :param ers: A list of errata namedtuples
     :return: A list of (update_name, [errata_advisory])
 
-    >>> ers = [dict(advisory="RHSA-2015:XXX1",
-    ...             update_names=["kernel", "tzdata"]),
-    ...        dict(advisory="RHSA-2014:XXX2",
-    ...             update_names=["glibc", "tzdata"])
-    ...        ]
-    >>> list_update_errata_pairs(ers) == [
-    ...     ('glibc', ['RHSA-2014:XXX2']),
-    ...     ('kernel', ['RHSA-2015:XXX1']),
-    ...     ('tzdata', ['RHSA-2015:XXX1', 'RHSA-2014:XXX2'])
-    ... ]
-    True
+    >>> from collections import namedtuple
+    >>> errata = namedtuple("errata", "advisory update_names")
+    >>> ers = [errata("RHSA-2015:XXX1", ["kernel", "tzdata"]),
+    ...        errata("RHSA-2014:XXX2", ["glibc", "tzdata"])]
+    >>> list_update_errata_pairs(ers)  # doctest: +NORMALIZE_WHITESPACE
+    [('glibc', ['RHSA-2014:XXX2']),
+     ('kernel', ['RHSA-2015:XXX1']),
+     ('tzdata', ['RHSA-2015:XXX1', 'RHSA-2014:XXX2'])]
     """
-    ues = fleure.utils.uconcat([(u, e["advisory"]) for u in e["update_names"]]
+    ues = fleure.utils.uconcat([(u, e.advisory) for u in e.update_names]
                                for e in ers)
     return [(u, sorted((t[1] for t in g), reverse=True)) for u, g
-            in itertools.groupby(ues, itemgetter(0))]
+            in itertools.groupby(ues, operator.itemgetter(0))]
 
 
 def list_updates_by_num_of_errata(uess):
@@ -147,43 +162,37 @@ def list_updates_by_num_of_errata(uess):
     :param uess: A list of (update, [errata_advisory]) pairs
     :return: [(package_name :: str, num_of_relevant_errata :: Int)]
 
-    >>> ers = [{'advisory': u'RHSA-2015:1623',
-    ...         'update_names': ['kernel-headers', 'kernel']},
-    ...        {'advisory': 'RHSA-2015:1513',
-    ...         'update_names': ['bind-utils']},
-    ...        {'advisory': 'RHSA-2015:1081',
-    ...         'update_names': ['kernel-headers', 'kernel']}
-    ...        ]
+    >>> from collections import namedtuple
+    >>> errata = namedtuple("errata", "advisory update_names")
+    >>> ers = [errata("RHSA-2015:1623", ['kernel-headers', 'kernel']),
+    ...        errata("RHSA-2015:1513", ['bind-utils']),
+    ...        errata("RHSA-2015:1081", ['kernel-headers', 'kernel'])]
     >>> list_updates_by_num_of_errata(list_update_errata_pairs(ers))
     [('kernel', 2), ('kernel-headers', 2), ('bind-utils', 1)]
     >>>
     """
-    return sorted(((u, len(es)) for u, es in uess), key=itemgetter(1),
-                  reverse=True)
+    return sorted(((u, len(es)) for u, es in uess),
+                  key=operator.itemgetter(1), reverse=True)
 
 
 def analyze_rhsa(rhsa):
     """
     Compute and return statistics of RHSAs from some view points.
 
-    :param rhsa: A list of security errata (RHSA) dicts
+    :param rhsa: A list of security errata (RHSA) namedtuples
     :return: RHSA analized data and metrics
     """
-    cri_rhsa = [e for e in rhsa if e["severity"] == "Critical"]
-    imp_rhsa = [e for e in rhsa if e["severity"] == "Important"]
+    _ls_by_sev = lambda sev: [e for e in rhsa if e.severity == sev]
 
-    rhsa_rate_by_sev = [("Critical", len(cri_rhsa)),
-                        ("Important", len(imp_rhsa)),
-                        ("Moderate",
-                         len([e for e in rhsa
-                              if e["severity"] == "Moderate"])),
-                        ("Low",
-                         len([e for e in rhsa
-                              if e["severity"] == "Low"]))]
+    cri_rhsa = _ls_by_sev("Critical")  # TODO: Define consts.
+    imp_rhsa = _ls_by_sev("Important")
+    rate_by_sev = [("Critical", len(cri_rhsa)), ("Important", len(imp_rhsa)),
+                   ("Moderate", len(_ls_by_sev("Moderate"))),
+                   ("Low", len(_ls_by_sev("Low")))]
 
     rhsa_ues = list_update_errata_pairs(rhsa)
-    _ups_by_nes = lambda es: \
-        list_updates_by_num_of_errata(list_update_errata_pairs(es))
+    _ups_by_nes = lambda ers: \
+        list_updates_by_num_of_errata(list_update_errata_pairs(ers))
 
     return {'list': rhsa,
             'list_critical': cri_rhsa,
@@ -192,7 +201,7 @@ def analyze_rhsa(rhsa):
             'list_latest_important': list_latest_errata_by_updates(imp_rhsa),
             'list_critical_updates': list_updates_from_errata(cri_rhsa),
             'list_important_updates': list_updates_from_errata(imp_rhsa),
-            'rate_by_sev': rhsa_rate_by_sev,
+            'rate_by_sev': rate_by_sev,
             'list_n_by_pnames': list_updates_by_num_of_errata(rhsa_ues),
             'list_n_cri_by_pnames': _ups_by_nes(cri_rhsa),
             'list_n_imp_by_pnames': _ups_by_nes(imp_rhsa),
@@ -204,20 +213,20 @@ def analyze_rhba(rhba, keywords=fleure.globals.ERRATA_KEYWORDS,
     """
     Compute and return statistics of RHBAs from some view points.
 
-    :param rhba: A list of bug errata (RHBA) dicts
+    :param rhba: A list of bug errata (RHBA) namedtuples
     :param keywords: Keyword list to filter 'important' RHBAs
     :param core_rpms: Core RPMs to filter errata by them
     :return: RHSA analized data and metrics
     """
-    kfn = lambda e: (len(e.get("keywords", [])), e["issue_date"],
-                     e["update_names"])
+    kfn = lambda e: (len(e.extras.get("keywords", [])), e.issue_date,
+                     e.update_names)
     rhba_by_kwds = sorted(errata_of_keywords_g(rhba, keywords),
                           key=kfn, reverse=True)
     rhba_of_core_rpms_by_kwds = \
         sorted(errata_of_rpms_g(rhba_by_kwds, core_rpms),
                key=kfn, reverse=True)
     rhba_of_rpms = sorted(errata_of_rpms_g(rhba, core_rpms),
-                          key=itemgetter("update_names"), reverse=True)
+                          key=attrgetter("update_names"), reverse=True)
     latest_rhba_of_rpms = list_latest_errata_by_updates(rhba_of_rpms)
     rhba_ues = list_update_errata_pairs(rhba)
 
@@ -233,9 +242,10 @@ def analyze_rhba(rhba, keywords=fleure.globals.ERRATA_KEYWORDS,
 
 def _cve_socre_ge(cve, score=0, default=False):
     """
-    :param cve: A dict contains CVE and CVSS info.
-    :param score: Lowest score to select CVEs (float). It's Set to 4.0 (PCIDSS
-        limit) by default:
+    :param cve: A dict contains CVE and CVSS base metrics and score info.
+    :param score:
+        Lowest score to select CVEs (float). It's set to 4.0 (PCIDSS limit) by
+        default:
 
         * NVD Vulnerability Severity Ratings: http://nvd.nist.gov/cvss.cfm
         * PCIDSS: https://www.pcisecuritystandards.org
@@ -245,11 +255,8 @@ def _cve_socre_ge(cve, score=0, default=False):
 
     :return: True if given CVE's socre is greater or equal to given score.
     """
-    if "score" not in cve:
-        LOG.warn(_("CVE %(cve)s lacks of CVSS base metrics and score"), cve)
-        return default
     try:
-        return float(cve["score"]) >= float(score)
+        return float(cve.score) >= float(score)
     except (KeyError, ValueError):
         LOG.warn(_("Failed to compare CVE's score: %s, score=%.1f"),
                  str(cve), score)
@@ -259,18 +266,18 @@ def _cve_socre_ge(cve, score=0, default=False):
 
 def higher_score_cve_errata_g(ers, score=0):
     """
-    :param ers: A list of errata
+    :param ers: A list of errata :: [namedtuple]
     :param score: CVSS base metrics score
     """
     for ert in ers:
         # NOTE: Skip older CVEs do not have CVSS base metrics and score.
-        cves = [c for c in ert.get("cves", []) if "score" in c]
+        cves = [c for c in ert.cves if getattr(c, "score", False)]
         if cves and any(_cve_socre_ge(cve, score) for cve in cves):
-            cvsses_s = ", ".join("{cve} ({score}, {metrics})".format(**c)
-                                 for c in cves)
-            cves_s = ", ".join("{cve} ({url})".format(**c) for c in cves)
-            ert["cvsses_s"] = cvsses_s
-            ert["cves_s"] = cves_s
+            cvsses_s = (", ".join("%s (%s)" % (cve.id, cve.score))
+                        for cve in cves)
+            cves_s = ", ".join("%s %s)" % (c.id, c.url) for c in cves)
+            ert.extras["cvsses_s"] = cvsses_s
+            ert.extras["cves_s"] = cves_s
 
             yield ert
 
@@ -279,15 +286,17 @@ def analyze_errata(ers, score=fleure.globals.CVSS_MIN_SCORE,
                    keywords=fleure.globals.ERRATA_KEYWORDS,
                    core_rpms=fleure.globals.CORE_RPMS):
     """
-    :param ers: A list of applicable errata sorted by severity
-        if it's RHSA and advisory in ascending sequence
+    :param ers:
+        a list of applicable errata (namedtuple) sorted by severity if it's
+        RHSA and advisory in ascending sequence
     :param score: CVSS base metrics score
     :param keywords: Keyword list to filter 'important' RHBAs
     :param core_rpms: Core RPMs to filter errata by them
     """
-    rhsa = [e for e in ers if e["advisory"][2] == 'S']
-    rhba = [e for e in ers if e["advisory"][2] == 'B']
-    rhea = [e for e in ers if e["advisory"][2] == 'E']
+    rhsa = [e for e in ers if e.type == 'security']  # TODO: defines consts.
+    rhba = [e for e in ers if e.type == 'bugfix']
+    rhea = [e for e in ers if e.type == 'enhancement']
+    assert len(rhsa) + len(rhba) + len(rhea) == len(ers)  # To be removed.
 
     rhsa_data = analyze_rhsa(rhsa)
     rhba_data = analyze_rhba(rhba, keywords, core_rpms)

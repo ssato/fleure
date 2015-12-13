@@ -39,7 +39,8 @@ def make_rhbz(bzid, summary, url=None):
     if url is None:
         url = "https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=%s" % bzid
     rhbz = collections.namedtuple("RHBZ", "id summary url")
-    setattr(rhbz, "__str__", lambda bz: "rhbz#%s: %s (%s)" % bz)
+    setattr(rhbz, "__unicode__", lambda bz: "rhbz#%s: %s (%s)" % bz)
+    setattr(rhbz, "__str__", lambda bz: unicode(bz).encode("utf-8"))
     return rhbz(bzid, summary, url)
 
 

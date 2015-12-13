@@ -125,13 +125,13 @@ def make_dependency_graph(root, reverse=True, rreqs=None, edge_attrs=None):
     return graph
 
 
-def _make_depgraph_context(root, ers):
+def _make_depgraph_context(root, errata):
     """
     Make up context to generate RPM dependency graph w/ graphviz (sfdp) from
     the RPM database files for given host group.
 
     :param root: Root dir where 'var/lib/rpm' exists
-    :param ers: List of errata dict, see :func:`analyze_errata` in fleure.main
+    :param errata: errata dict, see :func:`analyze_errata` in fleure.main
 
     :return: { name :: str,
                groups :: [name :: str,
@@ -150,13 +150,14 @@ def _make_depgraph_context(root, ers):
     def _list_uns_by_etype(etype="rhsa"):
         """List update package names by errata type.
         """
-        return fleure.utils.uniq(t[0] for t in ers[etype]["list_by_packages"])
+        return fleure.utils.uniq(t[0] for t in
+                                 errata[etype]["list_by_packages"])
 
     def _list_uns_by_sev(sev="critical"):
         """List update package names by severity of security errata.
         """
         return fleure.utils.uniq(u["name"] for u
-                                 in ers["rhsa"]["list_%s_updates" % sev])
+                                 in errata["rhsa"]["list_%s_updates" % sev])
 
     def _mk_ps_g(graph, groups):
         """Make up package groups.
@@ -177,19 +178,19 @@ def _make_depgraph_context(root, ers):
     return dict(name="rpm_depgraph_1",
                 layers=sorted(groups.keys() + ["visible"]),
                 nodes=sorted(_mk_ps_g(graph, groups),
-                             key=operator.itemgetter("name")),
+                             key=operator.attrgetter("name")),
                 edges=sorted(graph.edges_iter()))
 
 
 # @fleure.globals.async
-def dump_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
+def dump_depgraph(root, errata, workdir=None, outname="rpm_depgraph_gv",
                   tpaths=fleure.globals.FLEURE_TEMPLATE_PATHS):
     """
     Make up context to generate RPM dependency graph w/ graphviz (sfdp) from
     the RPM database files for given host group.
 
     :param root: Host group's root dir where 'var/lib/rpm' exists
-    :param ers: List of errata dict, see :func:`analyze_errata` in fleure.main
+    :param errata: errata dict, see :func:`analyze_errata` in fleure.main
     :param workdir: Working dir to dump result
     :param outname: Output file base name
     :param tpaths: A list of template search paths
@@ -197,7 +198,7 @@ def dump_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
     if workdir is None:
         workdir = root
 
-    ctx = _make_depgraph_context(root, ers)
+    ctx = _make_depgraph_context(root, errata)
     out = fleure.utils.copen(os.path.join(workdir, outname + ".json"), 'w')
     anyconfig.dump(ctx, out)
 

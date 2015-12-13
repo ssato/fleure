@@ -116,54 +116,6 @@ def get_severity_from_hadv(hadv, default="N/A"):
     return hadv.title.split(':')[0]
 
 
-def _eref_to_pkg(eref):
-    """
-    Try to convert package info in errata references.
-
-    :eref: _hawkey.AdvisoryPkg object from errata references
-    """
-    if not eref.evr:
-        raise ValueError("Not _hawkey.AdvisoryPkg ?: {}".format(eref))
-
-    (ver, rel) = eref.evr.rsplit('-')
-    if ':' in ver:
-        (epoch, ver) = ver.split(':')
-    else:
-        epoch = '0'
-
-    return dict(name=eref.name, arch=eref.arch, evr=eref.evr,
-                epoch=epoch, version=ver, release=rel)
-
-
-def hadv_to_errata(hadv):
-    """
-    Make an errata dict from _hawkey.Advisory object.
-
-    :param hadv: A _hawkey.Advisory object
-    """
-    if not hadv.id:
-        raise ValueError("Not _hawkey.Advisory ?: {}".format(hadv))
-
-    errata = dict(advisory=hadv.id, synopsis=hadv.title,
-                  description=hadv.description,
-                  update_date=hadv.updated.strftime("%Y-%m-%d"),
-                  issue_date=hadv.updated.strftime("%Y-%m-%d"),  # missing?
-                  type=type_from_hawkey_adv(hadv),
-                  severity=get_severity_from_hadv(hadv))
-
-    errata["bzs"] = [dict(id=r.id, summary=r.title, url=r.url) for r
-                     in hadv.references if r.type == hawkey.REFERENCE_BUGZILLA]
-
-    errata["cves"] = [dict(id=r.id, cve=r.id, url=r.url) for r
-                      in hadv.references if r.type == hawkey.REFERENCE_CVE]
-
-    errata["packages"] = [_eref_to_pkg(p) for p in hadv.packages]
-    errata["package_names"] = fleure.utils.uniq(p.name for p in hadv.packages)
-    errata["url"] = fleure.rpmutils.errata_url(str(hadv.id))
-
-    return errata
-
-
 def _eref_to_nevra(eref):
     """
     Try to convert package info in errata references to a namedtuple object,
@@ -185,7 +137,7 @@ def _eref_to_nevra(eref):
     return NEVRA(eref.name, int(epoch), ver, rel, eref.arch)
 
 
-def hadv_to_errata_2(hadv, cache=None):
+def hadv_to_errata(hadv, cache=None):
     """
     Make an errata namedtuple object from _hawkey.Advisory object.
 
@@ -194,6 +146,7 @@ def hadv_to_errata_2(hadv, cache=None):
 
     :return: A namedtuple object, see :func:`fleure.errata.factory`.
     """
+    LOG.info("hadv_to_errata: hadv=%r", hadv)
     adv = getattr(hadv, "id", None)
     if adv is None:
         raise ValueError("Not _hawkey.Advisory ?: %r" % hadv)
@@ -330,9 +283,9 @@ class Base(fleure.base.Base):
                 self._hpackages["installed"] = ips
 
             # if errata is a dict, sort lists with operator.itemgetter("id").
-            aitr = itertools.chain(*(p.get_advisories(hawkey.GT) for p in ips))
-            advs = fleure.utils.uniq(aitr, callables=(hadv_to_errata_2,
-                                                      process_fns))
+            aitr = (hadv_to_errata(a) for a in
+                    itertools.chain(*(p.get_advisories(hawkey.GT) for p in ips)))
+            advs = fleure.utils.uniq(aitr, callables=(process_fns, ))
             self._packages["errata"] = objs = advs
 
         return objs

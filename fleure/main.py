@@ -9,10 +9,8 @@
 """Fleure's main module
 """
 from __future__ import absolute_import
-from operator import itemgetter
 
 import datetime
-import functools
 import logging
 import operator
 import os.path
@@ -80,8 +78,8 @@ def analyze_and_save_results(host, errata, updates, savedir=None):
 
     host.save(data, "summary", savedir)
     if savedir is None:  # Indicates that it's basic data.
-        fleure.depgraph.dump_depgraph(host.root, errata, host.workdir,
-                                      tpaths=host.tpaths)
+        fleure.depgraph.dump_depgraph(host.root, data["errata"],
+                                      host.workdir, tpaths=host.tpaths)
 
     # TODO: Keep DRY principle.
     lrpmkeys = [_("name"), _("epoch"), _("version"), _("release"), _("arch")]
@@ -101,9 +99,9 @@ def analyze_and_save_results(host, errata, updates, savedir=None):
                          data["errata"]["rhsa"]["list_latest_important"]),
                         _("Cri-Important RHSAs (latests)"), sekeys, lsekeys),
            make_dataset(sorted(data["errata"]["rhsa"]["list_critical"],
-                               key=itemgetter("update_names")) +
+                               key=operator.attrgetter("update_names")) +
                         sorted(data["errata"]["rhsa"]["list_important"],
-                               key=itemgetter("update_names")),
+                               key=operator.attrgetter("update_names")),
                         _("Critical or Important RHSAs"), sekeys, lsekeys),
            make_dataset(data["errata"]["rhba"]["list_by_kwds_of_core_rpms"],
                         _("RHBAs (core rpms, keywords)"), bekeys, lbekeys),
@@ -227,19 +225,12 @@ def compute_in_period(host, start, end):
     Compute and return a tuple of (errata, updates) in given period.
 
     :param host: host object function :function:`prepare` returns
-    :param errata: A list of errata :: [dict] (yet)
-    :param updates: A list of update packages :: [namedtuple]
     :param start: Date to start the period
     :param end: Date to end the period
     """
     pers = sorted(e for e in host.errata
-                  if fleure.dates.in_period(e["issue_date"], start, end))
-    keys = fleure.globals.RPM_KEYS
-    ucat = fleure.utils.uconcat
-    eups = ucat([itemgetter(*keys)(u) for u in e.get("updates", [])]
-                for e in pers)  # updates in the period
-
-    return (pers, [fleure.globals.NEVRA(*u) for u in eups])
+                  if fleure.dates.in_period(e.issue_date, start, end))
+    return (pers, fleure.utils.uconcat(e.updates for e in pers))
 
 
 @profile
