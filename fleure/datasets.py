@@ -7,17 +7,11 @@
 """
 from __future__ import absolute_import
 
-import collections
 import logging
-import operator
 import os.path
-import re
 import tablib
 
 import fleure.cveinfo
-import fleure.dates
-import fleure.utils
-
 from fleure.globals import _
 
 
@@ -55,18 +49,13 @@ def _cve_details(cve, cve_cvss_map=None):
 def _make_cell_data(obj, key, default="N/A"):
     """Make up cell data.
     """
-    if isinstance(obj, tuple) and hasattr(obj, "_asdict"):
-        _get = lambda obj, key, default: getattr(obj, key, default)
-    else:
-        _get = lambda obj, key, default: obj.get(key, default)
-
     if key in ("cves", "bzs"):
         vals = getattr(obj, key, None)
         if vals is None or not vals:
             ret = default
         ret = ", ".join(str(v) for v in vals)
     else:
-        val = _get(obj, key, default)
+        val = getattr(obj, key, default)
         ret = ", ".join(val) if isinstance(val, (list, tuple)) else val
     try:
         if ret is None or isinstance(ret, int):
