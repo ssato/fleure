@@ -15,6 +15,7 @@ from __future__ import absolute_import
 
 import anyconfig.utils
 import codecs
+import collections
 import itertools
 import logging
 import os.path
@@ -177,8 +178,7 @@ def namedtuples_to_dicts(ntpls):
 
     :param ntpls: A list of maybe-namedtuples or other objects like dicts
 
-    >>> from collections import namedtuple
-    >>> Point = namedtuple("Point", "x y")
+    >>> Point = collections.namedtuple("Point", "x y")
     >>> points = [Point(1, 2), Point(0, 0), Point(3, 2)]
     >>> namedtuples_to_dicts(points)  # doctest: +NORMALIZE_WHITESPACE
     [OrderedDict([('x', 1), ('y', 2)]), OrderedDict([('x', 0), ('y', 0)]),
@@ -257,5 +257,34 @@ def copen(path, flag='r', encoding="utf-8"):
     """An wrapper of codecs.open
     """
     return codecs.open(path, flag, encoding)
+
+
+def update_namedtuple(ntpl, *updates):
+    """
+    'Update' given ntpl and return newly created namedtuple object.
+
+    :param updates: A pair of (key, value) list to update `ntpl`
+
+    >>> make_point = collections.namedtuple("Point", "x y")
+    >>> origin = make_point(0, 0)
+    >>> (origin.x, origin.y)
+    (0, 0)
+    >>> origin2 = update_namedtuple(origin, ('z', 0))
+    >>> (origin2.x, origin2.y, origin2.z)
+    (0, 0, 0)
+    """
+    if not isinstance(ntpl, tuple) or not getattr(ntpl, "_asdict", False):
+        raise ValueError("Not a namedtuple object ? : %r" % ntpl)
+
+    if not updates:
+        return ntpl  # Nothing to do.
+
+    name = str(ntpl).split('(')[0]  # Dirty hack.
+    kvs = ntpl._asdict()  # :: OrderedDict
+    for key, val in updates:
+        kvs[key] = val  # Overwrite or add.
+
+    newtpl = collections.namedtuple(name, list(kvs.keys()))
+    return newtpl(*list(kvs.values()))
 
 # vim:sw=4:ts=4:et:
