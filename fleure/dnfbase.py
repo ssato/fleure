@@ -284,7 +284,8 @@ class Base(fleure.base.Base):
 
             # if errata is a dict, sort lists with operator.itemgetter("id").
             aitr = (hadv_to_errata(a) for a in
-                    itertools.chain(*(p.get_advisories(hawkey.GT) for p in ips)))
+                    itertools.chain(*(p.get_advisories(hawkey.GT) for p
+                                      in ips)))
             advs = fleure.utils.uniq(aitr, callables=(process_fns, ))
             self._packages["errata"] = objs = advs
 
