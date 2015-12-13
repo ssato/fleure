@@ -105,7 +105,8 @@ def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
     for ert in ers:
         tokens = tokenize(ert.description, stemmer)
         mks = [k for k in keywords if k in tokens]
-        yield fleure.utils.update_namedtuple(ert, ("keywords", mks))
+        if mks:
+            yield fleure.utils.update_namedtuple(ert, ("keywords", mks))
 
 
 def errata_of_rpms_g(ers, rpms=fleure.globals.CORE_RPMS):
