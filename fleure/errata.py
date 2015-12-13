@@ -171,7 +171,7 @@ def make(advisory, updates=None, cache=None, **info):
                  info.get("severity", "N/A"),
                  info.get("bzs", []), info.get("cves", []),
                  updates, uns, *[info[k] for k in extra_keys],
-                 extras={})  # This is a backdoor to set/upate values later.
+                 extras={})  # This is a backdoor to set/update values later.
 
     cache[advisory] = ert
     return ert
