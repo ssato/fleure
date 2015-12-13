@@ -86,32 +86,25 @@ def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
         given keywords
 
     >>> from collections import namedtuple
-    >>> errata = namedtuple("errata", "advisory description extras")
-    >>> ers = [errata("RHSA-2015:XXX1", "system hangs, or crash...",
-    ...               {"keywords": []}),
-    ...        errata("RHEA-2015:XXX2", "some enhancement and changes",
-    ...               {"keywords": []})]
-    >>> ret = list(errata_of_keywords_g(ers, ("hang", ), True))
-    >>> ers[0] in ret
-    True
-    >>> ers[0].extras["keywords"]  # 'hangs' matches with stemming.
-    ['hang']
-    >>> ret2 = list(errata_of_keywords_g(ers, ("hang", "crash"),
-    ...                                  stemming=False))
-    >>> ers[0] in ret2
-    True
-    >>> ers[0].extras["keywords"]  # 'hangs' does not match with 'hang'.
-    ['crash']
-    >>> ers[1] in ret2
-    False
+    >>> errata = namedtuple("errata", "advisory description")
+    >>> ers = [errata("RHSA-2015:XXX1", "system hangs, or crash..."),
+    ...        errata("RHEA-2015:XXX2", "some enhancement and changes")]
+
+    >>> ers1 = list(errata_of_keywords_g(ers, ("hang", ), True))
+    >>> attrgetter("advisory", "keywords")(ers1[0])  # matches w/ stemming.
+    ('RHSA-2015:XXX1', ['hang'])
+    >>> ers2 = list(errata_of_keywords_g(ers, ("hang", ), False))
+    >>> ers2[0].keywords  # not match w/o stemming.
+    []
+    >>> ers3 = list(errata_of_keywords_g(ers, ("hang", "crash"), False))
+    >>> attrgetter("advisory", "keywords")(ers3[0])
+    ('RHSA-2015:XXX1', ['crash'])
     """
     stemmer = _STEMMER.stem if stemming else None
     for ert in ers:
         tokens = tokenize(ert.description, stemmer)
         mks = [k for k in keywords if k in tokens]
-        if mks:
-            ert.extras["keywords"] = mks
-            yield ert
+        yield fleure.utils.update_namedtuple(ert, ("keywords", mks))
 
 
 def errata_of_rpms_g(ers, rpms=fleure.globals.CORE_RPMS):
@@ -218,8 +211,7 @@ def analyze_rhba(rhba, keywords=fleure.globals.ERRATA_KEYWORDS,
     :param core_rpms: Core RPMs to filter errata by them
     :return: RHSA analized data and metrics
     """
-    kfn = lambda e: (len(e.extras.get("keywords", [])), e.issue_date,
-                     e.update_names)
+    kfn = lambda e: (len(e.keywords), e.issue_date, e.update_names)
     rhba_by_kwds = sorted(errata_of_keywords_g(rhba, keywords),
                           key=kfn, reverse=True)
     rhba_of_core_rpms_by_kwds = \
@@ -276,10 +268,8 @@ def higher_score_cve_errata_g(ers, score=0):
             cvsses_s = (", ".join("%s (%s)" % (cve.id, cve.score))
                         for cve in cves)
             cves_s = ", ".join("%s %s)" % (c.id, c.url) for c in cves)
-            ert.extras["cvsses_s"] = cvsses_s
-            ert.extras["cves_s"] = cves_s
-
-            yield ert
+            yield fleure.utils.update_namedtuple(ert, ("cvsses_s", cvsses_s),
+                                                 ("cves_s", cves_s))
 
 
 def analyze_errata(ers, score=fleure.globals.CVSS_MIN_SCORE,
