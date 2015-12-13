@@ -306,7 +306,6 @@ def analyze_errata(ers, score=fleure.globals.CVSS_MIN_SCORE,
     rhsa = [e for e in ers if e.type == 'security']  # TODO: defines consts.
     rhba = [e for e in ers if e.type == 'bugfix']
     rhea = [e for e in ers if e.type == 'enhancement']
-    assert len(rhsa) + len(rhba) + len(rhea) == len(ers)  # To be removed.
 
     rhsa_data = analyze_rhsa(rhsa)
     rhba_data = analyze_rhba(rhba, keywords, core_rpms)
