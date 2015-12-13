@@ -28,13 +28,18 @@ def make_rhbz(bzid, summary, url=None):
     """
     Make a namedtuple represents Red Hat Bugzilla ticket.
 
-    :param bzid: Bugzilla ID, ex. 771389
-    :param summary: Bugzilla summary text
-    :param url: Bugzilla URL
+    :param bzid: Bugzilla ID, ex. 771389 :: str
+    :param summary: Bugzilla summary text :: str
+    :param url: Bugzilla URL (option)
+
+    >>> rhbz0 = make_rhbz("111111", "foo support")
+    >>> str(rhbz0)  # doctest: +ELLIPSIS
+    'rhbz#111111: foo support (https://bugzilla.redhat.com/...?id=111111)'
     """
     if url is None:
-        url = "https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=%d" % bzid
+        url = "https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=%s" % bzid
     rhbz = collections.namedtuple("RHBZ", "id summary url")
+    setattr(rhbz, "__str__", lambda bz: "rhbz#%s: %s (%s)" % bz)
     return rhbz(bzid, summary, url)
 
 
@@ -45,16 +50,28 @@ def make_cve(cveid, url=None, score=0, metrics=None):
     :param cveid: CVE ID, e.g. CVE-2012-2102
     :param score: CVSS v2 base score, e.g. 4.0
     :param metrics: CVSS v2 base metrics, e.g. AV:N/AC:L/Au:S/C:N/I:N/A:P
+
+    >>> cve0 = make_cve("CVE-2012-2102")
+    >>> str(cve0)  # doctest: +ELLIPSIS
+    'CVE-2012-2102: CVSS=N/A (https://www.redhat.com/.../CVE-2012-2102.html)'
+    >>> cve1 = make_cve("CVE-2012-2102", score=4,
+    ...                 metrics="AV:N/AC:L/Au:S/C:N/I:N/A:P")
+    >>> str(cve1)  # doctest: +ELLIPSIS
+    'CVE-2012-2102: score=4, metrics=AV:N/AC:L/Au:S/C:N/I:N/A:P (...)'
     """
     # ex. "https://www.redhat.com/security/data/cve/CVE-2012-2102.html"
     if url is None:
         url = "https://www.redhat.com/security/data/cve/%s.html" % cveid
     keys = "id url score"
     vals = (cveid, url, score)
+    _to_str = lambda cve: "%s: CVSS=N/A (%s)" % (cve.id, cve.url)
     if metrics is not None:
         keys += " metrics"
         vals += (metrics, )
+        _to_str = lambda cve: "%s: score=%s, metrics=%s (%s)" % \
+            (cve.id, cve.score, cve.metrics, cve.url)
     cve = collections.namedtuple("CVE", keys)
+    setattr(cve, "__str__", _to_str)
     return cve(*vals)
 
 
@@ -141,7 +158,7 @@ def factory(advisory, updates=None, cache=None, **info):
             "type severity bzs cves updates update_names").split()
     extra_keys = sorted(k for k in info.keys() if k not in keys)
 
-    errata = collections.namedtuple("errata", keys + extra_keys)
+    errata = collections.namedtuple("errata", keys + extra_keys + ["extras"])
     setattr(errata, "__hash__", lambda e: e.id)
     setattr(errata, "__eq__",
             lambda self, other: self.advisory == other.advisory)
@@ -152,7 +169,8 @@ def factory(advisory, updates=None, cache=None, **info):
                  info["update_date"], info["issue_date"], info["type"],
                  info.get("severity", "N/A"),
                  info.get("bzs", []), info.get("cves", []),
-                 updates, uns, *[info[k] for k in extra_keys])
+                 updates, uns, *[info[k] for k in extra_keys],
+                 extras={})  # This is a backdoor to set/upate values later.
 
     cache[advisory] = ert
     return ert
