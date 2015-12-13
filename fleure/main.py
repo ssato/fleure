@@ -34,6 +34,25 @@ from fleure.utils import namedtuples_to_dicts as asdicts
 LOG = logging.getLogger("fleure")
 
 
+def make_keys(rpmkeys):
+    """Make keys and l10n-ed headers.
+    """
+    lrpmkeys = (_("name"), _("epoch"), _("version"), _("release"), _("arch"))
+
+    rpmdkeys = rpmkeys + ("summary", "vendor", "buildhost")
+    lrpmdkeys = lrpmkeys + (_("summary"), _("vendor"), _("buildhost"))
+
+    sekeys = ("advisory", "severity", "synopsis", "url", "update_names")
+    lsekeys = (_("advisory"), _("severity"), _("synopsis"), _("url"),
+               _("update_names"))
+    bekeys = ("advisory", "keywords", "synopsis", "url", "update_names")
+    lbekeys = (_("advisory"), _("keywords"), _("synopsis"), _("url"),
+               _("update_names"))
+
+    return ((rpmkeys, lrpmkeys), (rpmdkeys, lrpmdkeys), (sekeys, lsekeys),
+            (bekeys, lbekeys))
+
+
 def save_xls(dataset, filepath):
     """XLS dump function"""
     book = tablib.Databook(dataset)
@@ -81,41 +100,29 @@ def analyze_and_save_results(host, errata, updates, savedir=None):
         fleure.depgraph.dump_depgraph(host.root, data["errata"],
                                       host.workdir, tpaths=host.tpaths)
 
-    # TODO: Keep DRY principle.
-    lrpmkeys = (_("name"), _("epoch"), _("version"), _("release"), _("arch"))
-
-    rpmdkeys = rpmkeys + ("summary", "vendor", "buildhost")
-    lrpmdkeys = lrpmkeys + (_("summary"), _("vendor"), _("buildhost"))
-
-    sekeys = ("advisory", "severity", "synopsis", "url", "update_names")
-    lsekeys = (_("advisory"), _("severity"), _("synopsis"), _("url"),
-               _("update_names"))
-    bekeys = ("advisory", "keywords", "synopsis", "url", "update_names")
-    lbekeys = (_("advisory"), _("keywords"), _("synopsis"), _("url"),
-               _("update_names"))
+    (_rpmkeys, _rpmdkeys, _sekeys, _bekeys) = make_keys(rpmkeys)
 
     mds = [fleure.analysis.mk_overview_dataset(data, *dargs),
            make_dataset((data["errata"]["rhsa"]["list_latest_critical"] +
                          data["errata"]["rhsa"]["list_latest_important"]),
-                        _("Cri-Important RHSAs (latests)"), sekeys, lsekeys),
+                        _("Cri-Important RHSAs (latests)"), *_sekeys),
            make_dataset(sorted(data["errata"]["rhsa"]["list_critical"],
                                key=operator.attrgetter("update_names")) +
                         sorted(data["errata"]["rhsa"]["list_important"],
                                key=operator.attrgetter("update_names")),
-                        _("Critical or Important RHSAs"), sekeys, lsekeys),
+                        _("Critical or Important RHSAs"), *_sekeys),
            make_dataset(data["errata"]["rhba"]["list_by_kwds_of_core_rpms"],
-                        _("RHBAs (core rpms, keywords)"), bekeys, lbekeys),
+                        _("RHBAs (core rpms, keywords)"), *_bekeys),
            make_dataset(data["errata"]["rhba"]["list_by_kwds"],
-                        _("RHBAs (keyword)"), bekeys, lbekeys),
+                        _("RHBAs (keyword)"), *_bekeys),
            make_dataset(data["errata"]["rhba"]["list_latests_of_core_rpms"],
-                        _("RHBAs (core rpms, latests)"), bekeys, lbekeys),
+                        _("RHBAs (core rpms, latests)"), *_bekeys),
            make_dataset(data["errata"]["rhsa"]["list_critical_updates"],
-                        _("Update RPMs by RHSAs (Critical)"), rpmkeys,
-                        lrpmkeys),
+                        _("Update RPMs by RHSAs (Critical)"), *_rpmkeys),
            make_dataset(data["errata"]["rhsa"]["list_important_updates"],
-                        _("Updates by RHSAs (Important)"), rpmkeys, lrpmkeys),
+                        _("Updates by RHSAs (Important)"), *_rpmkeys),
            make_dataset(data["errata"]["rhba"]["list_updates_by_kwds"],
-                        _("Updates by RHBAs (Keyword)"), rpmkeys, lrpmkeys)]
+                        _("Updates by RHBAs (Keyword)"), *_rpmkeys)]
 
     score = host.cvss_min_score
     if score > 0:
@@ -135,16 +142,15 @@ def analyze_and_save_results(host, errata, updates, savedir=None):
 
     if data["installed"]["list_rebuilt"]:
         mds.append(make_dataset(data["installed"]["list_rebuilt"],
-                                _("Rebuilt RPMs"), rpmdkeys, lrpmdkeys))
+                                _("Rebuilt RPMs"), *_rpmdkeys))
 
     if data["installed"]["list_replaced"]:
         mds.append(make_dataset(data["installed"]["list_replaced"],
-                                _("Replaced RPMs"), rpmdkeys, lrpmdkeys))
+                                _("Replaced RPMs"), *_rpmdkeys))
 
     if data["installed"]["list_from_others"]:
         mds.append(make_dataset(data["installed"]["list_from_others"],
-                                _("RPMs from other vendors"), rpmdkeys,
-                                lrpmdkeys))
+                                _("RPMs from other vendors"), *_rpmdkeys))
 
     save_xls(mds, os.path.join(savedir, "errata_summary.xls"))
 
@@ -157,10 +163,8 @@ def analyze_and_save_results(host, errata, updates, savedir=None):
                              _("synopsis"), _("description"), _("issue_date"),
                              _("update_date"), _("url"), _("cves"),
                              _("bzs"), _("update_names"))),
-               make_dataset(asdicts(updates), _("Update RPMs"), rpmkeys,
-                            lrpmkeys),
-               make_dataset(asdicts(rpms), _("Installed RPMs"), rpmdkeys,
-                            lrpmdkeys)]
+               make_dataset(asdicts(updates), _("Update RPMs"), *_rpmkeys),
+               make_dataset(asdicts(rpms), _("Installed RPMs"), *_rpmdkeys)]
 
         save_xls(dds, os.path.join(savedir, "errata_details.xls"))
 
