@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fleure 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-12 11:42+JST\n"
+"POT-Creation-Date: 2015-12-14 00:26+JST\n"
 "PO-Revision-Date: 2015-12-07 16:52+0900\n"
 "Last-Translator: Satoru SATOH <ssato@redhat.com>\n"
 "Language-Team: Japanese <ssato@redhat.com>\n"
@@ -16,135 +16,131 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 
-#: pkg/..//fleure/analysis.py:249
-msgid "CVE %(cve)s lacks of CVSS base metrics and score"
-msgstr "%(cve)s は CVSS ベースメトリックとスコア情報を持っていません"
-
-#: pkg/..//fleure/analysis.py:254
+#: pkg/..//fleure/analysis.py:253
 msgid "Failed to compare CVE's score: %s, score=%.1f"
 msgstr "CVE スコア比較に失敗: %s, score=%.1f"
 
-#: pkg/..//fleure/analysis.py:341
+#: pkg/..//fleure/analysis.py:340
 msgid "Critical or Important RHSAs (Security Errata)"
 msgstr "Critical または Important RHSA (セキュリティエラータ)"
 
-#: pkg/..//fleure/analysis.py:342
+#: pkg/..//fleure/analysis.py:341
 msgid "# of Critical RHSAs"
 msgstr "Critical RHSA の数"
 
-#: pkg/..//fleure/analysis.py:344
+#: pkg/..//fleure/analysis.py:343
 msgid "# of Critical RHSAs (latests only)"
 msgstr "最新の Critical RHSA の数"
 
-#: pkg/..//fleure/analysis.py:346
+#: pkg/..//fleure/analysis.py:345
 msgid "# of Important RHSAs"
 msgstr "Important RHSA の数"
 
-#: pkg/..//fleure/analysis.py:348
+#: pkg/..//fleure/analysis.py:347
 msgid "# of Important RHSAs (latests only)"
 msgstr "最新の Important RHSA の数"
 
-#: pkg/..//fleure/analysis.py:350
+#: pkg/..//fleure/analysis.py:349
 msgid "Update RPMs by Critical or Important RHSAs at minimum"
 msgstr "Critical または Important RHSA にともなう更新 RPM (最小)"
 
-#: pkg/..//fleure/analysis.py:351
+#: pkg/..//fleure/analysis.py:350
 msgid "# of Update RPMs by Critical RHSAs at minimum"
 msgstr "Critical RHSA にともなう更新 RPM の数 (最小)"
 
-#: pkg/..//fleure/analysis.py:353
+#: pkg/..//fleure/analysis.py:352
 msgid "# of Update RPMs by Important RHSAs at minimum"
 msgstr "Important RHSA にともなう更新 RPM の数 (最小)"
 
-#: pkg/..//fleure/analysis.py:356
+#: pkg/..//fleure/analysis.py:355
 msgid "RHBAs (Bug Errata) by keywords: %s"
 msgstr "キーワードによる RHBA (バグエラータ), キーワード: %s"
 
-#: pkg/..//fleure/analysis.py:357
+#: pkg/..//fleure/analysis.py:356
 msgid "# of RHBAs by keywords"
 msgstr "キーワードによる RHBA の数"
 
-#: pkg/..//fleure/analysis.py:359
+#: pkg/..//fleure/analysis.py:358
 msgid "# of Update RPMs by RHBAs by keywords at minimum"
 msgstr "キーワードによる RHBA にともなう更新 RPM の数 (最小)"
 
-#: pkg/..//fleure/analysis.py:364
+#: pkg/..//fleure/analysis.py:363
 msgid "RHBAs of core rpms: %s"
 msgstr "コア RPM の RHBA: コア RPM = %s"
 
-#: pkg/..//fleure/analysis.py:365
+#: pkg/..//fleure/analysis.py:364
 msgid "# of RHBAs of core rpms (latests only)"
 msgstr "コア RPM の RHBA の数 (最新)"
 
-#: pkg/..//fleure/analysis.py:370
+#: pkg/..//fleure/analysis.py:369
 msgid "RHSAs and RHBAs by CVSS score"
 msgstr "CVSS スコアによる RHSA と RHBA"
 
-#: pkg/..//fleure/analysis.py:371
+#: pkg/..//fleure/analysis.py:370
 msgid "# of RHSAs of CVSS Score >= %.1f"
 msgstr "CVSS スコア >= %.1f の RHSA の数"
 
-#: pkg/..//fleure/analysis.py:373
+#: pkg/..//fleure/analysis.py:372
 msgid "# of Update RPMs by the above RHSAs at minimum"
 msgstr "上記 RHSA による更新 RPM の数 (最小)"
 
-#: pkg/..//fleure/analysis.py:375
+#: pkg/..//fleure/analysis.py:374
 msgid "# of RHBAs of CVSS Score >= %.1f"
 msgstr "CVSS スコア >= %.1f の RHBA の数"
 
-#: pkg/..//fleure/analysis.py:377
+#: pkg/..//fleure/analysis.py:376
 msgid "# of Update RPMs by the above RHBAs at minimum"
 msgstr "上記 RHBA による更新 RPM の数 (最小)"
 
-#: pkg/..//fleure/analysis.py:381
+#: pkg/..//fleure/analysis.py:380
 msgid "# of RHSAs"
 msgstr "RHSA の数"
 
-#: pkg/..//fleure/analysis.py:382
+#: pkg/..//fleure/analysis.py:381
 msgid "# of RHBAs"
 msgstr "RHBA の数"
 
-#: pkg/..//fleure/analysis.py:383
+#: pkg/..//fleure/analysis.py:382
 msgid "# of RHEAs (Enhancement Errata)"
 msgstr "RHEA (機能拡張エラータ) の数"
 
-#: pkg/..//fleure/analysis.py:385
+#: pkg/..//fleure/analysis.py:384
 msgid "# of Update RPMs"
 msgstr "更新 RPM の数"
 
-#: pkg/..//fleure/analysis.py:386
+#: pkg/..//fleure/analysis.py:385
 msgid "# of Installed RPMs"
 msgstr "インストールされている RPM パッケージの数"
 
-#: pkg/..//fleure/analysis.py:388
+#: pkg/..//fleure/analysis.py:387
 msgid "Origin of Installed RPMs"
 msgstr "インストールされている RPM パッケージの由来"
 
-#: pkg/..//fleure/analysis.py:389
+#: pkg/..//fleure/analysis.py:388
 msgid "# of Rebuilt RPMs"
 msgstr "再構築された可能性のある RPM の数"
 
-#: pkg/..//fleure/analysis.py:390
+#: pkg/..//fleure/analysis.py:389
 msgid "# of Replaced RPMs"
 msgstr "置き換えられた可能性のある RPM の数"
 
-#: pkg/..//fleure/analysis.py:392
+#: pkg/..//fleure/analysis.py:391
 msgid "# of RPMs from other vendors (non Red Hat)"
 msgstr "レッドハット以外の他ベンダー提供の RPM の数"
 
-#: pkg/..//fleure/analysis.py:395
+#: pkg/..//fleure/analysis.py:394
 msgid "Item"
 msgstr "項目"
 
-#: pkg/..//fleure/analysis.py:395
+#: pkg/..//fleure/analysis.py:394
 msgid "Notes"
 msgstr "メモ"
 
-#: pkg/..//fleure/analysis.py:395
+#: pkg/..//fleure/analysis.py:394
 msgid "Value"
 msgstr "値"
 
-#: pkg/..//fleure/analysis.py:397
+#: pkg/..//fleure/analysis.py:396
 msgid "Overview of analysis results"
 msgstr "解析結果の概要"
 
@@ -176,264 +172,260 @@ msgstr "不正な CVE: %s"
 msgid "Could not get CVSS data: err=%s"
 msgstr "CVSS データを取得できませんでした: err=%s"
 
-#: pkg/..//fleure/datasets.py:91
-msgid "BZ Key error: %s"
-msgstr "Bugzilla キーエラー: %s"
-
-#: pkg/..//fleure/datasets.py:165
+#: pkg/..//fleure/datasets.py:124
 msgid "Loaded reference errata and updates files in %s"
 msgstr "%s 内の参照用のエラータと更新 RPM ファイルを読み込み"
 
-#: pkg/..//fleure/datasets.py:200
+#: pkg/..//fleure/datasets.py:159
 msgid "Not an errata advisory ? : %(advisory)s"
 msgstr "エラータアドバイザリではない?: %(advisory)s"
 
-#: pkg/..//fleure/depgraph.py:217
+#: pkg/..//fleure/depgraph.py:218
 msgid "Failed to generate a SVG file: in=%s, out=%s, out/err=%s/%s"
 msgstr "SVG ファイル出力に失敗: in=%s, out=%s, out/err=%s/%s"
 
-#: pkg/..//fleure/errata.py:88
+#: pkg/..//fleure/errata.py:106
 msgid "Not an errata advisory ? : %s"
 msgstr "エラータアドバイザリではない?: %s"
 
-#: pkg/..//fleure/main.py:77
+#: pkg/..//fleure/main.py:75
 msgid "packages need updates"
 msgstr "packages need updates"
 
-#: pkg/..//fleure/main.py:78
+#: pkg/..//fleure/main.py:76
 msgid "packages not need updates"
 msgstr "packages not need updates"
 
-#: pkg/..//fleure/main.py:87
+#: pkg/..//fleure/main.py:85
 msgid "arch"
 msgstr "arch"
 
-#: pkg/..//fleure/main.py:87
+#: pkg/..//fleure/main.py:85
 msgid "epoch"
 msgstr "epoch"
 
-#: pkg/..//fleure/main.py:87
+#: pkg/..//fleure/main.py:85
 msgid "name"
 msgstr "名前"
 
-#: pkg/..//fleure/main.py:87
+#: pkg/..//fleure/main.py:85
 msgid "release"
 msgstr "リリース"
 
-#: pkg/..//fleure/main.py:87
+#: pkg/..//fleure/main.py:85
 msgid "version"
 msgstr "バージョン"
 
-#: pkg/..//fleure/main.py:90
+#: pkg/..//fleure/main.py:88
 msgid "buildhost"
 msgstr "ビルドホスト"
 
-#: pkg/..//fleure/main.py:90
+#: pkg/..//fleure/main.py:88
 msgid "summary"
 msgstr "概要"
 
-#: pkg/..//fleure/main.py:90
+#: pkg/..//fleure/main.py:88
 msgid "vendor"
 msgstr "ベンダー"
 
-#: pkg/..//fleure/main.py:93 pkg/..//fleure/main.py:96
-#: pkg/..//fleure/main.py:129 pkg/..//fleure/main.py:134
-#: pkg/..//fleure/main.py:158
+#: pkg/..//fleure/main.py:91 pkg/..//fleure/main.py:94
+#: pkg/..//fleure/main.py:127 pkg/..//fleure/main.py:132
+#: pkg/..//fleure/main.py:156
 msgid "advisory"
 msgstr "アドバイザリ"
 
-#: pkg/..//fleure/main.py:93 pkg/..//fleure/main.py:96
-#: pkg/..//fleure/main.py:129 pkg/..//fleure/main.py:134
-#: pkg/..//fleure/main.py:159
+#: pkg/..//fleure/main.py:91 pkg/..//fleure/main.py:94
+#: pkg/..//fleure/main.py:127 pkg/..//fleure/main.py:132
+#: pkg/..//fleure/main.py:157
 msgid "synopsis"
 msgstr "概要"
 
-#: pkg/..//fleure/main.py:93 pkg/..//fleure/main.py:96
-#: pkg/..//fleure/main.py:130 pkg/..//fleure/main.py:135
-#: pkg/..//fleure/main.py:160
+#: pkg/..//fleure/main.py:91 pkg/..//fleure/main.py:94
+#: pkg/..//fleure/main.py:128 pkg/..//fleure/main.py:133
+#: pkg/..//fleure/main.py:158
 msgid "url"
 msgstr "URL"
 
-#: pkg/..//fleure/main.py:93 pkg/..//fleure/main.py:129
-#: pkg/..//fleure/main.py:158
+#: pkg/..//fleure/main.py:91 pkg/..//fleure/main.py:127
+#: pkg/..//fleure/main.py:156
 msgid "severity"
 msgstr "影響度"
 
-#: pkg/..//fleure/main.py:94 pkg/..//fleure/main.py:97
-#: pkg/..//fleure/main.py:161
+#: pkg/..//fleure/main.py:92 pkg/..//fleure/main.py:95
+#: pkg/..//fleure/main.py:159
 msgid "update_names"
 msgstr "更新 RPM 名"
 
-#: pkg/..//fleure/main.py:96
+#: pkg/..//fleure/main.py:94
 msgid "keywords"
 msgstr "キーワード"
 
-#: pkg/..//fleure/main.py:102
+#: pkg/..//fleure/main.py:100
 msgid "Cri-Important RHSAs (latests)"
 msgstr "Cri. または Imp. RHSA (最新)"
 
-#: pkg/..//fleure/main.py:107
+#: pkg/..//fleure/main.py:105
 msgid "Critical or Important RHSAs"
 msgstr "Critical または Important RHSA"
 
-#: pkg/..//fleure/main.py:109
+#: pkg/..//fleure/main.py:107
 msgid "RHBAs (core rpms, keywords)"
 msgstr "RHBA (コア RPM, キーワード)"
 
-#: pkg/..//fleure/main.py:111
+#: pkg/..//fleure/main.py:109
 msgid "RHBAs (keyword)"
 msgstr "RHBA (キーワード)"
 
-#: pkg/..//fleure/main.py:113
+#: pkg/..//fleure/main.py:111
 msgid "RHBAs (core rpms, latests)"
 msgstr "RHBA (コア RPM, 最新)"
 
-#: pkg/..//fleure/main.py:115
+#: pkg/..//fleure/main.py:113
 msgid "Update RPMs by RHSAs (Critical)"
 msgstr "RHSA (Critical) による更新 RPM"
 
-#: pkg/..//fleure/main.py:118
+#: pkg/..//fleure/main.py:116
 msgid "Updates by RHSAs (Important)"
 msgstr "RHSA (Important) による更新 RPM"
 
-#: pkg/..//fleure/main.py:120
+#: pkg/..//fleure/main.py:118
 msgid "Updates by RHBAs (Keyword)"
 msgstr "RHBA (キーワード) による更新 RPM"
 
-#: pkg/..//fleure/main.py:126
+#: pkg/..//fleure/main.py:124
 msgid "RHSAs (CVSS score >= %.1f)"
 msgstr "RHSA (CVSS スコア >= %.1f)"
 
-#: pkg/..//fleure/main.py:130 pkg/..//fleure/main.py:134
-#: pkg/..//fleure/main.py:160
+#: pkg/..//fleure/main.py:128 pkg/..//fleure/main.py:132
+#: pkg/..//fleure/main.py:158
 msgid "cves"
 msgstr "CVE リスト"
 
-#: pkg/..//fleure/main.py:130 pkg/..//fleure/main.py:135
+#: pkg/..//fleure/main.py:128 pkg/..//fleure/main.py:133
 msgid "cvsses_s"
 msgstr "CVSS リスト"
 
-#: pkg/..//fleure/main.py:132
+#: pkg/..//fleure/main.py:130
 msgid "RHBAs (CVSS score >= %.1f)"
 msgstr "RHBA (CVSS スコア >= %.1f)"
 
-#: pkg/..//fleure/main.py:140
+#: pkg/..//fleure/main.py:138
 msgid "Rebuilt RPMs"
 msgstr "再構築された RPM"
 
-#: pkg/..//fleure/main.py:144
+#: pkg/..//fleure/main.py:142
 msgid "Replaced RPMs"
 msgstr "置き換えられた RPM"
 
-#: pkg/..//fleure/main.py:148
+#: pkg/..//fleure/main.py:146
 msgid "RPMs from other vendors"
 msgstr "他ベンダー提供の RPM"
 
-#: pkg/..//fleure/main.py:154
+#: pkg/..//fleure/main.py:152
 msgid "Errata Details"
 msgstr "エラータ詳細"
 
-#: pkg/..//fleure/main.py:158
+#: pkg/..//fleure/main.py:156
 msgid "type"
 msgstr "種別"
 
-#: pkg/..//fleure/main.py:159
+#: pkg/..//fleure/main.py:157
 msgid "description"
 msgstr "説明"
 
-#: pkg/..//fleure/main.py:159
+#: pkg/..//fleure/main.py:157
 msgid "issue_date"
 msgstr "発行日"
 
-#: pkg/..//fleure/main.py:160
+#: pkg/..//fleure/main.py:158
 msgid "update_date"
 msgstr "更新日"
 
-#: pkg/..//fleure/main.py:161
+#: pkg/..//fleure/main.py:159
 msgid "bzs"
 msgstr "RHBZ リスト"
 
-#: pkg/..//fleure/main.py:162
+#: pkg/..//fleure/main.py:160
 msgid "Update RPMs"
 msgstr "更新 RPM"
 
-#: pkg/..//fleure/main.py:164
+#: pkg/..//fleure/main.py:162
 msgid "Installed RPMs"
 msgstr "インストール RPM"
 
-#: pkg/..//fleure/main.py:189 pkg/..//fleure/main.py:202
+#: pkg/..//fleure/main.py:187 pkg/..//fleure/main.py:200
 msgid "Root dir is not ready. Error was: %s"
 msgstr "Root ディレクトリが準備できていません。エラー: %s"
 
-#: pkg/..//fleure/main.py:205
+#: pkg/..//fleure/main.py:203
 msgid "%s: Start to initialize: root=%s, backend=%s"
 msgstr "%s: 初期化を開始: root=%s, backend=%s"
 
-#: pkg/..//fleure/main.py:209
+#: pkg/..//fleure/main.py:207
 msgid "%s[%s]: Initialization completed, start to analyze ..."
 msgstr "%s[%s]: 初期化を完了、解析を開始 ..."
 
-#: pkg/..//fleure/main.py:215
+#: pkg/..//fleure/main.py:213
 msgid "%s: Found %d (rebuilt=%d, replaced=%d) installed RPMs"
 msgstr "%s: %d 個 (rebuilt=%d, replaced=%d) のインストール RPM を発見"
 
-#: pkg/..//fleure/main.py:257
+#: pkg/..//fleure/main.py:248
 msgid "%s: Analyzing errata and packages ..."
 msgstr "%s: エラータとパッケージを解析中 ..."
 
-#: pkg/..//fleure/main.py:268
+#: pkg/..//fleure/main.py:259
 msgid "%s: Found %d errata and %d updates, saved the lists"
 msgstr "%s: %d 個のエラータと %d 個の更新 RPM を発見、一覧を保存"
 
-#: pkg/..//fleure/main.py:272
+#: pkg/..//fleure/main.py:263
 msgid "%s: Saved analysis results in %s"
 msgstr "%s: 解析結果を %s 内に保存しました"
 
-#: pkg/..//fleure/main.py:276
+#: pkg/..//fleure/main.py:267
 msgid "%s: Analyzing errata and packages [%s ~ %s]"
 msgstr "%s: エラータとパッケージ [期間 %s ~ %s] を解析中"
 
-#: pkg/..//fleure/main.py:280
+#: pkg/..//fleure/main.py:271
 msgid "%s: Creating period working dir %s"
 msgstr "%s: 指定期間データの作業用ディレクトリ %s を作成"
 
-#: pkg/..//fleure/main.py:285
+#: pkg/..//fleure/main.py:276
 msgid "%s [%s ~ %s]: Found %d errata and saved"
 msgstr "%s [%s ~ %s]: %d 個のエラータを発見、一覧を保存"
 
-#: pkg/..//fleure/main.py:289
+#: pkg/..//fleure/main.py:280
 msgid "%s [delta]: Analyze delta errata data by refering %s"
 msgstr "%s [差分]: %s を参照して差分エラータを解析"
 
-#: pkg/..//fleure/main.py:294
+#: pkg/..//fleure/main.py:285
 msgid "%s [delta]: Found %d errata and %d updates, save the lists"
 msgstr "%s [差分]: %d 個のエラータと %d 個の更新 RPM を発見、一覧を保存"
 
-#: pkg/..//fleure/main.py:297
+#: pkg/..//fleure/main.py:288
 msgid "%s: Analyzing delta errata and packages ..."
 msgstr "%s: 差分のエラータとパッケージを解析中 ..."
 
-#: pkg/..//fleure/main.py:299
+#: pkg/..//fleure/main.py:290
 msgid "%s: Saved delta analysis results in %s"
 msgstr "%s: 差分の解析結果を %s 内に保存しました"
 
-#: pkg/..//fleure/main.py:310
+#: pkg/..//fleure/main.py:301
 msgid "Wrong verbosity: %d"
 msgstr "間違った冗長化レベル: %d"
 
-#: pkg/..//fleure/main.py:334
+#: pkg/..//fleure/main.py:325
 msgid "Archived results: %s"
 msgstr "解析結果をアーカイブしました: %s"
 
-#: pkg/..//fleure/main.py:337
+#: pkg/..//fleure/main.py:328
 msgid "Reprot files (%s) do not exist. Do no make a report archives"
 msgstr "レポートファイル (%s) は存在せず、アーカイブが作成できません"
 
-#: pkg/..//fleure/main.py:360
+#: pkg/..//fleure/main.py:351
 msgid "Failed to configure the host: root=%s"
 msgstr "ホスト設定に失敗: root=%s"
 
-#: pkg/..//fleure/main.py:367
+#: pkg/..//fleure/main.py:358
 msgid "Anaylize the host: %s"
 msgstr "ホストを解析: %s"
 
@@ -481,6 +473,12 @@ msgstr "%s は RPM DB (Packages) ファイルではないようです!"
 msgid "RPM DB %s looks missing"
 msgstr "RPM DB %s がみあたらないようです"
 
-#: pkg/..//fleure/yumbase.py:307
+#: pkg/..//fleure/yumbase.py:306
 msgid "Loading yum repo metadata from repos: %s"
 msgstr "リポジトリから Yum リポジトリのメタデータを読み込み中: %s"
+
+#~ msgid "CVE %(cve)s lacks of CVSS base metrics and score"
+#~ msgstr "%(cve)s は CVSS ベースメトリックとスコア情報を持っていません"
+
+#~ msgid "BZ Key error: %s"
+#~ msgstr "Bugzilla キーエラー: %s"
