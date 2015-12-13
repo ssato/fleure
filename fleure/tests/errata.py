@@ -46,7 +46,8 @@ class Test00(unittest.TestCase):
             ert0 = TT.factory(eri.adv, eri.ups, ecache, **eri.info)
             self.assertEquals(ert0.advisory, eri.adv)
             self.assertEquals(ert0.updates, eri.ups)
-            self.assertEquals(ert0.update_names, [u.name for u in eri.ups])
+            self.assertEquals(ert0.update_names,
+                              sorted(u.name for u in eri.ups))
             for key in eri.info.keys():
                 self.assertEquals(getattr(ert0, key), eri.info[key])
 
