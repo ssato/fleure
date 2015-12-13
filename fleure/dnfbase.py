@@ -41,7 +41,7 @@ def _h_to_pkg(rpmh, extras=None):
     nevra = operator.itemgetter(*nevra_keys)(rpmh)
     info = dict((k, rpmh[k]) for k in "summary vendor buildhost".split())
 
-    return fleure.package.factory(nevra, extra_names=extras, **info)
+    return fleure.package.make(nevra, extra_names=extras, **info)
 
 
 def _list_installed(root, extras=None, process_fns=None):
@@ -57,7 +57,7 @@ def _list_installed(root, extras=None, process_fns=None):
 
     :return: A list of namedtuple package objects
     """
-    # see :func:`~fleure.package.factory`
+    # see :func:`~fleure.package.make`
     calls = (functools.partial(_h_to_pkg, extras=set(e.name for e in extras)),
              process_fns)
 
@@ -70,11 +70,11 @@ def _list_installed(root, extras=None, process_fns=None):
 def _to_pkg(pkg):
     """Make a namedtuple package object from :class:`~hawkey.Package` object.
 
-    :see: :func:`fleure.package.factory`
+    :see: :func:`fleure.package.make`
     """
-    return fleure.package.factory((pkg.name, pkg.epoch, pkg.v, pkg.r, pkg.a),
-                                  summary=pkg.summary, vendor=pkg.packager,
-                                  buildhost="N/A")
+    return fleure.package.make((pkg.name, pkg.epoch, pkg.v, pkg.r, pkg.a),
+                               summary=pkg.summary, vendor=pkg.packager,
+                               buildhost="N/A")
 
 
 # see dnf.cli.commands.updateinfo.UpdateInfoCommand.TYPE2LABEL:
@@ -144,7 +144,7 @@ def hadv_to_errata(hadv, cache=None):
     :param hadv: A _hawkey.Advisory object
     :param cache: Global errata object cache
 
-    :return: A namedtuple object, see :func:`fleure.errata.factory`.
+    :return: A namedtuple object, see :func:`fleure.errata.make`.
     """
     LOG.info("hadv_to_errata: hadv=%r", hadv)
     adv = getattr(hadv, "id", None)
@@ -164,7 +164,7 @@ def hadv_to_errata(hadv, cache=None):
                 update_date=update_date, issue_date=update_date,  # missing?
                 bzs=bzs, cves=cves)
 
-    return fleure.errata.factory(adv, ups, cache, **info)
+    return fleure.errata.make(adv, ups, cache, **info)
 
 
 def _pathjoin(*paths):

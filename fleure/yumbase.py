@@ -167,7 +167,7 @@ def _notice_to_errata_2(notice, cache=None):
                 bzs=bzs, cves=cves)
     # solution=nmd["solution"])  # TBD to use this.
 
-    return fleure.errata.factory(adv, ups, cache, **info)
+    return fleure.errata.make(adv, ups, cache, **info)
 
 
 def _to_pkg(pkg, extras=None):
@@ -189,7 +189,7 @@ def _to_pkg(pkg, extras=None):
     info = dict(summary=pkg.summary, vendor=pkg.vendor,
                 buildhost=pkg.buildhost)
 
-    return fleure.package.factory(nevra, extra_names=extras, **info)
+    return fleure.package.make(nevra, extra_names=extras, **info)
 
 
 class Base(fleure.base.Base):

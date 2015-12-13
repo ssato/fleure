@@ -39,11 +39,11 @@ ERS = [_Errata("RHEA-2012:0852",
 
 class Test00(unittest.TestCase):
 
-    def test_20_factory(self):
+    def test_20_make(self):
         ecache = dict()
 
         for eri in ERS:
-            ert0 = TT.factory(eri.adv, eri.ups, ecache, **eri.info)
+            ert0 = TT.make(eri.adv, eri.ups, ecache, **eri.info)
             self.assertEquals(ert0.advisory, eri.adv)
             self.assertEquals(ert0.updates, eri.ups)
             self.assertEquals(ert0.update_names,
@@ -57,15 +57,15 @@ class Test00(unittest.TestCase):
             self.assertTrue(ert0.advisory in ecache)
 
             # Cached one.
-            ert1 = TT.factory(eri.adv, eri.ups, ecache, **eri.info)
+            ert1 = TT.make(eri.adv, eri.ups, ecache, **eri.info)
             self.assertEquals(ert0, ert1)
             self.assertEquals(id(ert0), id(ert1))
             self.assertEquals(hash(ert0), hash(ert1))
 
-    def test_20_factory__comp(self):
+    def test_20_make__comp(self):
         ecache = dict()
-        ers = [TT.factory(e.adv, e.ups, ecache, **e.info) for e in ERS]
-        ers1 = [TT.factory(e.adv, e.ups, ecache, **e.info) for e in ERS]
+        ers = [TT.make(e.adv, e.ups, ecache, **e.info) for e in ERS]
+        ers1 = [TT.make(e.adv, e.ups, ecache, **e.info) for e in ERS]
 
         self.assertTrue(all(e0 == e1 for e0, e1 in zip(ers, ers1)))
         self.assertTrue(ers[0] < ers[1])

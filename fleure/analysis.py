@@ -32,7 +32,7 @@ def list_latest_errata_by_updates(ers):
     :param ers: A list of errata namedtuples
     :return: A list of items in `ers` grouped by update names
     """
-    # see :func:`fleure.errata.factory`
+    # see :func:`fleure.errata.make`
     kfns = (attrgetter("update_names"), attrgetter("issue_date"))
     return [xs[-1] for xs in fleure.utils.sgroupby(ers, *kfns)]
 
