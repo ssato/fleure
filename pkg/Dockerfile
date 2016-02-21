@@ -6,7 +6,9 @@ MAINTAINER https://github.com/ssato/fleure
 
 # see pkg/requirements.txt, pkg/test_requirements.txt and pkg/package.spec.in
 RUN dnf install -y dnf-plugins-core && dnf copr enable -y ssato/python-anyconfig
-RUN dnf install -y python-anyconfig python'*'-{dnf,nltk,beautifulsoup4,bunch,matplotlib,networkx,tablib,line_profiler}
+RUN dnf install -y python-anyconfig \
+python-{beautifulsoup4,bunch,networkx,nltk,tablib,line_profiler} python2-{dnf,matplotlib} \
+python3-{dnf,nltk,beautifulsoup4,matplotlib,networkx,tablib,line_profiler}
 RUN pip install anytemplate
 
 RUN git clone https://github.com/ssato/fleure.git /tmp/fleure
