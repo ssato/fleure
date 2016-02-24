@@ -127,13 +127,12 @@ def make_dataset(list_data, title=None, headers=None, lheaders=None):
     #    We need to check title as valid worksheet name, length <= 31, etc.
     #    See also xlwt.Utils.valid_sheet_name.
     if headers is not None:
-        headers = headers if lheaders is None else lheaders
         tdata = [[_make_cell_data(val, h) for h in headers] for val in
                  list_data]
     else:
         tdata = [val.values() for val in list_data]
 
-    return tablib.Dataset(*tdata, title=title[:30], headers=headers)
+    return tablib.Dataset(*tdata, title=title[:30], headers=lheaders)
 
 
 def _assert_if_not_exist(path, desc):
