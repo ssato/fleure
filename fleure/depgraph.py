@@ -171,7 +171,8 @@ def _make_depgraph_context(root, ers):
                   rhba=_list_uns_by_etype("rhba"),
                   rhea=_list_uns_by_etype("rhea"),
                   rhsa_cri=_list_uns_by_sev("critical"),
-                  rhsa_imp=_list_uns_by_sev("important"))
+                  rhsa_imp=_list_uns_by_sev("important"),
+                  timestamp=fleure.globals.TODAY)
 
     return dict(name="rpm_depgraph_1",
                 layers=sorted(groups.keys() + ["visible"]),
@@ -205,6 +206,8 @@ def dump_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
     anytemplate.render_to("rpm_depgraph_gv.css.j2", ctx,
                           os.path.join(workdir, outname + ".css"),
                           **opts)
+    anytemplate.render_to("rpm_depgraph.html.j2", ctx,
+                          os.path.join(workdir, "rpm_depgraph.html"), **opts)
 
     output2 = os.path.join(workdir, outname + ".svg")
     cmd_s = "sfdp -Tsvg -o%s %s" % (output2, output)
