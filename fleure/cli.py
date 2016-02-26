@@ -26,8 +26,8 @@ import fleure.multihosts
 
 LOG = logging.getLogger(__name__)
 
-_TODAY = datetime.datetime.now().strftime("%F")
-_DEFAULTS = dict(path=None, workdir="/tmp/fleure-{}".format(_TODAY),
+_DEFAULTS = dict(path=None,
+                 workdir="/tmp/fleure-{}".format(fleure.globals.TODAY),
                  repos=None, imultiproc=False, hid=None, multihost=False,
                  score=fleure.globals.CVSS_MIN_SCORE,
                  keywords=fleure.globals.ERRATA_KEYWORDS,
