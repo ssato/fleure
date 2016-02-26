@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>RPM 依存グラフ</title>
+    <link rel="stylesheet" href="rpm_depgraph_gv.css" type="text/css" />
+  </head>
+  <body>
+   <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="rpm-0">
+<p>次図において各点は RPM パッケージを、各点間の矢印は依存関係
+(矢印元が矢印先の RPM パッケージを必要 = Requires している) を示しています。</p>
+<p>脆弱性と重大な不具合の対応の際には、より多くの脆弱性と重大な不具合を含み、原因となっているパッケージの削除
+(アンインストール) を前提としたパッケージ構成の最適化・最小化を考慮します。
+そして、その際には単純に対象パッケージの要不要だけではなく、この依存関係についても考慮の必要があります。</p>
+<div>
+  <object type="image/svg+xml" data="rpm_depgraph_gv.svg" height="900px" width="900px" id="svg_graph"></object>
+</div><p>例えば、より多くの脆弱性と重大な不具合を含む RPM パッケージについて次のような視点から最適化をはかることができます。</p>
+<div>
+<ul class="simple">
+<li>より深刻度や影響度などの高く、より多くのエラータを含む RPM パッケージ</li>
+<li>先の依存関係グラフ内でパッケージの点がより端 (矢印の元 = 他のパッケージにはあまり必要とされていない) となっていて、明らかに使われておらず、不要なもの</li>
+<li>先の依存関係グラフ内でパッケージの点が他の点と矢印で連結されていない (他のパッケージを必要とせず、必要とされていない) もので、明らかに使われておらず、不要なもの</li>
+</ul>
+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">Last-Updated: {{ timestamp }}</div>
+  </body>
+</html>
