@@ -116,9 +116,26 @@ def uniq(vals, sort=True, key=None, reverse=False, callables=None):
     #    return sorted(set(vals), key=key, reverse=reverse)
 
     acc = []
+    if not callable(key):
+        key = None
+
+    if key is not None:
+        keyed_acc = []
+
     for val in vals:
-        if val not in acc:
-            acc.append(chaincalls(val, *callables) if callables else val)
+        if callables:
+            val = chaincalls(val, *callables)
+
+        if key is None:
+            if val in acc:
+                continue
+        else:
+            if key(val) in keyed_acc:
+                continue
+            else:
+                keyed_acc.append(key(val))
+
+        acc.append(val)
 
     return sorted(acc, key=key, reverse=reverse) if sort else acc
 
