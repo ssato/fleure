@@ -24,7 +24,7 @@ import fleure.main
 
 
 TARGETS = (fleure.main.main,
-           fleure.main.dump_results,
+           fleure.main.analyze_and_dump_results,
            fleure.main.prepare,
            fleure.main.analyze,
            fleure.main.archive_report,
