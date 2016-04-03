@@ -43,7 +43,7 @@ assert profile and async
 
 PACKAGE = "fleure"
 
-FLEURE_SYSCONFDIR = os.environ.get("FLEURE_SYSCONFDIR", "/etc/%s.d" % PACKAGE)
+FLEURE_SYSCONF = os.environ.get("FLEURE_SYSCONF", "/etc/%s.d/*.*" % PACKAGE)
 FLEURE_DATADIR = os.environ.get("FLEURE_DATADIR", "/usr/share/%s" % PACKAGE)
 FLEURE_TEMPLATE_PATHS = [os.path.join(FLEURE_DATADIR, "templates/2/%s") % lang
                          for lang in ("ja", "en")]
