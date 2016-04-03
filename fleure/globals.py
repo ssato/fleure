@@ -58,7 +58,7 @@ RPM_VENDOR = "redhat"
 RPM_KEYS = ("name", "epoch", "version", "release", "arch")
 ERRATA_KEYWORDS = ("crash", "panic", "hang", "SEGV", "segmentation fault",
                    "data corruption")
-ERRATA_PEYWORDS = {}
+ERRATA_PKEYWORDS = {}
 CORE_RPMS = ("kernel", "glibc", "bash", "openssl", "zlib")
 CVSS_MIN_SCORE = 0  # PCIDSS: 4.0
 
