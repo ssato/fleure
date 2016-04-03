@@ -176,7 +176,7 @@ def configure(root_or_arc_path, hid=None, **kwargs):
         was collected.
     :param kwargs:
         Extra keyword arguments other than `root_or_arc_path` passed to make an
-        instance of :class:`fleure.config.Config`
+        instance of :class:`fleure.config.Host`
 
     :return: An instance of :class:`fleure.config.Host`
     """
@@ -332,7 +332,7 @@ def main(root_or_arc_path, hid=None, verbosity=0, **kwargs):
     :param verbosity: Verbosity level: 0 (default), 1 (verbose), 2 (debug)
     :param kwargs:
         Extra keyword arguments other than `root_or_arc_path` passed to make an
-        instance of :class:`fleure.config.Config`
+        instance of :class:`fleure.config.Host`
 
     :return: Workdir where results exist or path to archive of results
     """
