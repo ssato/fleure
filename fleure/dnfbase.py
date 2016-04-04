@@ -245,12 +245,10 @@ class Base(fleure.base.Base):
             query = self.base.sack.query()
 
             if item == "installed":
-                hpkgs = query.installed()  # These lack of buildhost, etc.
+                hpkgs = list(query.installed())  # These lack buildhost, etc.
                 self._hpackages[item] = hpkgs  # Cache it.
 
-                # see also: :meth:`_list_pattern` in :class:`~dnf.base.Base`
-                # and :func:`extras_pkgs` in dnf.query module.
-                extras = [p for p in hpkgs if p not in query.available()]
+                extras = list(query.extras())
                 self._hpackages["extras"] = extras  # Cache it also.
                 self._packages[item] = _list_installed(self.root, extras,
                                                        process_fns)
