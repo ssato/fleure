@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015 Satoru SATOH <ssato at redhat.com>
+# Copyright (C) 2015, 2016 Satoru SATOH <ssato at redhat.com>
 # License: GPLv3+
 #
 # pylint: disable=missing-docstring
@@ -10,6 +10,7 @@ import os
 import unittest
 
 import fleure.config as TT
+import fleure.globals
 import fleure.utils
 import fleure.tests.common
 
@@ -18,7 +19,8 @@ class HostTest00(unittest.TestCase):
 
     def test_10___init__(self):
         (root, workdir) = ("/tmp", "/tmp/out")
-        host = TT.Host(root, workdir=workdir)
+        host = TT.Host(root, conf_path=fleure.globals.FLEURE_SYSCONF,
+                       workdir=workdir)
         self.assertTrue(isinstance(host, TT.Host))
 
         self.assertEquals(host.root, root)
