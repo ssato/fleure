@@ -26,7 +26,7 @@ class HostTest00(unittest.TestCase):
         self.assertEquals(host.root, root)
         self.assertEquals(host.workdir, workdir)
         self.assertTrue(host.hid is not None)
-        self.assertEquals(host.tpaths, TT.Host.tpaths)
+        self.assertEquals(host.tpaths, TT.DEFAULTS["tpaths"])
 
         self.assertTrue(host.repos is None)
         self.assertTrue(host.base is None)
