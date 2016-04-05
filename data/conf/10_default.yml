@@ -13,23 +13,24 @@ rpmdb:
     - Providename
     - Requirename
 
-rpm:
-  vendor: redhat
+rpm_vendor: redhat
 
-  keywords:
-    - crash
-    - panic
-    - hang
-    - SEGV
-    - segmentation fault
-    - data corruption
+errata_keywords:
+  - crash
+  - panic
+  - hang
+  - SEGV
+  - segmentation fault
+  - data corruption
 
-  core_rpms:
-    - kernel
-    - glibc
-    - bash
-    - openssl
-    - zlib
+errata_pkeywords: []
+
+core_rpms:
+  - kernel
+  - glibc
+  - bash
+  - openssl
+  - zlib
 
 cvss_score: 0  # PCIDSS: 4.0
 
