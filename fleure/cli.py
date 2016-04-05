@@ -12,7 +12,9 @@ from __future__ import print_function
 
 import argparse
 import errno
+import itertools
 import logging
+import operator
 import os.path
 import pprint
 import re
@@ -58,6 +60,26 @@ def period_type(period_s):
                                      "YYYY[-MM[-DD]][,YYYY[-MM[-DD]]]")
 
 
+def parse_keywords(kwds, sep=':'):
+    """
+    Parse keyword option strings and return a errata keywords info dict.
+
+    :param kwds: A list of keyword strings, e.g. ['kernel:kvm', 'ntp:crash']
+    :param sep: Separator char between name of RPM and keyword
+
+    :return: A dict, {rpm_name: [keyword :: str]}
+
+    >>> rkwds = parse_keywords(['ntp:hang', 'ntp:crash', 'kernel:kvm'])
+    >>> [(key, sorted(val)) for key, val in sorted(rkwds.items())]
+    [('kernel', ['kvm']), ('ntp', ['crash', 'hang'])]
+    """
+    fst = operator.itemgetter(0)
+    snd = operator.itemgetter(1)
+    itr = (kwd.split(sep)[:2] for kwd in kwds if sep in kwd)
+
+    return {p: [snd(k) for k in g] for p, g in itertools.groupby(itr, fst)}
+
+
 def parse_args(argv):
     """Parse arguments.
     """
@@ -89,12 +111,17 @@ def parse_args(argv):
                  "%s [%s]" % (', '.join(backends.keys()), defaults["backend"]))
     add_arg("-S", "--score", type=float, dest="cvss_min_score",
             help="CVSS base metrics score to filter 'important' security "
-                 "errata [%(cvss_min_score)s]. Specify -1 if you want to disable "
-                 "this." % defaults)
+                 "errata [%(cvss_min_score)s]. Specify -1 if you want to "
+                 "disable this." % defaults)
     add_arg("-k", "--keyword", dest="errata_keywords", action="append",
             help="Keyword to select more 'important' bug errata. You can "
                  "specify this option multiple times to pass multiple "
                  "keywords. [%s]" % ', '.join(defaults["errata_keywords"]))
+    add_arg("-K", "--pkeyword", dest="errata_pkeywords", action="append",
+            help="Keyword to select more 'important' bug errata of RPMs. "
+                 "You can specify this option multiple times to pass multiple "
+                 "keywords. The format is 'rpm_name:keyword', "
+                 "'kernel:bnx2x' for example")
     add_arg("--rpm", dest="core_rpms", action="append",
             help="RPM names to filter errata relevant to given RPMs "
                  "[%s]" % ', '.join(defaults["core_rpms"]))
@@ -153,6 +180,9 @@ def main(argv=None):
 
     if not args.conf_path:
         args.conf_path = fleure.globals.FLEURE_SYSCONF
+
+    if args.errata_pkeywords:
+        args.errata_pkeywords = parse_keywords(args.errata_pkeywords)
 
     cnf = fleure.config.try_to_load_config_from_files(args.conf_path)
     for key in ("workdir", "repos", "hid", "archive", "backend",
