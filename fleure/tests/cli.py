@@ -21,9 +21,15 @@ class Test(unittest.TestCase):
         root = "/tmp/dummy_root"
         args = TT.parse_args([root])
 
-        defaults = TT._DEFAULTS
-        for key, val in defaults.items():
-            self.assertEquals(getattr(args, key), val)
+        defaults = TT.DEFAULTS
+        for key, val_ref in defaults.items():
+            val = getattr(args, key, None)
+            if val is None:
+                continue
+            try:
+                self.assertEquals(val, val_ref)
+            except AssertionError:
+                self.assertEquals(bool(val), bool(val_ref), "key=" + key)
 
     @fleure.tests.common.skip_if_not(TT is not None)
     def test_11_parse_args__repos(self):
@@ -31,11 +37,17 @@ class Test(unittest.TestCase):
         repos = ["rhel-x86_64-server-6", "rhel-x86_64-server-6-scl-2"]
         args = TT.parse_args([root, "-r", repos[0], "--repo", repos[1]])
 
-        defaults = TT._DEFAULTS.copy()
+        defaults = TT.DEFAULTS.copy()
         defaults["repos"] = repos
 
-        for key, val in defaults.items():
-            self.assertEquals(getattr(args, key), val)
+        for key, val_ref in defaults.items():
+            val = getattr(args, key, None)
+            if val is None:
+                continue
+            try:
+                self.assertEquals(val, val_ref)
+            except AssertionError:
+                self.assertEquals(bool(val), bool(val_ref), "key=" + key)
 
     @fleure.tests.common.skip_if_not(TT is not None)
     def test_12_parse_args__period(self):
