@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2013 Satoru SATOH <ssato@redhat.com>
-# Copyright (C) 2013 - 2015 Red Hat, Inc.
+# Copyright (C) 2013 - 2016 Red Hat, Inc.
 # License: GPLv3+
 #
 """fleure's CLI frontend.
@@ -14,6 +14,7 @@ import argparse
 import errno
 import logging
 import os.path
+import pprint
 import re
 import sys
 
@@ -25,16 +26,8 @@ import fleure.multihosts
 
 LOG = logging.getLogger(__name__)
 
-_DEFAULTS = dict(path=None,
-                 workdir="/tmp/fleure-{}".format(fleure.globals.TODAY),
-                 repos=None, imultiproc=False, hid=None, multihost=False,
-                 score=fleure.globals.CVSS_MIN_SCORE,
-                 keywords=fleure.globals.ERRATA_KEYWORDS,
-                 rpms=fleure.globals.CORE_RPMS,
-                 period=[], cachedir=None, refdir=None, tpaths=[],
-                 backend=fleure.config.DEFAULT_BACKEND,
-                 backends=fleure.config.BACKENDS, verbosity=0,
-                 archive=False)
+DEFAULTS = fleure.config.DEFAULTS.copy()
+DEFAULTS.update(multiproc=False, multihost=False, verbosity=0)
 
 
 def period_type(period_s):
@@ -65,23 +58,19 @@ def period_type(period_s):
                                      "YYYY[-MM[-DD]][,YYYY[-MM[-DD]]]")
 
 
-def parse_args(argv=None):
+def parse_args(argv):
     """Parse arguments.
-
-    :param argv: Arguments list, sys.argv[1:] by default
     """
-    if argv is None:
-        argv = sys.argv[1:]
-
-    defaults = _DEFAULTS
-    backends = defaults["backends"]
-
     psr = argparse.ArgumentParser()
-    psr.set_defaults(**defaults)
 
     add_arg = psr.add_argument  # or (optparse.OptionParser).add_argion
 
-    add_arg("-w", "--workdir", help="Working dir [%(default)s]")
+    defaults = DEFAULTS
+    backends = defaults["backends"]
+
+    add_arg("-c", "--conf", dest="conf_path",
+            help="Configuration file[s] path [%(conf_path)s]" % defaults)
+    add_arg("-w", "--workdir", help="Working dir [%(workdir)s]" % defaults)
     add_arg("-r", "--repo", dest="repos", action="append",
             help="Yum repo to fetch errata info, e.g. 'rhel-x86_64-server-6'. "
                  "It can be given multiple times to specify multiple yum "
@@ -96,18 +85,19 @@ def parse_args(argv=None):
     # add_arg("-M", "--multiproc", action="store_true",
     #         help="Specify this option to analyze data in parallel")
     add_arg("-B", "--backend", choices=backends.keys(),
-            help="Specify backend to get updates and errata. Choices: %s "
-                 "[%%(default)s]" % ', '.join(backends.keys()))
-    add_arg("-S", "--score", type=float,
+            help="Specify backend to get updates and errata. Choices: "
+                 "%s [%s]" % (', '.join(backends.keys()), defaults["backend"]))
+    add_arg("-S", "--score", type=float, dest="cvss_min_score",
             help="CVSS base metrics score to filter 'important' security "
-                 "errata [%(default)s]. Specify -1 if you want to disable "
-                 "this.")
-    add_arg("-k", "--keyword", dest="keywords", action="append",
+                 "errata [%(cvss_min_score)s]. Specify -1 if you want to disable "
+                 "this." % defaults)
+    add_arg("-k", "--keyword", dest="errata_keywords", action="append",
             help="Keyword to select more 'important' bug errata. You can "
                  "specify this option multiple times to pass multiple "
-                 "keywords. [%s]" % ', '.join(defaults["keywords"]))
-    add_arg("--rpm", dest="rpms", action="append",
-            help="RPM names to filter errata relevant to given RPMs")
+                 "keywords. [%s]" % ', '.join(defaults["errata_keywords"]))
+    add_arg("--rpm", dest="core_rpms", action="append",
+            help="RPM names to filter errata relevant to given RPMs "
+                 "[%s]" % ', '.join(defaults["core_rpms"]))
     add_arg("--period", type=period_type,
             help="Period to filter errata in format of "
                  "YYYY[-MM[-DD]][,YYYY[-MM[-DD]]], ex. "
@@ -119,7 +109,8 @@ def parse_args(argv=None):
             help="Output 'delta' result compared to the data in this dir")
     add_arg("-T", "--tpath", action="append", dest="tpaths",
             help="Specify additional template path one by one. These paths "
-                 "will have higher priority than default paths.")
+                 "will have higher priority than default paths. "
+                 "%s" % ', '.join(defaults["tpaths"]))
     add_arg("-v", "--verbose", action="count", dest="verbosity",
             help="Verbose mode")
     add_arg("-D", "--debug", action="store_const", dest="verbosity",
@@ -135,6 +126,15 @@ def parse_args(argv=None):
     return psr.parse_args(argv)
 
 
+def set_loglevel(verbosity):
+    """
+    :param verbosity: Verbosity level, 0 | 1 | 2
+    """
+    assert verbosity in (0, 1, 2), "Wrong verbosity: %s" % str(verbosity)
+    lvl = (logging.WARNING, logging.INFO, logging.DEBUG)[verbosity]
+    LOG.setLevel(lvl)
+
+
 def main(argv=None):
     """Cli main.
     """
@@ -142,6 +142,7 @@ def main(argv=None):
         argv = sys.argv[1:]
 
     args = parse_args(argv)
+    set_loglevel(args.verbosity)
 
     if not os.path.exists(args.root_or_archive):
         print("Not found: %s" % args.root_or_archive, file=sys.stderr)
@@ -150,12 +151,22 @@ def main(argv=None):
     if not args.tpaths:
         args.tpaths = fleure.globals.FLEURE_TEMPLATE_PATHS
 
-    cnf = dict(workdir=args.workdir, cachedir=args.cachedir,
-               repos=args.repos, verbosity=args.verbosity,
-               cvss_min_score=args.score, errata_keywords=args.keywords,
-               core_rpms=args.rpms, period=args.period, refdir=args.refdir,
-               backend=args.backend, tpaths=args.tpaths, hid=args.hid,
-               archive=args.archive)
+    if not args.conf_path:
+        args.conf_path = fleure.globals.FLEURE_SYSCONF
+
+    cnf = fleure.config.try_to_load_config_from_files(args.conf_path)
+    for key in ("workdir", "repos", "hid", "archive", "backend",
+                "cvss_min_score", "errata_keywords", "errata_pkeywords",
+                "core_rpms", "period", "cachedir", "refdir", "tpaths"):
+        val = getattr(args, key, None)
+        cnf[key] = val  # CLI options > configs from file[s].
+
+        if key not in cnf or not cnf[key]:  # In case not in config file[s]
+            if not val:
+                val = DEFAULTS[key]
+            cnf[key] = val
+
+    LOG.debug("cnf=%s", pprint.pformat(cnf))
 
     rpath = os.path.join(args.root_or_archive, fleure.globals.RPMDB_SUBDIR)
     if args.multihost and os.path.exists(rpath):
