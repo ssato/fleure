@@ -49,10 +49,11 @@ _STEMMER = nltk.PorterStemmer()
 
 
 def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
-                         stemming=True):
+                         pkeywords=None, stemming=True):
     """
     :param ers: A list of errata
-    :param keywords: Keyword list to filter 'important' RHBAs
+    :param keywords: A tuple of keywords to filter 'important' RHBAs
+    :param pkeywords: Similar to above but a dict gives the list per RPMs
     :param stemming: Strict matching of keywords with using NLTK stemmer
     :return:
         A generator to yield errata of which description contains any of
@@ -62,16 +63,16 @@ def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
     ...             description="system hangs, or crash...")
     >>> ert1 = dict(advisory="RHEA-2015:XXX2",
     ...             description="some enhancement and changes")
-    >>> ers = list(errata_of_keywords_g([ert0], ("hang", ), True))
+    >>> ers = list(errata_of_keywords_g([ert0], ("hang", ), stemming=True))
     >>> ert0 in ers
     True
-    >>> ers[0]["keywords"]  # 'hangs' matches with stemming.
+    >>> ers[0]["keywords"]  # 'hangs' with stemming matches.
     ['hang']
     >>> ers = list(errata_of_keywords_g([ert0, ert1], ("hang", "crash"),
     ...                                 stemming=False))
     >>> ert0 in ers
     True
-    >>> ers[0]["keywords"]  # 'hangs' does not match with 'hang'.
+    >>> ers[0]["keywords"]  # 'hangs' w/o stemming does not match with 'hang'.
     ['crash']
     >>> ert1 in ers
     False
@@ -79,14 +80,22 @@ def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
     if stemming:
         _stem = _STEMMER.stem
 
+    if pkeywords is None:
+        pkeywords = fleure.globals.ERRATA_PKEYWORDS
+
     for ert in ers:
         tokens = set(nltk.wordpunct_tokenize(ert["description"]))
         if stemming:
             tokens = set(_stem(w) for w in tokens)
 
-        mks = [k for k in keywords if k in tokens]
-        if mks:
-            ert["keywords"] = mks
+        LOG.debug("keywords: %s, pkeywords: %s",
+                  ', '.join(keywords),
+                  ', '.join('%s=%s' % (k, v) for k, v in pkeywords.items()))
+        kwds = set(list(keywords) + [pkeywords.get(n, []) for n
+                                     in ert.get("package_names", [])])
+        matched = [k for k in kwds if k in tokens]
+        if matched:
+            ert["keywords"] = matched
             yield ert
 
 
@@ -194,18 +203,19 @@ def analyze_rhsa(rhsa):
 
 
 def analyze_rhba(rhba, keywords=fleure.globals.ERRATA_KEYWORDS,
-                 core_rpms=fleure.globals.CORE_RPMS):
+                 pkeywords=None, core_rpms=fleure.globals.CORE_RPMS):
     """
     Compute and return statistics of RHBAs from some view points.
 
     :param rhba: A list of bug errata (RHBA) dicts
-    :param keywords: Keyword list to filter 'important' RHBAs
+    :param keywords: A tuple of keywords to filter 'important' RHBAs
+    :param pkeywords: Similar to above but a dict gives the list per RPMs
     :param core_rpms: Core RPMs to filter errata by them
     :return: RHSA analized data and metrics
     """
     kfn = lambda e: (len(e.get("keywords", [])), e["issue_date"],
                      e["update_names"])
-    rhba_by_kwds = sorted(errata_of_keywords_g(rhba, keywords),
+    rhba_by_kwds = sorted(errata_of_keywords_g(rhba, keywords, pkeywords),
                           key=kfn, reverse=True)
     rhba_of_core_rpms_by_kwds = \
         sorted(errata_of_rpms_g(rhba_by_kwds, core_rpms),
@@ -271,12 +281,13 @@ def higher_score_cve_errata_g(ers, score=0):
 
 def analyze_errata(ers, score=fleure.globals.CVSS_MIN_SCORE,
                    keywords=fleure.globals.ERRATA_KEYWORDS,
-                   core_rpms=fleure.globals.CORE_RPMS):
+                   pkeywords=None, core_rpms=fleure.globals.CORE_RPMS):
     """
     :param ers: A list of applicable errata sorted by severity
         if it's RHSA and advisory in ascending sequence
     :param score: CVSS base metrics score
-    :param keywords: Keyword list to filter 'important' RHBAs
+    :param keywords: A tuple of keywords to filter 'important' RHBAs
+    :param pkeywords: Similar to above but a dict gives the list per RPMs
     :param core_rpms: Core RPMs to filter errata by them
     """
     rhsa = [e for e in ers if e["advisory"][2] == 'S']
@@ -284,8 +295,8 @@ def analyze_errata(ers, score=fleure.globals.CVSS_MIN_SCORE,
     rhea = [e for e in ers if e["advisory"][2] == 'E']
 
     rhsa_data = analyze_rhsa(rhsa)
-    rhba_data = analyze_rhba(rhba, keywords, core_rpms)
-
+    rhba_data = analyze_rhba(rhba, keywords=keywords, pkeywords=pkeywords,
+                             core_rpms=core_rpms)
     if score > 0:
         rhba_by_score = list(higher_score_cve_errata_g(rhba, score))
         us_of_rhba_by_score = list_updates_from_errata(rhba_by_score)
@@ -323,10 +334,11 @@ def padding_row(row, mcols):
 
 def mk_overview_dataset(data, score=fleure.globals.CVSS_MIN_SCORE,
                         keywords=fleure.globals.ERRATA_KEYWORDS,
-                        core_rpms=None):
+                        core_rpms=None, **kwargs):
     """
     :param data: RPMs, Update RPMs and various errata data summarized
     :param score: CVSS base metrics score limit
+    :param keywords: A tuple of keywords to filter 'important' RHBAs
     :param core_rpms: Core RPMs to filter errata by them
 
     :return: An instance of tablib.Dataset becomes a worksheet represents the
