@@ -1,7 +1,7 @@
 #
 # -*- coding: utf-8 -*-
 # Copyright (C) 2013 Satoru SATOH <ssato@redhat.com>
-# Copyright (C) 2013 - 2015 Red Hat, Inc.
+# Copyright (C) 2013 - 2016 Red Hat, Inc.
 # License: GPLv3+
 #
 """Fleure central configuration object.
@@ -10,6 +10,7 @@ from __future__ import absolute_import
 
 import anyconfig
 import bunch
+import logging
 import os.path
 import tempfile
 import uuid
@@ -22,6 +23,7 @@ import fleure.utils
 import fleure.yumbase
 
 
+LOG = logging.getLogger(__name__)
 BACKENDS = dict(yum=fleure.yumbase.Base, )
 DEFAULT_BACKEND = "yum"
 try:
@@ -31,6 +33,24 @@ try:
     DEFAULT_BACKEND = "dnf"  # Prefer this.
 except ImportError:  # dnf is not available for RHEL, AFAIK.
     pass
+
+DEFAULTS = dict(workdir=None,
+                repos=None,
+                hid=None,
+                cvss_min_score=fleure.globals.CVSS_MIN_SCORE,
+                errata_keywords=fleure.globals.ERRATA_KEYWORDS,
+                errata_pkeywords=fleure.globals.ERRATA_PKEYWORDS,
+                core_rpms=fleure.globals.CORE_RPMS,
+                rpm_vendor=fleure.globals.RPM_VENDOR,
+                tpaths=fleure.globals.FLEURE_TEMPLATE_PATHS,
+                repos_map=fleure.globals.REPOS_MAP,
+                conf_path=fleure.globals.FLEURE_SYSCONF,
+                backend=DEFAULT_BACKEND,
+                backends=BACKENDS,
+                cachedir=None,
+                period=None,
+                refdir=None,
+                archive=False)
 
 
 def _normpath(path):
@@ -55,46 +75,43 @@ def _normpath(path):
     return os.path.normpath(os.path.abspath(path))
 
 
-def load_config_from_files():
+def try_to_load_config_from_files(conf_path=None):
     """
-    Load configurations from default sysconfdir.
+    Load configurations from given `conf_path`.
+
+    >>> cnf = try_to_load_config_from_files()
+    >>> for key in DEFAULTS.keys():
+    ...     assert cnf[key] == DEFAULTS[key]
+    >>>
+    >>> cnf_ref = anyconfig.load(fleure.globals.FLEURE_SYSCONF)
+    >>> for key in cnf_ref.keys():
+    ...     assert cnf[key] == cnf_ref[key]
     """
-    cnf_paths = os.path.join(fleure.globals.FLEURE_SYSCONFDIR, "*.yml")
-    try:
-        cnf = bunch.bunchify(anyconfig.load(cnf_paths))
-    except (IOError, OSError):
-        return dict()
-    try:
-        return dict(errata_keywords=cnf.rpm.keywords,
-                    core_rpms=cnf.rpm.core_rpms, rpm_vendor=cnf.rpm.vendor,
-                    cvss_min_score=cnf.cvss_score, repos_map=cnf.repos_map)
-    except (KeyError, AttributeError):
-        return dict(errata_keywords=fleure.globals.ERRATA_KEYWORDS,
-                    core_rpms=fleure.globals.CORE_RPMS,
-                    rpm_vendor=fleure.globals.RPM_VENDOR,
-                    cvss_min_score=fleure.globals.CVSS_MIN_SCORE,
-                    repos_map=fleure.globals.REPOS_MAP)
+    cnf = anyconfig.to_container()
+    cnf.update(**DEFAULTS)
+
+    if conf_path:
+        LOG.debug("Loading config from: %s", conf_path)
+        try:
+            diff = anyconfig.load(conf_path)
+            cnf.update(diff)
+        except (IOError, OSError):
+            pass
+
+    return cnf
 
 
 class Host(bunch.Bunch):
-    """Object holding common configuration and host specific data.
+    """Object holding common configurations and host specific data.
     """
-    # initialized some of configurations:
-    sysconfdir = fleure.globals.FLEURE_SYSCONFDIR
-    sysdatadir = fleure.globals.FLEURE_DATADIR
-    tpaths = fleure.globals.FLEURE_TEMPLATE_PATHS
-    rpmkeys = fleure.globals.RPM_KEYS
-    errata_keywords = fleure.globals.ERRATA_KEYWORDS
-    core_rpms = fleure.globals.CORE_RPMS
-    rpm_vendor = fleure.globals.RPM_VENDOR
+    # Initialized some configurations at class level:
+    workdir = None
+    repos = None
+    hid = None
     details = True
-    cvss_min_score = 0
+    rpmkeys = fleure.globals.RPM_KEYS
 
-    backend = DEFAULT_BACKEND
-    backends = BACKENDS
-
-    def __init__(self, root_or_arc_path, hid=None, workdir=None, cachedir=None,
-                 repos=None, period=None, refdir=None, **kwargs):
+    def __init__(self, root_or_arc_path, conf_path=None, **kwargs):
         """
         Initialize some lazy configurations.
 
@@ -102,48 +119,64 @@ class Host(bunch.Bunch):
             Path to the root dir of RPM DB files or Archive (tar.xz, tar.gz,
             zip, etc.) of RPM DB files. Path might be a relative path from
             current dir.
-        :param hid:
-            ID such as name of the host where the RPM DB are collected
-        :param workdir: Working dir to keep temporal files and save results
-        :param cachedir: Dir to save cache files
-        :param repos:
-            A list of Yum repositories to fetch metadata. It will be guessed
-            from some metadata automatically in given RPM DB files by default.
-        :param period:
-            Period to fetch and analyze data as a tuple of dates in format of
-            YYYY[-MM[-DD]], eg. ("2014-10-01", "2014-11-01").
-        :param refdir:
-            A dir holding reference data previously generated to compute delta,
-            updates since that data generated.
-        """
-        defaults = load_config_from_files()
-        defaults.update(kwargs)
-        period_ = fleure.dates.period_to_dates(*period) if period else False
-        super(Host, self).__init__(root_or_arc_path=root_or_arc_path,
-                                   repos=repos, period=period_, refdir=refdir,
-                                   **kwargs)
-        for key, val in defaults.items():
-            self[key] = val
+        :param conf_path: Configuration file[s] path
 
+        :param kwargs: Other options
+            - workdir: Working dir to keep temporal files and save results
+            - repos: A list of Yum repositories to fetch metadata. It will be
+              guessed from some metadata automatically in given RPM DB files by
+              default.
+            - hid: Host ID like hostname where the RPM DB are collected
+            - cvss_min_score: CVSS minimum score
+            - errata_keywords: Keywords to filter errata
+            - errata_pkeywords: Keywords per packages to filter errata
+            - core_rpms: Core RPMs
+            - rpm_vendor: RPM Vendor
+            - tpaths: A list of template paths
+            - repos_map: Repository mappings
+            - backend: Backend to get updates and errata.
+
+            - cachedir: Dir to save cache files
+            - period: Period to fetch and analyze data as a tuple of dates in
+              format of YYYY[-MM[-DD]], eg. ("2014-10-01", "2014-11-01").
+            - refdir: A dir holding reference data previously generated to
+              compute delta, updates since that data generated.
+        """
+        if conf_path:
+            conf_path = _normpath(conf_path)  # Workaround for anyconfig.
+
+        cnf = try_to_load_config_from_files(conf_path)
+        cnf.update(kwargs)  # Override with kwargs may came from CLI options.
+
+        # These parameters need some modifications:
+        if cnf["period"]:
+            cnf["period"] = fleure.dates.period_to_dates(*cnf["period"])
+
+        for key in cnf.keys():
+            setattr(self, key, cnf[key])
+
+        # post setups:
         if os.path.isdir(root_or_arc_path):
             self.root = _normpath(root_or_arc_path)
         else:
             self.root = None
 
-        self.hid = str(uuid.uuid4()).split('-')[0] if hid is None else hid
-        self.workdir = self.root if workdir is None else _normpath(workdir)
+        if self.workdir is None or not self.workdir:
+            self.workdir = self.root
 
-        if cachedir is None:
+        if self.hid is None or not self.hid:
+            self.hid = str(uuid.uuid4()).split('-')[0]
+
+        self.tpaths = [_normpath(p) for p in self.tpaths]
+
+        if self.cachedir is None:
             if self.root is not None:
                 self.cachedir = os.path.join(self.root, "var/cache")
             # else:  -> cachedir will be set in :meth:`configure` later.
         else:
-            self.cachedir = _normpath(cachedir)
+            self.cachedir = _normpath(self.cachedir)
 
-        self.tpaths = [_normpath(p) for p in self.get("tpaths", Host.tpaths)]
-        self.repos = repos
-
-        # These might be initialized later.
+        # These will be initialized later.
         self.base = None
         self.available = False
         self.errors = []
