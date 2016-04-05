@@ -22,7 +22,7 @@ import fleure.rpmutils
 from fleure.globals import _
 
 
-LOG = logging.getLogger("fleure")
+LOG = logging.getLogger(__name__)
 
 
 def list_latest_errata_by_updates(ers):
