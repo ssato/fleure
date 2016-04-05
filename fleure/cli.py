@@ -153,15 +153,6 @@ def parse_args(argv):
     return psr.parse_args(argv)
 
 
-def set_loglevel(verbosity):
-    """
-    :param verbosity: Verbosity level, 0 | 1 | 2
-    """
-    assert verbosity in (0, 1, 2), "Wrong verbosity: %s" % str(verbosity)
-    lvl = (logging.WARNING, logging.INFO, logging.DEBUG)[verbosity]
-    LOG.setLevel(lvl)
-
-
 def main(argv=None):
     """Cli main.
     """
@@ -169,7 +160,7 @@ def main(argv=None):
         argv = sys.argv[1:]
 
     args = parse_args(argv)
-    set_loglevel(args.verbosity)
+    fleure.main.set_loglevel(args.verbosity)
 
     if not os.path.exists(args.root_or_archive):
         print("Not found: %s" % args.root_or_archive, file=sys.stderr)
@@ -187,9 +178,10 @@ def main(argv=None):
     cnf = fleure.config.try_to_load_config_from_files(args.conf_path)
     for key in ("workdir", "repos", "hid", "archive", "backend",
                 "cvss_min_score", "errata_keywords", "errata_pkeywords",
-                "core_rpms", "period", "cachedir", "refdir", "tpaths"):
+                "core_rpms", "period", "cachedir", "refdir", "tpaths",
+                "verbosity"):
         val = getattr(args, key, None)
-        if val:
+        if val is not None:
             cnf[key] = val  # CLI options > configs from file[s].
 
         if key not in cnf:  # In case not in config file[s]
