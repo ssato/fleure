@@ -189,9 +189,10 @@ def main(argv=None):
                 "cvss_min_score", "errata_keywords", "errata_pkeywords",
                 "core_rpms", "period", "cachedir", "refdir", "tpaths"):
         val = getattr(args, key, None)
-        cnf[key] = val  # CLI options > configs from file[s].
+        if val:
+            cnf[key] = val  # CLI options > configs from file[s].
 
-        if key not in cnf or not cnf[key]:  # In case not in config file[s]
+        if key not in cnf:  # In case not in config file[s]
             if not val:
                 val = DEFAULTS[key]
             cnf[key] = val
