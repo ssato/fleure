@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2013 Satoru SATOH <ssato@redhat.com>
-# Copyright (C) 2013 - 2015 Red Hat, Inc.
+# Copyright (C) 2013 - 2016 Red Hat, Inc.
 # License: AGPLv3+
 #
 # pylint: disable=too-many-arguments,too-many-locals,no-member
