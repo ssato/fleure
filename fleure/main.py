@@ -54,7 +54,8 @@ def analyze_and_dump_results(host, rpms, errata, updates, dumpdir=None):
     if dumpdir is None:
         dumpdir = host.workdir
 
-    dargs = (host.cvss_min_score, host.errata_keywords, host.core_rpms)
+    dargs = dict(score=host.cvss_min_score, keywords=host.errata_keywords,
+                 pkeywords=host.errata_pkeywords, core_rpms=host.core_rpms)
     rpmkeys = host.rpmkeys
 
     rpms_rebuilt = [p for p in rpms if p.get("rebuilt", False)]
@@ -68,7 +69,7 @@ def analyze_and_dump_results(host, rpms, errata, updates, dumpdir=None):
     nps = len(rpms)
     nus = len(updates)
 
-    ers = fleure.analysis.analyze_errata(errata, *dargs)
+    ers = fleure.analysis.analyze_errata(errata, **dargs)
     data = dict(errata=ers,
                 installed=dict(list=rpms,
                                list_rebuilt=rpms_rebuilt,
@@ -96,7 +97,7 @@ def analyze_and_dump_results(host, rpms, errata, updates, dumpdir=None):
     lbekeys = (_("advisory"), _("keywords"), _("synopsis"), _("url"),
                _("update_names"))
 
-    mds = [fleure.analysis.mk_overview_dataset(data, *dargs),
+    mds = [fleure.analysis.mk_overview_dataset(data, **dargs),
            make_dataset((data["errata"]["rhsa"]["list_latest_critical"] +
                          data["errata"]["rhsa"]["list_latest_important"]),
                         _("Cri-Important RHSAs (latests)"), sekeys, lsekeys),
