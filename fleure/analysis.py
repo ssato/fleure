@@ -91,8 +91,9 @@ def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
         LOG.debug("keywords: %s, pkeywords: %s",
                   ', '.join(keywords),
                   ', '.join('%s=%s' % (k, v) for k, v in pkeywords.items()))
-        kwds = set(list(keywords) + [pkeywords.get(n, []) for n
-                                     in ert.get("package_names", [])])
+        kwds = set(itertools.chain(keywords,
+                                   *[pkeywords.get(n, []) for n
+                                     in ert.get("package_names", [])]))
         matched = [k for k in kwds if k in tokens]
         if matched:
             ert["keywords"] = matched
