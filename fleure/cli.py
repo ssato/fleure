@@ -189,7 +189,7 @@ def main(argv=None):
                 val = DEFAULTS[key]
             cnf[key] = val
 
-    LOG.debug("cnf=%s", pprint.pformat(cnf))
+    # LOG.debug("cnf=%s", pprint.pformat(cnf))
 
     rpath = os.path.join(args.root_or_archive, fleure.globals.RPMDB_SUBDIR)
     if args.multihost and os.path.exists(rpath):
