@@ -50,7 +50,9 @@ DEFAULTS = dict(workdir=None,
                 cachedir=None,
                 period=None,
                 refdir=None,
-                archive=False)
+                archive=False,
+                defails=True,
+                rpmkeys=fleure.globals.RPM_KEYS)
 
 
 def _normpath(path):
@@ -95,13 +97,6 @@ def try_to_load_config_from_files(conf_path=None):
 class Host(bunch.Bunch):
     """Object holding common configurations and host specific data.
     """
-    # Initialized some configurations at class level:
-    workdir = None
-    repos = None
-    hid = None
-    details = True
-    rpmkeys = fleure.globals.RPM_KEYS
-
     def __init__(self, root_or_arc_path, conf_path=None, **kwargs):
         """
         Initialize some lazy configurations.
