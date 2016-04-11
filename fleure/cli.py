@@ -175,7 +175,7 @@ def main(argv=None):
     if args.errata_pkeywords:
         args.errata_pkeywords = parse_keywords(args.errata_pkeywords)
 
-    LOG.debug("Loading config from: %s", conf_path)
+    LOG.debug("Loading config from: %s", args.conf_path)
     cnf = fleure.config.try_to_load_config_from_files(args.conf_path)
 
     for key in ("workdir", "repos", "hid", "archive", "backend",
