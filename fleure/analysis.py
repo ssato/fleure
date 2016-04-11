@@ -88,9 +88,6 @@ def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
         if stemming:
             tokens = set(_stem(w) for w in tokens)
 
-        # LOG.debug("keywords: %s, pkeywords: %s",
-        #          ', '.join(keywords),
-        #          ', '.join('%s=%s' % (k, v) for k, v in pkeywords.items()))
         kwds = set(itertools.chain(keywords,
                                    *[pkeywords.get(n, []) for n
                                      in ert.get("package_names", [])]))
