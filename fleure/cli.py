@@ -16,7 +16,6 @@ import itertools
 import logging
 import operator
 import os.path
-import pprint
 import re
 import sys
 
