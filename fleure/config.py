@@ -93,7 +93,6 @@ def try_to_load_config_from_files(conf_path=None):
     cnf.update(**DEFAULTS)
 
     if conf_path:
-        LOG.debug("Loading config from: %s", conf_path)
         try:
             diff = anyconfig.load(conf_path)
             cnf.update(diff)

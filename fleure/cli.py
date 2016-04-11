@@ -175,7 +175,9 @@ def main(argv=None):
     if args.errata_pkeywords:
         args.errata_pkeywords = parse_keywords(args.errata_pkeywords)
 
+    LOG.debug("Loading config from: %s", conf_path)
     cnf = fleure.config.try_to_load_config_from_files(args.conf_path)
+
     for key in ("workdir", "repos", "hid", "archive", "backend",
                 "cvss_min_score", "errata_keywords", "errata_pkeywords",
                 "core_rpms", "period", "cachedir", "refdir", "tpaths",
@@ -188,8 +190,6 @@ def main(argv=None):
             if not val:
                 val = DEFAULTS[key]
             cnf[key] = val
-
-    # LOG.debug("cnf=%s", pprint.pformat(cnf))
 
     rpath = os.path.join(args.root_or_archive, fleure.globals.RPMDB_SUBDIR)
     if args.multihost and os.path.exists(rpath):
