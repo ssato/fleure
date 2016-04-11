@@ -22,7 +22,7 @@ def may_be_rebuilt(vendor, buildhost, vbmap=None, sfx=".redhat.com"):
         return False
 
     if vbmap is None:
-        vbmap = _VENDOR_MAPS
+        vbmap = VENDOR_MAPS
 
     bhsuffix = vbmap.get(vendor, (None, False))[1]
     if bhsuffix:
@@ -43,7 +43,7 @@ def inspect_origin(name, vendor, buildhost, extra_names=None,
     :param extra_names: Extra (non-vendor-origin) package names
     """
     if vbmap is None:
-        vbmap = _VENDOR_MAPS
+        vbmap = VENDOR_MAPS
 
     origin = vbmap.get(vendor, ("unknown", ))[0]
 
