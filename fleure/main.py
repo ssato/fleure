@@ -230,7 +230,8 @@ def analyze(host):
                     repos=host.repos, backend=host.base.name,
                     score=host.cvss_min_score, keywords=host.errata_keywords,
                     installed=len(host.installed), hosts=[host.hid, ],
-                    generated=datetime.datetime.now().strftime("%F %T"))
+                    generated=datetime.datetime.now().strftime("%F %T"),
+                    period=host.period, refdir=host.refdir)
     host.save(metadata, "metadata")
 
     LOG.info(_("%s: Analyzing errata and packages ..."), host.hid)
