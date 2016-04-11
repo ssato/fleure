@@ -11,7 +11,8 @@ _VENDOR_RH = "Red Hat, Inc."
 _VENDOR_MAPS = {_VENDOR_RH: ("redhat", ".redhat.com"),
                 "Symantec Corporation": ("symantec", ".veritas.com"),
                 "ZABBIX-JP": ("zabbixjp", ".zabbix.jp"),
-                "Fedora Project": ("fedora", ".fedoraproject.org")}
+                "Fedora Project": ("fedora", ".fedoraproject.org"),
+                "CentOS", ("centos", ".dev.centos.org")}
 
 
 def may_be_rebuilt(vendor, buildhost, vbmap=None, sfx=".redhat.com"):
