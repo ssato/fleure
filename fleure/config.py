@@ -78,16 +78,6 @@ def _normpath(path):
 def try_to_load_config_from_files(conf_path=None):
     """
     Load configurations from given `conf_path`.
-
-    >>> cnf = try_to_load_config_from_files()
-    >>> for key in DEFAULTS.keys():
-    ...     assert cnf[key] == DEFAULTS[key]
-    >>>
-    >>> cnf_path = fleure.globals.FLEURE_SYSCONF
-    >>> cnf_ref = anyconfig.load(cnf_path)
-    >>> cnf = try_to_load_config_from_files(cnf_path)
-    >>> for key in cnf_ref.keys():
-    ...     assert cnf[key] == cnf_ref[key]
     """
     cnf = anyconfig.to_container()
     cnf.update(**DEFAULTS)
