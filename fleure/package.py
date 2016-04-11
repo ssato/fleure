@@ -7,12 +7,12 @@
 from __future__ import absolute_import
 
 
-_VENDOR_RH = "Red Hat, Inc."
-_VENDOR_MAPS = {_VENDOR_RH: ("redhat", ".redhat.com"),
-                "Symantec Corporation": ("symantec", ".veritas.com"),
-                "ZABBIX-JP": ("zabbixjp", ".zabbix.jp"),
-                "Fedora Project": ("fedora", ".fedoraproject.org"),
-                "CentOS", ("centos", ".dev.centos.org")}
+VENDOR_RH = "Red Hat, Inc."
+VENDOR_MAPS = {VENDOR_RH: ("redhat", ".redhat.com"),
+               "Symantec Corporation": ("symantec", ".veritas.com"),
+               "ZABBIX-JP": ("zabbixjp", ".zabbix.jp"),
+               "Fedora Project": ("fedora", ".fedoraproject.org"),
+               "CentOS", ("centos", ".dev.centos.org")}
 
 
 def may_be_rebuilt(vendor, buildhost, vbmap=None, sfx=".redhat.com"):
@@ -32,7 +32,7 @@ def may_be_rebuilt(vendor, buildhost, vbmap=None, sfx=".redhat.com"):
 
 
 def inspect_origin(name, vendor, buildhost, extra_names=None,
-                   vbmap=None, exp_vendor=_VENDOR_RH):
+                   vbmap=None, exp_vendor=VENDOR_RH):
     """
     Inspect package info and detect its origin, etc.
 
