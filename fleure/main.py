@@ -58,24 +58,22 @@ def analyze_and_dump_results(host, rpms, errata, updates, dumpdir=None):
                  pkeywords=host.errata_pkeywords, core_rpms=host.core_rpms)
     rpmkeys = host.rpmkeys
 
-    rpms_rebuilt = [p for p in rpms if p.get("rebuilt", False)]
-    rpms_replaced = [p for p in rpms if p.get("replaced", False)]
-    rpms_from_others = [p for p in rpms
-                        if p.get("origin", '') != host.rpm_vendor]
-    rpms_by_vendor = [p for p in rpms
-                      if p.get("origin", '') == host.rpm_vendor and
-                      not p.get("rebuilt", False) and
-                      not p.get("replaced", False)]
+    installed = dict(list=rpms, list_rebuilt=[], list_replaced=[],
+                     list_from_others=[])
+    for pkg in rpms:
+        for key in ("rebuilt", "replaced"):
+            if pkg.get(key, False):
+                installed["list_" + key].append(pkg)
+
+        if pkg.get("origin", None) != host.rpm_vendor:
+            installed["list_from_others"].append(pkg)
+
     nps = len(rpms)
     nus = len(updates)
 
     ers = fleure.analysis.analyze_errata(errata, **dargs)
     data = dict(errata=ers,
-                installed=dict(list=rpms,
-                               list_rebuilt=rpms_rebuilt,
-                               list_replaced=rpms_replaced,
-                               list_from_others=rpms_from_others,
-                               list_by_vendor=rpms_by_vendor),
+                installed=installed,
                 updates=dict(list=updates,
                              rate=[(_("packages need updates"), nus),
                                    (_("packages not need updates"),
@@ -136,18 +134,12 @@ def analyze_and_dump_results(host, rpms, errata, updates, dumpdir=None):
                           _("cvsses_s"), _("url")))]
         mds.extend(cvss_ds)
 
-    if data["installed"]["list_rebuilt"]:
-        mds.append(make_dataset(data["installed"]["list_rebuilt"],
-                                _("Rebuilt RPMs"), rpmdkeys, lrpmdkeys))
-
-    if data["installed"]["list_replaced"]:
-        mds.append(make_dataset(data["installed"]["list_replaced"],
-                                _("Replaced RPMs"), rpmdkeys, lrpmdkeys))
-
-    if data["installed"]["list_from_others"]:
-        mds.append(make_dataset(data["installed"]["list_from_others"],
-                                _("RPMs from other vendors"), rpmdkeys,
-                                lrpmdkeys))
+    for key, title in (("list_rebuilt", _("Rebuilt RPMs")),
+                       ("list_replaced", _("Replaced RPMs")),
+                       ("list_from_others", _("RPMs from other vendors"))):
+        if data["installed"][key]:
+            mds.append(make_dataset(data["installed"][key], title, rpmdkeys,
+                                    lrpmdkeys))
 
     dump_xls(mds, os.path.join(dumpdir, "errata_summary.xls"))
 
