@@ -172,6 +172,7 @@ class Host(bunch.Bunch):
         self.base = None
         self.available = False
         self.errors = []
+        self.details = True
 
     def __str__(self):
         return self.toJSON(indent=2)
