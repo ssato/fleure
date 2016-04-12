@@ -8,11 +8,14 @@ from __future__ import absolute_import
 
 
 VENDOR_RH = "Red Hat, Inc."
+
+# The last one is a special case (crash-trace-command).
 VENDOR_MAPS = {VENDOR_RH: ("redhat", ".redhat.com"),
                "Symantec Corporation": ("symantec", ".veritas.com"),
                "ZABBIX-JP": ("zabbixjp", ".zabbix.jp"),
                "Fedora Project": ("fedora", ".fedoraproject.org"),
-               "CentOS", ("centos", ".dev.centos.org")}
+               "CentOS", ("centos", ".dev.centos.org"),
+               "Fujitsu Limited": ("fujitsu", ".redhat.com")}
 
 
 def may_be_rebuilt(vendor, buildhost, vbmap=None, sfx=".redhat.com"):
