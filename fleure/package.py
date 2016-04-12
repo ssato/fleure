@@ -14,7 +14,7 @@ VENDOR_MAPS = {VENDOR_RH: ("redhat", ".redhat.com"),
                "Symantec Corporation": ("symantec", ".veritas.com"),
                "ZABBIX-JP": ("zabbixjp", ".zabbix.jp"),
                "Fedora Project": ("fedora", ".fedoraproject.org"),
-               "CentOS", ("centos", ".dev.centos.org"),
+               "CentOS": ("centos", ".dev.centos.org"),
                "Fujitsu Limited": ("fujitsu", ".redhat.com")}
 
 
