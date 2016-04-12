@@ -139,8 +139,7 @@ class Host(bunch.Bunch):
         if cnf["period"]:
             cnf["period"] = fleure.dates.period_to_dates(*cnf["period"])
 
-        for key in cnf.keys():
-            setattr(self, key, cnf[key])
+        super(Host, self).__init__(cnf)
 
         # post setups:
         if os.path.isdir(root_or_arc_path):
@@ -151,8 +150,14 @@ class Host(bunch.Bunch):
         if self.workdir is None or not self.workdir:
             self.workdir = self.root
 
-        if self.hid is None or not self.hid:
+        if not getattr(self, "hid", False):
             self.hid = str(uuid.uuid4()).split('-')[0]
+
+        if not getattr(self, "repos_map", False):
+            self.repos_map = fleure.globals.REPOS_MAP
+
+        if not getattr(self, "repos", False):
+            self.repos = []
 
         self.tpaths = [_normpath(p) for p in self.tpaths]
 
@@ -192,7 +197,7 @@ class Host(bunch.Bunch):
             self.errors.append("Invalid RPM DBs: " + self.root)
             return
 
-        if self.repos is None or not self.repos:
+        if not getattr(self, "repos", False):
             self.repos = fleure.rpmutils.guess_rhel_repos(self.root, None,
                                                           self.repos_map)
 
