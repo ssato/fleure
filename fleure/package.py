@@ -6,6 +6,9 @@
 """
 from __future__ import absolute_import
 
+import collections
+import operator
+
 
 VENDOR_RH = "Red Hat, Inc."
 VENDORS_MAP = {VENDOR_RH: ("redhat", "redhat.com"),
@@ -39,6 +42,18 @@ def inspect_origin(name, vendor, buildhost, extra_names=None):
         replaced = origin != org_exp  # Available from any repos.
 
     return dict(origin=origin, rebuilt=rebuilt, replaced=replaced)
+
+
+_TPL_KEYS = ("name epoch version release arch summary vendor buildhost "
+             "origin rebuilt replaced").split()
+
+
+def make_pkgtuple(pkg):
+    """
+    Convert Package object to named tuple to reduce each memory size.
+    """
+    vals = operator.itemgetter(*_TPL_KEYS)(pkg)
+    return collections.namedtuple("PkgTuple", _TPL_KEYS)(*vals)
 
 
 class Package(dict):
