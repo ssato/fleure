@@ -8,51 +8,37 @@ from __future__ import absolute_import
 
 
 VENDOR_RH = "Red Hat, Inc."
-
-# The last one is a special case (crash-trace-command).
-VENDOR_MAPS = {VENDOR_RH: ("redhat", ".redhat.com"),
-               "Symantec Corporation": ("symantec", ".veritas.com"),
-               "ZABBIX-JP": ("zabbixjp", ".zabbix.jp"),
-               "Fedora Project": ("fedora", ".fedoraproject.org"),
-               "CentOS": ("centos", ".dev.centos.org"),
-               "Fujitsu Limited": ("fujitsu", ".redhat.com")}
-
-
-def may_be_rebuilt(vendor, buildhost, vbmap=None):
-    """Whether to be rebuilt or not.
-    """
-    if vbmap is None:
-        vbmap = VENDOR_MAPS
-
-    bhsfx = vbmap.get(vendor, (None, False))[1]
-    if bhsfx:
-        return not buildhost.endswith(bhsfx)
-
-    return False
+VENDORS_MAP = {VENDOR_RH: ("redhat", "redhat.com"),
+               "Fujitsu Limited": ("redhat", "redhat.com"),
+               "Symantec Corporation": ("symantec", "veritas.com"),
+               "ZABBIX-JP": ("zabbixjp", "zabbix.jp"),
+               "Fedora Project": ("fedora", "fedoraproject.org"),
+               "CentOS": ("centos", "centos.org")}
+BH_ORIGIN_MAP = {ob[1]: ob[0] for ob in VENDORS_MAP.values()}
 
 
-def inspect_origin(name, vendor, buildhost, extra_names=None,
-                   vbmap=None, exp_vendor=VENDOR_RH):
+def inspect_origin(name, vendor, buildhost, extra_names=None):
     """
     Inspect package info and detect its origin, etc.
+
+    - rebuilt: buildhost suffix != the one expected from vendor
+    - replaced: origin != the one expected from buildhost suffix
 
     :param name: Package name
     :param vendor: Package vendor
     :param buildhost: Package buildhost
     :param extra_names: Extra (non-vendor-origin) package names
     """
-    if vbmap is None:
-        vbmap = VENDOR_MAPS
+    rebuilt = replaced = False
+    bhsfx = '.'.join(buildhost.split('.')[-2:])  # ex. www.a.t.co -> t.co
+    (org_exp, bhsfx_exp) = VENDORS_MAP.get(vendor, ("unknown", None))
+    origin = BH_ORIGIN_MAP.get(bhsfx, org_exp)
 
-    origin = vbmap.get(vendor, ("unknown", ))[0]
-
-    # Cases that it may be rebuilt or replaced.
+    rebuilt = bhsfx != bhsfx_exp
     if extra_names is not None and name not in extra_names:
-        rebuilt = may_be_rebuilt(vendor, buildhost, vbmap)
-        replaced = vendor != exp_vendor
-        return dict(origin=origin, rebuilt=rebuilt, replaced=replaced)
+        replaced = origin != org_exp  # Available from any repos.
 
-    return dict(origin=origin, rebuilt=False, replaced=False)
+    return dict(origin=origin, rebuilt=rebuilt, replaced=replaced)
 
 
 class Package(dict):
