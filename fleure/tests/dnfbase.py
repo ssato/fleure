@@ -40,7 +40,7 @@ class Test10(unittest.TestCase):
 class Test20(fleure.tests.common.TestsWithRpmDB):
 
     def setUp(self):
-        super(HostTest20, self).setUp()
+        super(Test20, self).setUp()
         self.base = TT.Base(self.workdir)
         self.base.prepare()
 
