@@ -7,7 +7,6 @@ from __future__ import absolute_import
 
 import os.path
 import tablib
-import unittest
 import fleure.tests.common
 import fleure.decorators
 
@@ -17,13 +16,7 @@ except ImportError:
     TT = None
 
 
-class Test00(unittest.TestCase):
-
-    def setUp(self):
-        self.workdir = fleure.tests.common.setup_workdir()
-
-    def tearDown(self):
-        fleure.tests.common.cleanup_workdir(self.workdir)
+class Test00(fleure.tests.common.TestsWithWorkdir):
 
     @fleure.tests.common.skip_if_not(TT is not None)
     def test_10_dump_xl(self):

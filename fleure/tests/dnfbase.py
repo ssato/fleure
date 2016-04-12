@@ -37,17 +37,12 @@ class Test10(unittest.TestCase):
                                          cachedir))
 
 
-class Test20(unittest.TestCase):
+class Test20(fleure.tests.common.TestsWithRpmDB):
 
     def setUp(self):
-        self.workdir = fleure.tests.common.setup_workdir()
-        fleure.tests.common.copy_rpmdb_files(self.workdir)
-
+        super(HostTest20, self).setUp()
         self.base = TT.Base(self.workdir)
         self.base.prepare()
-
-    def tearDown(self):
-        fleure.tests.common.cleanup_workdir(self.workdir)
 
     @fleure.tests.common.skip_if_not(TT is not None)
     def test_20_list_installed(self):

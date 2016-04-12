@@ -50,17 +50,12 @@ class HostTest00(unittest.TestCase):
         self.assertEquals(host.errors, [])
 
 
-class HostTest10(unittest.TestCase):
+class HostTest10(fleure.tests.common.TestsWithRpmDB):
 
     def setUp(self):
-        self.workdir = fleure.tests.common.setup_workdir()
-        fleure.tests.common.copy_rpmdb_files(self.workdir)
-
+        super(HostTest10, self).setUp()
         workdir = os.path.join(self.workdir, "out")
         self.host = TT.Host(self.workdir, workdir=workdir)
-
-    def tearDown(self):
-        fleure.tests.common.cleanup_workdir(self.workdir)
 
     def test_20_configure(self):
         self.host.configure()

@@ -11,20 +11,11 @@
 # pylint: disable=missing-docstring
 from __future__ import absolute_import
 
-import unittest
-
 import fleure.rpmutils as TT
 import fleure.tests.common
 
 
-class Test00(unittest.TestCase):
-
-    def setUp(self):
-        self.workdir = fleure.tests.common.setup_workdir()
-        fleure.tests.common.copy_rpmdb_files(self.workdir)
-
-    def tearDown(self):
-        fleure.tests.common.cleanup_workdir(self.workdir)
+class Test00(fleure.tests.common.TestsWithRpmDB):
 
     def test_20_check_rpmdb_root(self):
         self.assertTrue(TT.check_rpmdb_root(self.workdir))

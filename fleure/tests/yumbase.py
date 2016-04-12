@@ -10,8 +10,6 @@
 #
 # pylint: disable=missing-docstring
 from __future__ import absolute_import
-
-import unittest
 import fleure.tests.common
 
 try:
@@ -21,14 +19,7 @@ except ImportError:
     TT = None
 
 
-class Test00(unittest.TestCase):
-
-    def setUp(self):
-        self.workdir = fleure.tests.common.setup_workdir()
-        fleure.tests.common.copy_rpmdb_files(self.workdir)
-
-    def tearDown(self):
-        fleure.tests.common.cleanup_workdir(self.workdir)
+class Test00(fleure.tests.common.TestsWithRpmDB):
 
     @fleure.tests.common.skip_if_not(TT is not None)
     def test_10_create(self):

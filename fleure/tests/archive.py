@@ -7,7 +7,6 @@ from __future__ import absolute_import
 
 import os.path
 import os
-import unittest
 
 import fleure.archive as TT
 import fleure.globals
@@ -25,13 +24,7 @@ def touch(filepath):
     open(filepath, 'w').write("\n")
 
 
-class Test00(unittest.TestCase):
-
-    def setUp(self):
-        self.workdir = fleure.tests.common.setup_workdir()
-
-    def tearDown(self):
-        fleure.tests.common.cleanup_workdir(self.workdir)
+class Test00(fleure.tests.common.TestsWithWorkdir):
 
     def test_10__is_link__symlink(self):
         thisfile = os.path.abspath(__file__)
@@ -120,13 +113,7 @@ class Test00(unittest.TestCase):
             self.assertEquals(sorted(zipf.namelist()), paths)
 
 
-class Test10(unittest.TestCase):
-
-    def setUp(self):
-        self.workdir = fleure.tests.common.setup_workdir()
-
-    def tearDown(self):
-        fleure.tests.common.cleanup_workdir(self.workdir)
+class Test10(fleure.tests.common.TestsWithWorkdir):
 
     @fleure.tests.common.skip_if_not(_RPM_DB_FOUND)
     def test_60_extract_rpmdb_archive__targz(self):
