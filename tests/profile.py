@@ -4,19 +4,14 @@
 #
 """profiling fleure with line_profiler and memory_profiler.
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import argparse
+import line_profiler
 import os.path
 import os
 import sys
 import tempfile
-
-try:
-    import line_profiler
-    import memory_profiler
-except ImportError:
-    sys.exit(0)
 
 import fleure.analysis
 import fleure.datasets
@@ -68,7 +63,8 @@ def prof_main(argv=None):
         sys.exit(0)
 
         for fun in TARGETS:
-            fun = memory_profiler.profile(fun)
+            # fun = memory_profiler.profile(fun)
+            print("Wrapped: %s" % str(fun))
 
         fleure.main.main(root_or_arc_path, **cnf)
         # mprof = memory_profiler.LineProfiler(...)
