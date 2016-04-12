@@ -9,6 +9,7 @@ import os
 import shutil
 import sys
 import tempfile
+import unittest
 
 import fleure.globals
 
@@ -135,5 +136,21 @@ class Chdir(object):
     def __exit__(self, *args):
         if self.need_chdir:
             os.chdir(self.orgdir)
+
+
+class TestsWithWorkdir(unittest.TestCase):
+
+    def setUp(self):
+        self.workdir = setup_workdir()
+
+    def tearDown(self):
+        cleanup_workdir(self.workdir)
+
+
+class TestsWithRpmDB(TestsWithWorkdir):
+
+    def setUp(self):
+        super(TestsWithRpmDB, self).setUp()
+        copy_rpmdb_files(self.workdir)
 
 # vim:sw=4:ts=4:et:
