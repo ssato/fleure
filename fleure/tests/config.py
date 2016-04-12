@@ -44,7 +44,7 @@ class HostTest00(unittest.TestCase):
         self.assertTrue(host.hid is not None)
         self.assertEquals(host.tpaths, TT.DEFAULTS["tpaths"])
 
-        self.assertTrue(host.repos is None)
+        self.assertTrue(host.repos == [])
         self.assertTrue(host.base is None)
         self.assertFalse(host.available)
         self.assertEquals(host.errors, [])
