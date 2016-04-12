@@ -18,18 +18,15 @@ VENDOR_MAPS = {VENDOR_RH: ("redhat", ".redhat.com"),
                "Fujitsu Limited": ("fujitsu", ".redhat.com")}
 
 
-def may_be_rebuilt(vendor, buildhost, vbmap=None, sfx=".redhat.com"):
+def may_be_rebuilt(vendor, buildhost, vbmap=None):
     """Whether to be rebuilt or not.
     """
-    if buildhost.endswith(sfx):
-        return False
-
     if vbmap is None:
         vbmap = VENDOR_MAPS
 
-    bhsuffix = vbmap.get(vendor, (None, False))[1]
-    if bhsuffix:
-        return not buildhost.endswith(bhsuffix)
+    bhsfx = vbmap.get(vendor, (None, False))[1]
+    if bhsfx:
+        return not buildhost.endswith(bhsfx)
 
     return False
 
@@ -42,7 +39,6 @@ def inspect_origin(name, vendor, buildhost, extra_names=None,
     :param name: Package name
     :param vendor: Package vendor
     :param buildhost: Package buildhost
-    :param extras: Extra packages not available from yum repos
     :param extra_names: Extra (non-vendor-origin) package names
     """
     if vbmap is None:
