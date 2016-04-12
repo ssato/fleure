@@ -215,7 +215,7 @@ def prepare(host):
              len([p for p in host.installed if p.get("rebuilt", False)]),
              len([p for p in host.installed if p.get("replaced", False)]))
 
-    host.save(dict(data=host.installed, ), "packages")
+    host.save(host.installed, "packages")
 
     if base.ready():
         host.available = True
@@ -245,8 +245,8 @@ def analyze(host):
              )
     host.errata = ers = host.base.list_errata(calls)
 
-    host.save(dict(data=ers, ), "errata")
-    host.save(dict(data=ups, ), "updates")
+    host.save(ers, "errata")
+    host.save(ups, "updates")
     LOG.info(_("%s: Found %d errata and %d updates, saved the lists"),
              host.hid, len(ers), len(ups))
 
@@ -273,8 +273,8 @@ def analyze(host):
         LOG.debug(_("%s [delta]: Analyze delta errata data by refering %s"),
                   host.hid, host.refdir)
         (ers, ups) = fleure.datasets.compute_delta(host.refdir, ers, ups)
-        host.save(dict(data=ers, ), "errata", subdir="delta")
-        host.save(dict(data=ups, ), "updates", subdir="delta")
+        host.save(ers, "errata", subdir="delta")
+        host.save(ups, "updates", subdir="delta")
         LOG.info(_("%s [delta]: Found %d errata and %d updates, save the "
                    "lists"), host.hid, len(ers), len(ups))
 
