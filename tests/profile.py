@@ -6,6 +6,7 @@
 """
 from __future__ import absolute_import
 
+import argparse
 import os.path
 import os
 import sys
@@ -39,19 +40,40 @@ TARGETS = (fleure.main.main,
            fleure.datasets.make_dataset)
 
 
-def prof_main():
+def prof_main(argv=None):
     """main.
     """
+    if argv is None:
+        argv = sys.argv[1:]
+
+    psr = argparse.ArgumentParser()
+    psr.add_argument("-P", "--profile", choices=("line", "memory", "all"),
+                     default="line")
+    args = psr.parse_args(argv)
+
     tmpdir = tempfile.mkdtemp(dir="/tmp", prefix="fleure-tests-")
     root_or_arc_path = os.path.join(os.path.dirname(__file__),
                                     "rhel-6-client-1_var_lib_rpm.tar.xz")
     cnf = dict(workdir=tmpdir, repos=["rhel-6-server-rpms"], verbosity=2,
                period=["2015-01-01", "2015-11-11"], archive=True)
 
-    lprof = line_profiler.LineProfiler(*TARGETS)
-    lprof.runcall(fleure.main.main, root_or_arc_path, **cnf)
-    lprof.print_stats()
-    lprof.dump_stats(os.path.join(tmpdir, "test.prof"))
+    if args.profile in ("line", "all"):
+        lprof = line_profiler.LineProfiler(*TARGETS)
+        lprof.runcall(fleure.main.main, root_or_arc_path, **cnf)
+        lprof.print_stats()
+        lprof.dump_stats(os.path.join(tmpdir, "test.prof"))
+
+    if args.profile in ("memory", "all"):
+        print("Not implemented yet")
+        sys.exit(0)
+
+        for fun in TARGETS:
+            fun = memory_profiler.profile(fun)
+
+        fleure.main.main(root_or_arc_path, **cnf)
+        # mprof = memory_profiler.LineProfiler(...)
+        # mprof.print_stats()
+        # mprof.dump_stats(os.path.join(tmpdir, "test.prof"))
 
 
 if __name__ == '__main__':
