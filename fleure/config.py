@@ -9,6 +9,7 @@
 from __future__ import absolute_import
 
 import anyconfig
+import anyconfig.utils
 import bunch
 import logging
 import os.path
@@ -216,20 +217,20 @@ class Host(bunch.Bunch):
                             cachedir=self.cachedir)
         return self.base
 
-    def save(self, obj, name, savedir=None):
+    def save(self, obj, filename, savedir=None, **kwargs):
         """
         :param obj: Object to save
-        :param name: File base name to save
+        :param filename: File base name to save
         :param savedir: Directory to save results
+        :param kwargs: Extra keyword arguments passed to anyconfig.dump
         """
+        if anyconfig.utils.is_iterable(obj):
+            obj = dict(data=obj, )  # Top level data should be a dict.
+
         if savedir is None:
-            filepath = os.path.join(self.workdir, "%s.json" % name)
-        else:
-            filepath = os.path.join(savedir, "%s.json" % name)
+            savedir = self.workdir
 
-        if not os.path.exists(os.path.dirname(filepath)):
-            os.makedirs(os.path.dirname(filepath))
-
-        fleure.utils.json_dump(obj, filepath)
+        filepath = os.path.join(savedir, "%s.json" % filename)
+        anyconfig.dump(obj, filepath, **kwargs)
 
 # vim:sw=4:ts=4:et:
