@@ -44,8 +44,7 @@ def _list_installed(root, extras=None, process_fns=None):
     # see :class:`~fleure.package.Package`
     keys = ("name", "version", "release", "arch", "epoch", "summary", "vendor",
             "buildhost")
-    ens = set(e.name for e in extras)
-    calls = (lambda params: fleure.package.Package(*params, extra_names=ens),
+    calls = (lambda params: fleure.package.Package(*params, extras=extras),
              process_fns)
 
     return [fleure.utils.chaincalls([h[k] for k in keys], *calls)
@@ -248,8 +247,11 @@ class Base(fleure.base.Base):
                 hpkgs = list(query.installed())  # These lack buildhost, etc.
                 self._hpackages[item] = hpkgs  # Cache it.
 
-                extras = list(query.extras())
-                self._hpackages["extras"] = extras  # Cache it also.
+                available = set(p.name for p in query.available())
+                extras = set(p.name for p in query.extras()
+                             if p.name not in available)
+                self._hpackages["available"] = available  # Cache it also.
+                self._hpackages["extras"] = extras  # Ditto.
                 self._packages[item] = _list_installed(self.root, extras,
                                                        process_fns)
                 return self._packages[item]
