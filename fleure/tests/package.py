@@ -42,7 +42,7 @@ class Test00(unittest.TestCase):
 
     def test_18_inspect_origin__from_others(self):
         origin = TT.inspect_origin("ansible", "CentOS", "a.centos.org",
-                                   extra_names=["ansible"])
+                                   extras=["ansible"])
         self.ref.update(origin="centos", from_others=True)
         self.assertTrue(dicts_equal(origin, self.ref), origin)
 
