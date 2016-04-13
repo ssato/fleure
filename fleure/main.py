@@ -61,12 +61,9 @@ def analyze_and_dump_results(host, rpms, errata, updates, dumpdir=None):
     installed = dict(list=rpms, list_rebuilt=[], list_replaced=[],
                      list_from_others=[])
     for pkg in rpms:
-        for key in ("rebuilt", "replaced"):
+        for key in ("rebuilt", "replaced", "from_others"):
             if pkg.get(key, False):
                 installed["list_" + key].append(pkg)
-
-        if pkg.get("origin", None) != host.rpm_vendor:
-            installed["list_from_others"].append(pkg)
 
     nps = len(rpms)
     nus = len(updates)

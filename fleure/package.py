@@ -10,38 +10,52 @@ import collections
 import operator
 
 
+RPM_ORIGIN_DEFAULT = "redhat"
 VENDOR_RH = "Red Hat, Inc."
-VENDORS_MAP = {VENDOR_RH: ("redhat", "redhat.com"),
-               "Fujitsu Limited": ("redhat", "redhat.com"),
-               "Symantec Corporation": ("symantec", "veritas.com"),
-               "ZABBIX-JP": ("zabbixjp", "zabbix.jp"),
-               "Fedora Project": ("fedora", "fedoraproject.org"),
-               "CentOS": ("centos", "centos.org")}
-BH_ORIGIN_MAP = {ob[1]: ob[0] for ob in VENDORS_MAP.values()}
+
+# (vendor, origin, buildhost suffix)
+VENDORS = [(VENDOR_RH, "redhat", "redhat.com"),
+           ("Fujitsu Limited", "redhat", "redhat.com"),
+           ("Symantec Corporation", "symantec", "veritas.com"),
+           ("ZABBIX-JP", "zabbixjp", "zabbix.jp"),
+           ("Fedora Project", "fedora", "fedoraproject.org"),
+           ("CentOS", "centos", "centos.org")]
+
+BH_ORIGIN_MAP = {sfx: origin for _vendor, origin, sfx in VENDORS}
+VENDOR_BH_MAP = {vendor: sfx for vendor, _origin, sfx in VENDORS}
+VENDORS_MAP = {vendor: origin for vendor, origin, _sfx in VENDORS}
 
 
-def inspect_origin(name, vendor, buildhost, extra_names=None):
+def inspect_origin(name, vendor, buildhost, extras=None,
+                   expected=RPM_ORIGIN_DEFAULT):
     """
     Inspect package info and detect its origin, etc.
 
-    - rebuilt: buildhost suffix != the one expected from vendor
-    - replaced: origin != the one expected from buildhost suffix
+    - rebuilt: available from repos (name is not found in extras),
+      origin == expected and buildhost suffix != the one by vendor
+    - replaced: available from repos and origin by vendor != `expected`
+    - from_others: may came from unknown source
 
     :param name: Package name
-    :param vendor: Package vendor
-    :param buildhost: Package buildhost
+    :param vendor: vendor string in RPM
+    :param buildhost: buildhost string in RPM
     :param extra_names: Extra (non-vendor-origin) package names
+    :param expected: Expected origin
     """
-    rebuilt = replaced = False
+    if extras is None:
+        extras = []
+
+    available = name not in extras
     bhsfx = '.'.join(buildhost.split('.')[-2:])  # ex. www.a.t.co -> t.co
-    (org_exp, bhsfx_exp) = VENDORS_MAP.get(vendor, ("unknown", None))
-    origin = BH_ORIGIN_MAP.get(bhsfx, org_exp)
+    origin_by_v = VENDORS_MAP.get(vendor, None)
+    origin_by_b = BH_ORIGIN_MAP.get(bhsfx, None)
+    bhsfx_by_v = VENDOR_BH_MAP.get(vendor, None)
 
-    rebuilt = bhsfx != bhsfx_exp
-    if extra_names is not None and name not in extra_names:
-        replaced = origin != org_exp  # Available from any repos.
-
-    return dict(origin=origin, rebuilt=rebuilt, replaced=replaced)
+    return dict(origin=(origin_by_b or origin_by_v or "unknown"),
+                rebuilt=(available and origin_by_v == expected and
+                         bhsfx != bhsfx_by_v),
+                replaced=(available and origin_by_v != expected),
+                from_others=(not available))
 
 
 _TPL_KEYS = ("name epoch version release arch summary vendor buildhost "
@@ -61,7 +75,7 @@ class Package(dict):
     """
 
     def __init__(self, name, version, release, arch, epoch=None, summary=None,
-                 vendor=None, buildhost=None, extra_names=None, **kwargs):
+                 vendor=None, buildhost=None, extras=None, **kwargs):
         """
         :param name: Package name
         """
@@ -76,11 +90,11 @@ class Package(dict):
         self["vendor"] = vendor
         self["buildhost"] = buildhost
 
-        dic = inspect_origin(name, vendor, buildhost, extra_names)
-        self.update(**dic)
-
         for key, val in kwargs.items():
             self[key] = val
+
+        origin = inspect_origin(name, vendor, buildhost, extras)
+        self.update(origin)
 
     def __str__(self):
         """to string method"""
