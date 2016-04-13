@@ -124,7 +124,7 @@ def _to_pkg(pkg, extras=None):
 
     return fleure.package.Package(pkg.name, pkg.version, pkg.release, pkg.arch,
                                   pkg.epoch, pkg.summary, pkg.vendor,
-                                  pkg.buildhost, extras)
+                                  pkg.buildhost, extras=extras)
 
 
 class Base(fleure.base.Base):
