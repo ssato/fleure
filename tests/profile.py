@@ -46,19 +46,24 @@ def prof_main(argv=None):
     psr = argparse.ArgumentParser()
     psr.add_argument("-P", "--profile", choices=("line", "memory", "all"),
                      default="line")
+    psr.add_argument("-w", "--workdir", help="Working dir to save results")
     args = psr.parse_args(argv)
 
-    tmpdir = tempfile.mkdtemp(dir="/tmp", prefix="fleure-tests-")
+    if args.workdir:
+        workdir = args.workdir
+    else:
+        workdir = tempfile.mkdtemp(dir="/tmp", prefix="fleure-tests-")
+
     root_or_arc_path = os.path.join(os.path.dirname(__file__),
                                     "rhel-6-client-1_var_lib_rpm.tar.xz")
-    cnf = dict(workdir=tmpdir, repos=["rhel-6-server-rpms"], verbosity=2,
+    cnf = dict(workdir=workdir, repos=["rhel-6-server-rpms"], verbosity=2,
                period=["2015-01-01", "2016-04-10"], archive=True)
 
     if args.profile in ("line", "all"):
         lprof = line_profiler.LineProfiler(*TARGETS)
         lprof.runcall(fleure.main.main, root_or_arc_path, **cnf)
         lprof.print_stats()
-        lprof.dump_stats(os.path.join(tmpdir, "test.prof"))
+        lprof.dump_stats(os.path.join(workdir, "test.prof"))
 
     if args.profile in ("memory", "all"):
         print("Not implemented yet")
@@ -71,7 +76,7 @@ def prof_main(argv=None):
         fleure.main.main(root_or_arc_path, **cnf)
         # mprof = memory_profiler.LineProfiler(...)
         # mprof.print_stats()
-        # mprof.dump_stats(os.path.join(tmpdir, "test.prof"))
+        # mprof.dump_stats(os.path.join(workdir, "test.prof"))
 
 
 if __name__ == '__main__':
