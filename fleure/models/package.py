@@ -8,12 +8,10 @@ from __future__ import absolute_import
 
 import operator
 import sqlalchemy
-import sqlalchemy.ext.declarative
 
 from sqlalchemy import Column
+from .base import Base
 
-
-Base = sqlalchemy.ext.declarative.declarative_base()
 
 RPM_ORIGIN_DEFAULT = "redhat"
 VENDOR_RH = "Red Hat, Inc."
