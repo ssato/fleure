@@ -24,11 +24,12 @@ class FunctionsTest00(unittest.TestCase):
             self.assertEquals(cnf[key], TT.DEFAULTS[key])
 
     def test_22_try_to_load_config_from_files__sysconf(self):
-        cnf_path = fleure.globals.FLEURE_SYSCONF
+        cnf_path = os.path.join(fleure.tests.common.selfdir(),
+                                "../../data/conf/*.yml")
         cnf_ref = anyconfig.load(cnf_path)
         cnf = TT.try_to_load_config_from_files(cnf_path)
         for key in cnf_ref.keys():
-            self.assertEquals(cnf[key], cnf_ref[key])
+            self.assertEquals(cnf[key], cnf_ref[key], key)
 
 
 class HostTest00(unittest.TestCase):
