@@ -1,455 +1,564 @@
-ssato@x1carbon% python tests/profile.py --profile all         ~/repos/public/github.com/ssato/fleure.git
+ssato@x1carbon% PYTHONPATH=. python tests/profile.py          ~/repos/public/github.com/ssato/fleure.git
 Couldn't import dot_parser, loading of dot files will not be possible.
-2016-04-12 13:08:08,683 fleure: [INFO] 1f9fa40c: 初期化を開始: root=/tmp/fleure-tests-iHKFca, backend=maybe yum
-2016-04-12 13:09:27,791 fleure: [INFO] 1f9fa40c[dnf]: 初期化を完了、解析を開始 ...
-2016-04-12 13:09:52,740 fleure: [INFO] 1f9fa40c: 419 個 (rebuilt=0, replaced=4) のインストール RPM を発見
-2016-04-12 13:09:52,865 fleure: [INFO] ホストを解析: 1f9fa40c
-2016-04-12 13:09:56,870 fleure: [INFO] 1f9fa40c: 518 個のエラータと 253 個の更新 RPM を発見、一覧を保存
-2016-04-12 13:09:56,871 fleure: [INFO] 1f9fa40c: エラータとパッケージを解析中 ...
-2016-04-12 13:10:04,393 fleure: [INFO] 1f9fa40c: エラータとパッケージ [期間 20150101 ~ 20151112] を解析中
-2016-04-12 13:10:04,396 fleure: [DEBUG] 1f9fa40c: 指定期間データの作業用ディレクトリ /tmp/fleure-tests-iHKFca/20150101_20151112 を作成
-2016-04-12 13:10:10,443 fleure: [INFO] 1f9fa40c: 解析結果 [期間 20150101 ~ 20151112] を /tmp/fleure-tests-iHKFca/20150101_20151112 内に保存しました
-2016-04-12 13:10:10,497 fleure: [INFO] 解析結果をアーカイブしました: /tmp/fleure-tests-iHKFca/report-1f9fa40c-2016-04-12.zip
+2016-04-14 15:32:51,575 fleure: [INFO] 5cbbb713: 初期化を開始: root=/tmp/fleure-tests-xQ6DBw, backend=dnf
+2016-04-14 15:34:02,451 fleure: [INFO] 5cbbb713[dnf]: 初期化を完了、解析を開始 ...
+2016-04-14 15:34:02,697 fleure: [INFO] 5cbbb713: 416 個 (rebuilt=0, replaced=1) のインストール RPM を発見
+2016-04-14 15:34:02,884 fleure: [INFO] ホストを解析: 5cbbb713
+2016-04-14 15:34:02,886 fleure: [INFO] 5cbbb713: エラータとパッケージを解析中 ...
+2016-04-14 15:34:07,830 fleure: [INFO] 5cbbb713: 518 個のエラータと 253 個の更新 RPM を発見、一覧を保存
+2016-04-14 15:34:07,892 fleure.analysis: [DEBUG] RHBA-2013:1572 matched: keywords=crash
+2016-04-14 15:34:07,896 fleure.analysis: [DEBUG] RHBA-2013:1583 matched: keywords=crash
+2016-04-14 15:34:07,917 fleure.analysis: [DEBUG] RHBA-2013:1609 matched: keywords=crash
+2016-04-14 15:34:07,931 fleure.analysis: [DEBUG] RHBA-2013:1643 matched: keywords=crash
+2016-04-14 15:34:07,935 fleure.analysis: [DEBUG] RHBA-2013:1647 matched: keywords=crash
+2016-04-14 15:34:07,944 fleure.analysis: [DEBUG] RHBA-2013:1648 matched: keywords=crash
+2016-04-14 15:34:07,984 fleure.analysis: [DEBUG] RHBA-2013:1685 matched: keywords=crash
+2016-04-14 15:34:08,021 fleure.analysis: [DEBUG] RHBA-2013:1713 matched: keywords=panic
+2016-04-14 15:34:08,029 fleure.analysis: [DEBUG] RHBA-2013:1716 matched: keywords=crash
+2016-04-14 15:34:08,073 fleure.analysis: [DEBUG] RHBA-2014:0156 matched: keywords=crash
+2016-04-14 15:34:08,106 fleure.analysis: [DEBUG] RHBA-2014:0303 matched: keywords=crash
+2016-04-14 15:34:08,185 fleure.analysis: [DEBUG] RHBA-2014:0776 matched: keywords=crash
+2016-04-14 15:34:08,195 fleure.analysis: [DEBUG] RHBA-2014:0806 matched: keywords=crash
+2016-04-14 15:34:08,203 fleure.analysis: [DEBUG] RHBA-2014:0857 matched: keywords=crash
+2016-04-14 15:34:08,206 fleure.analysis: [DEBUG] RHBA-2014:0872 matched: keywords=crash
+2016-04-14 15:34:08,220 fleure.analysis: [DEBUG] RHBA-2014:1005 matched: keywords=hang
+2016-04-14 15:34:08,225 fleure.analysis: [DEBUG] RHBA-2014:1015 matched: keywords=crash
+2016-04-14 15:34:08,232 fleure.analysis: [DEBUG] RHBA-2014:1056 matched: keywords=crash
+2016-04-14 15:34:08,239 fleure.analysis: [DEBUG] RHBA-2014:1107 matched: keywords=hang
+2016-04-14 15:34:08,258 fleure.analysis: [DEBUG] RHBA-2014:1189 matched: keywords=crash
+2016-04-14 15:34:08,307 fleure.analysis: [DEBUG] RHBA-2014:1410 matched: keywords=crash
+2016-04-14 15:34:08,315 fleure.analysis: [DEBUG] RHBA-2014:1411 matched: keywords=crash
+2016-04-14 15:34:08,328 fleure.analysis: [DEBUG] RHBA-2014:1419 matched: keywords=crash
+2016-04-14 15:34:08,365 fleure.analysis: [DEBUG] RHBA-2014:1460 matched: keywords=crash
+2016-04-14 15:34:08,414 fleure.analysis: [DEBUG] RHBA-2014:1503 matched: keywords=hang, crash
+2016-04-14 15:34:08,452 fleure.analysis: [DEBUG] RHBA-2014:1528 matched: keywords=hang
+2016-04-14 15:34:08,459 fleure.analysis: [DEBUG] RHBA-2014:1534 matched: keywords=crash
+2016-04-14 15:34:08,489 fleure.analysis: [DEBUG] RHBA-2014:1555 matched: keywords=hang, crash
+2016-04-14 15:34:08,527 fleure.analysis: [DEBUG] RHBA-2014:1579 matched: keywords=crash
+2016-04-14 15:34:08,531 fleure.analysis: [DEBUG] RHBA-2014:1594 matched: keywords=hang
+2016-04-14 15:34:08,586 fleure.analysis: [DEBUG] RHBA-2014:1854 matched: keywords=crash
+2016-04-14 15:34:08,594 fleure.analysis: [DEBUG] RHBA-2014:1884 matched: keywords=crash
+2016-04-14 15:34:08,627 fleure.analysis: [DEBUG] RHBA-2015:0108 matched: keywords=hang
+2016-04-14 15:34:08,633 fleure.analysis: [DEBUG] RHBA-2015:0129 matched: keywords=crash
+2016-04-14 15:34:08,651 fleure.analysis: [DEBUG] RHBA-2015:0810 matched: keywords=crash
+2016-04-14 15:34:08,661 fleure.analysis: [DEBUG] RHBA-2015:0926 matched: keywords=crash
+2016-04-14 15:34:08,689 fleure.analysis: [DEBUG] RHBA-2015:1085 matched: keywords=crash
+2016-04-14 15:34:08,711 fleure.analysis: [DEBUG] RHBA-2015:1250 matched: keywords=crash
+2016-04-14 15:34:08,738 fleure.analysis: [DEBUG] RHBA-2015:1266 matched: keywords=crash
+2016-04-14 15:34:08,747 fleure.analysis: [DEBUG] RHBA-2015:1277 matched: keywords=crash
+2016-04-14 15:34:08,765 fleure.analysis: [DEBUG] RHBA-2015:1286 matched: keywords=crash
+2016-04-14 15:34:08,775 fleure.analysis: [DEBUG] RHBA-2015:1292 matched: keywords=crash
+2016-04-14 15:34:08,781 fleure.analysis: [DEBUG] RHBA-2015:1293 matched: keywords=crash
+2016-04-14 15:34:08,818 fleure.analysis: [DEBUG] RHBA-2015:1325 matched: keywords=crash
+2016-04-14 15:34:08,849 fleure.analysis: [DEBUG] RHBA-2015:1339 matched: keywords=crash
+2016-04-14 15:34:08,866 fleure.analysis: [DEBUG] RHBA-2015:1346 matched: keywords=crash
+2016-04-14 15:34:08,899 fleure.analysis: [DEBUG] RHBA-2015:1380 matched: keywords=hang
+2016-04-14 15:34:08,925 fleure.analysis: [DEBUG] RHBA-2015:1391 matched: keywords=crash
+2016-04-14 15:34:08,952 fleure.analysis: [DEBUG] RHBA-2015:1407 matched: keywords=crash
+2016-04-14 15:34:08,956 fleure.analysis: [DEBUG] RHBA-2015:1408 matched: keywords=hang
+2016-04-14 15:34:08,985 fleure.analysis: [DEBUG] RHBA-2015:1441 matched: keywords=crash
+2016-04-14 15:34:08,995 fleure.analysis: [DEBUG] RHBA-2015:1450 matched: keywords=crash
+2016-04-14 15:34:09,006 fleure.analysis: [DEBUG] RHBA-2015:1465 matched: keywords=hang
+2016-04-14 15:34:09,012 fleure.analysis: [DEBUG] RHBA-2015:1470 matched: keywords=hang
+2016-04-14 15:34:09,015 fleure.analysis: [DEBUG] RHBA-2015:1609 matched: keywords=crash
+2016-04-14 15:34:09,028 fleure.analysis: [DEBUG] RHBA-2015:1615 matched: keywords=crash
+2016-04-14 15:34:09,035 fleure.analysis: [DEBUG] RHBA-2015:1711 matched: keywords=crash
+2016-04-14 15:34:09,050 fleure.analysis: [DEBUG] RHBA-2015:1822 matched: keywords=hang, crash
+2016-04-14 15:34:09,072 fleure.analysis: [DEBUG] RHBA-2015:1827 matched: keywords=panic, crash
+2016-04-14 15:34:09,081 fleure.analysis: [DEBUG] RHBA-2015:1992 matched: keywords=panic, crash
+2016-04-14 15:34:09,136 fleure.analysis: [DEBUG] RHBA-2016:0144 matched: keywords=crash
+2016-04-14 15:34:09,150 fleure.analysis: [DEBUG] RHBA-2016:0150 matched: keywords=hang, panic, crash
+2016-04-14 15:34:09,155 fleure.analysis: [DEBUG] RHBA-2016:0481 matched: keywords=crash
+2016-04-14 15:34:17,442 fleure: [INFO] 5cbbb713: エラータとパッケージ [期間 20150101 ~ 20160411] を解析中
+2016-04-14 15:34:17,442 fleure: [DEBUG] 5cbbb713: 指定期間データの作業用ディレクトリ /tmp/fleure-tests-xQ6DBw/20150101_20160411 を作成
+2016-04-14 15:34:17,473 fleure.analysis: [DEBUG] RHBA-2015:0108 matched: keywords=hang
+2016-04-14 15:34:17,480 fleure.analysis: [DEBUG] RHBA-2015:0129 matched: keywords=crash
+2016-04-14 15:34:17,497 fleure.analysis: [DEBUG] RHBA-2015:0810 matched: keywords=crash
+2016-04-14 15:34:17,508 fleure.analysis: [DEBUG] RHBA-2015:0926 matched: keywords=crash
+2016-04-14 15:34:17,537 fleure.analysis: [DEBUG] RHBA-2015:1085 matched: keywords=crash
+2016-04-14 15:34:17,561 fleure.analysis: [DEBUG] RHBA-2015:1250 matched: keywords=crash
+2016-04-14 15:34:17,591 fleure.analysis: [DEBUG] RHBA-2015:1266 matched: keywords=crash
+2016-04-14 15:34:17,599 fleure.analysis: [DEBUG] RHBA-2015:1277 matched: keywords=crash
+2016-04-14 15:34:17,618 fleure.analysis: [DEBUG] RHBA-2015:1286 matched: keywords=crash
+2016-04-14 15:34:17,630 fleure.analysis: [DEBUG] RHBA-2015:1292 matched: keywords=crash
+2016-04-14 15:34:17,635 fleure.analysis: [DEBUG] RHBA-2015:1293 matched: keywords=crash
+2016-04-14 15:34:17,674 fleure.analysis: [DEBUG] RHBA-2015:1325 matched: keywords=crash
+2016-04-14 15:34:17,707 fleure.analysis: [DEBUG] RHBA-2015:1339 matched: keywords=crash
+2016-04-14 15:34:17,725 fleure.analysis: [DEBUG] RHBA-2015:1346 matched: keywords=crash
+2016-04-14 15:34:17,758 fleure.analysis: [DEBUG] RHBA-2015:1380 matched: keywords=hang
+2016-04-14 15:34:17,787 fleure.analysis: [DEBUG] RHBA-2015:1391 matched: keywords=crash
+2016-04-14 15:34:17,814 fleure.analysis: [DEBUG] RHBA-2015:1407 matched: keywords=crash
+2016-04-14 15:34:17,818 fleure.analysis: [DEBUG] RHBA-2015:1408 matched: keywords=hang
+2016-04-14 15:34:17,846 fleure.analysis: [DEBUG] RHBA-2015:1441 matched: keywords=crash
+2016-04-14 15:34:17,856 fleure.analysis: [DEBUG] RHBA-2015:1450 matched: keywords=crash
+2016-04-14 15:34:17,867 fleure.analysis: [DEBUG] RHBA-2015:1465 matched: keywords=hang
+2016-04-14 15:34:17,875 fleure.analysis: [DEBUG] RHBA-2015:1470 matched: keywords=hang
+2016-04-14 15:34:17,878 fleure.analysis: [DEBUG] RHBA-2015:1609 matched: keywords=crash
+2016-04-14 15:34:17,888 fleure.analysis: [DEBUG] RHBA-2015:1615 matched: keywords=crash
+2016-04-14 15:34:17,894 fleure.analysis: [DEBUG] RHBA-2015:1711 matched: keywords=crash
+2016-04-14 15:34:17,912 fleure.analysis: [DEBUG] RHBA-2015:1822 matched: keywords=hang, crash
+2016-04-14 15:34:17,931 fleure.analysis: [DEBUG] RHBA-2015:1827 matched: keywords=panic, crash
+2016-04-14 15:34:17,941 fleure.analysis: [DEBUG] RHBA-2015:1992 matched: keywords=panic, crash
+2016-04-14 15:34:17,996 fleure.analysis: [DEBUG] RHBA-2016:0144 matched: keywords=crash
+2016-04-14 15:34:18,009 fleure.analysis: [DEBUG] RHBA-2016:0150 matched: keywords=hang, panic, crash
+2016-04-14 15:34:18,014 fleure.analysis: [DEBUG] RHBA-2016:0481 matched: keywords=crash
+2016-04-14 15:34:24,551 fleure: [INFO] 5cbbb713 [20150101 ~ 20160411]: 220 個のエラータを発見、一覧を保存
+2016-04-14 15:34:24,605 fleure: [INFO] 解析結果をアーカイブしました: /tmp/fleure-tests-xQ6DBw/report-5cbbb713-2016-04-14.zip
 Timer unit: 1e-06 s
 
-Total time: 0.000781 s
-File: /usr/lib/python2.7/site-packages/fleure/analysis.py
-Function: list_latest_errata_by_updates at line 45
+Total time: 0.001067 s
+File: /home/ssato/repos/public/github.com/ssato/fleure.git/fleure/analysis.py
+Function: list_latest_errata_by_updates at line 28
 
 Line #      Hits         Time  Per Hit   % Time  Line Contents
 ==============================================================
-    45                                           def list_latest_errata_by_updates(ers):
-    46                                               """
-    47                                               :param ers: A list of errata dict
-    48                                               :return: A list of items in `ers` grouped by update names
-    49                                               """
-    50         6            6      1.0      0.8      ung = lambda e: sorted(set(u["name"] for u in e.get("updates", [])))
-    51        50          775     15.5     99.2      return [xs[-1] for xs in _sgroupby(ers, ung, itemgetter("issue_date"))]
+    28                                           def list_latest_errata_by_updates(ers):
+    29                                               """
+    30                                               :param ers: A list of errata dict
+    31                                               :return: A list of items in `ers` grouped by update names
+    32                                               """
+    33         6            6      1.0      0.6      ung = lambda e: sorted(set(u["name"] for u in e.get("updates", [])))
+    34         6            5      0.8      0.5      return [xs[-1] for xs
+    35        53         1056     19.9     99.0              in fleure.utils.sgroupby(ers, ung, itemgetter("issue_date"))]
 
-Total time: 0.004012 s
-File: /usr/lib/python2.7/site-packages/fleure/analysis.py
-Function: list_updates_from_errata at line 54
-
-Line #      Hits         Time  Per Hit   % Time  Line Contents
-==============================================================
-    54                                           def list_updates_from_errata(ers):
-    55                                               """
-    56                                               :param ers: A list of errata dict
-    57                                               """
-    58         6         2003    333.8     49.9      ups = sorted(fleure.utils.uconcat(e.get("updates", []) for e in ers),
-    59         6           98     16.3      2.4                   key=itemgetter("name"))
-    60         6            3      0.5      0.1      return [sorted(g, cmp=fleure.utils.pcmp, reverse=True)[0] for g
-    61       150         1908     12.7     47.6              in _sgroupby(ups, itemgetter("name"))]
-
-Total time: 0.047148 s
-File: /usr/lib/python2.7/site-packages/fleure/analysis.py
-Function: errata_of_keywords_g at line 64
+Total time: 0.006832 s
+File: /home/ssato/repos/public/github.com/ssato/fleure.git/fleure/analysis.py
+Function: list_updates_from_errata at line 38
 
 Line #      Hits         Time  Per Hit   % Time  Line Contents
 ==============================================================
-    64                                           def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
-    65                                                                    strict=False):
-    66                                               """
-    67                                               :param ers: A list of errata
-    68                                               :param keywords: Keyword list to filter 'important' RHBAs
-    69                                               :strict: Strict matching of keywords with using NLTK stemmer
-    70                                               :return:
-    71                                                   A generator to yield errata of which description contains any of
-    72                                                   given keywords
-    73
-    74                                               >>> ert0 = dict(advisory="RHSA-2015:XXX1",
-    75                                               ...             description="system hangs, or crash...")
-    76                                               >>> ert1 = dict(advisory="RHEA-2015:XXX2",
-    77                                               ...             description="some enhancement and changes")
-    78                                               >>> ers = list(errata_of_keywords_g([ert0, ert1], ("hang", "crash")))
-    79                                               >>> ert0 in ers
-    80                                               True
-    81                                               >>> ers[0]["keywords"]  # 'hangs' does not match with 'hang'.
-    82                                               ['crash']
-    83                                               >>> ert1 in ers
-    84                                               False
-    85                                               >>> ers = list(errata_of_keywords_g([ert0], ("hang", ), True))
-    86                                               >>> ert0 in ers
-    87                                               True
-    88                                               >>> ers[0]["keywords"]  # 'hangs' matches after stemming.
-    89                                               ['hang']
-    90                                               """
-    91         2            1      0.5      0.0      if strict:
-    92                                                   _stemmer = nltk.PorterStemmer()
-    93                                                   _stem = _stemmer.stem
-    94
-    95       480          260      0.5      0.6      for ert in ers:
-    96       478        44794     93.7     95.0          tokens = set(nltk.wordpunct_tokenize(ert["description"]))
-    97       478          220      0.5      0.5          if strict:
-    98                                                       tokens = set(_stem(w) for w in tokens)
-    99
-   100      3346         1588      0.5      3.4          mks = [k for k in keywords if k in tokens]
-   101       478          238      0.5      0.5          if mks:
-   102        34           32      0.9      0.1              ert["keywords"] = mks
-   103        34           15      0.4      0.0              yield ert
+    38                                           def list_updates_from_errata(ers):
+    39                                               """
+    40                                               :param ers: A list of errata dict
+    41                                               """
+    42         6         3619    603.2     53.0      ups = sorted(fleure.utils.uconcat(e.get("updates", []) for e in ers),
+    43         6          141     23.5      2.1                   key=itemgetter("name"))
+    44         6            3      0.5      0.0      return [sorted(g, cmp=fleure.rpmutils.pcmp, reverse=True)[0] for g
+    45       226         3069     13.6     44.9              in fleure.utils.sgroupby(ups, itemgetter("name"))]
 
-Total time: 0.015974 s
-File: /usr/lib/python2.7/site-packages/fleure/analysis.py
-Function: list_update_errata_pairs at line 127
+Total time: 1.88676 s
+File: /home/ssato/repos/public/github.com/ssato/fleure.git/fleure/analysis.py
+Function: errata_of_keywords_g at line 74
 
 Line #      Hits         Time  Per Hit   % Time  Line Contents
 ==============================================================
-   127                                           def list_update_errata_pairs(ers):
-   128                                               """
-   129                                               :param ers: A list of errata dict
-   130                                               :return: A list of (update_name, [errata_advisory])
-   131
-   132                                               >>> ers = [dict(advisory="RHSA-2015:XXX1",
-   133                                               ...             update_names=["kernel", "tzdata"]),
-   134                                               ...        dict(advisory="RHSA-2014:XXX2",
-   135                                               ...             update_names=["glibc", "tzdata"])
-   136                                               ...        ]
-   137                                               >>> list_update_errata_pairs(ers) == [
-   138                                               ...     ('glibc', ['RHSA-2014:XXX2']),
-   139                                               ...     ('kernel', ['RHSA-2015:XXX1']),
-   140                                               ...     ('tzdata', ['RHSA-2015:XXX1', 'RHSA-2014:XXX2'])
-   141                                               ... ]
-   142                                               True
-   143                                               """
-   144        10           16      1.6      0.1      ues = fleure.utils.uconcat([(u, e["advisory"]) for u in e["update_names"]]
-   145        10        13772   1377.2     86.2                                 for e in ers)
-   146        10            9      0.9      0.1      return [(u, sorted((t[1] for t in g), reverse=True)) for u, g
-   147       598         2177      3.6     13.6              in itertools.groupby(ues, itemgetter(0))]
+    74                                           def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
+    75                                                                    pkeywords=None, stemming=True):
+    76                                               """
+    77                                               :param ers: A list of errata
+    78                                               :param keywords: A tuple of keywords to filter 'important' RHBAs
+    79                                               :param pkeywords: Similar to above but a dict gives the list per RPMs
+    80                                               :param stemming: Strict matching of keywords with using NLTK stemmer
+    81                                               :return:
+    82                                                   A generator to yield errata of which description contains any of
+    83                                                   given keywords
+    84
+    85                                               >>> ert0 = dict(advisory="RHSA-2015:XXX1",
+    86                                               ...             description="system hangs, or crash...")
+    87                                               >>> ert1 = dict(advisory="RHEA-2015:XXX2",
+    88                                               ...             description="some enhancement and changes")
+    89                                               >>> ers = list(errata_of_keywords_g([ert0], ("hang", ), stemming=True))
+    90                                               >>> ert0 in ers
+    91                                               True
+    92                                               >>> ers[0]["keywords"]  # 'hangs' with stemming matches.
+    93                                               ['hang']
+    94                                               >>> ers = list(errata_of_keywords_g([ert0, ert1], ("hang", "crash"),
+    95                                               ...                                 stemming=False))
+    96                                               >>> ert0 in ers
+    97                                               True
+    98                                               >>> ers[0]["keywords"]  # 'hangs' w/o stemming does not match with 'hang'.
+    99                                               ['crash']
+   100                                               >>> ert1 in ers
+   101                                               False
+   102                                               """
+   103         2            1      0.5      0.0      if stemming:
+   104         2            5      2.5      0.0          _stem = _STEMMER.stem
+   105
+   106         2            2      1.0      0.0      if pkeywords is None:
+   107                                                   pkeywords = fleure.globals.ERRATA_PKEYWORDS
+   108
+   109       496          403      0.8      0.0      for ert in ers:
+   110       494        64622    130.8      3.4          tokens = set(nltk.wordpunct_tokenize(ert["description"]))
+   111       494          377      0.8      0.0          if stemming:
+   112       494      1798221   3640.1     95.3              tokens = set(_stem(w.lower()) for w in tokens)
+   113
+   114       494          870      1.8      0.0          kwds = _errata_keywords(ert.get("package_names", []), keywords,
+   115       494         3349      6.8      0.2                                  pkeywords)
+   116       494          670      1.4      0.0          matched = kwds & tokens
+   117       494          325      0.7      0.0          if matched:
+   118        94          625      6.6      0.0              LOG.debug(_("%s matched: keywords=%s"), ert["advisory"],
+   119        94        16859    179.4      0.9                        ', '.join(matched))
+   120        94          375      4.0      0.0              ert["keywords"] = list(matched)
+   121        94           57      0.6      0.0              yield ert
 
-Total time: 0.000323 s
-File: /usr/lib/python2.7/site-packages/fleure/analysis.py
-Function: list_updates_by_num_of_errata at line 150
-
-Line #      Hits         Time  Per Hit   % Time  Line Contents
-==============================================================
-   150                                           def list_updates_by_num_of_errata(uess):
-   151                                               """
-   152                                               List number of specific type of errata for each package names.
-   153
-   154                                               :param uess: A list of (update, [errata_advisory]) pairs
-   155                                               :return: [(package_name :: str, num_of_relevant_errata :: Int)]
-   156
-   157                                               >>> ers = [{'advisory': u'RHSA-2015:1623',
-   158                                               ...         'update_names': ['kernel-headers', 'kernel']},
-   159                                               ...        {'advisory': 'RHSA-2015:1513',
-   160                                               ...         'update_names': ['bind-utils']},
-   161                                               ...        {'advisory': 'RHSA-2015:1081',
-   162                                               ...         'update_names': ['kernel-headers', 'kernel']}
-   163                                               ...        ]
-   164                                               >>> list_updates_by_num_of_errata(list_update_errata_pairs(ers))
-   165                                               [('kernel', 2), ('kernel-headers', 2), ('bind-utils', 1)]
-   166                                               >>>
-   167                                               """
-   168         8            9      1.1      2.8      return sorted(((u, len(es)) for u, es in uess), key=itemgetter(1),
-   169         8          314     39.2     97.2                    reverse=True)
-
-Total time: 0.007626 s
-File: /usr/lib/python2.7/site-packages/fleure/analysis.py
-Function: analyze_rhsa at line 172
-
-Line #      Hits         Time  Per Hit   % Time  Line Contents
-==============================================================
-   172                                           def analyze_rhsa(rhsa):
-   173                                               """
-   174                                               Compute and return statistics of RHSAs from some view points.
-   175
-   176                                               :param rhsa: A list of security errata (RHSA) dicts
-   177                                               :return: RHSA analized data and metrics
-   178                                               """
-   179       167          136      0.8      1.8      cri_rhsa = [e for e in rhsa if e["severity"] == "Critical"]
-   180       167          116      0.7      1.5      imp_rhsa = [e for e in rhsa if e["severity"] == "Important"]
-   181
-   182         2            2      1.0      0.0      rhsa_rate_by_sev = [("Critical", len(cri_rhsa)),
-   183         2            1      0.5      0.0                          ("Important", len(imp_rhsa)),
-   184         2            1      0.5      0.0                          ("Moderate",
-   185       167           82      0.5      1.1                           len([e for e in rhsa
-   186       165          117      0.7      1.5                                if e["severity"] == "Moderate"])),
-   187         2            1      0.5      0.0                          ("Low",
-   188       167           86      0.5      1.1                           len([e for e in rhsa
-   189       165          107      0.6      1.4                                if e["severity"] == "Low"]))]
-   190
-   191         2         2496   1248.0     32.7      rhsa_ues = list_update_errata_pairs(rhsa)
-   192         2            4      2.0      0.1      _ups_by_nes = lambda es: \
-   193                                                   list_updates_by_num_of_errata(list_update_errata_pairs(es))
-   194
-   195         2            2      1.0      0.0      return {'list': rhsa,
-   196         2            2      1.0      0.0              'list_critical': cri_rhsa,
-   197         2            2      1.0      0.0              'list_important': imp_rhsa,
-   198         2          117     58.5      1.5              'list_latest_critical': list_latest_errata_by_updates(cri_rhsa),
-   199         2          464    232.0      6.1              'list_latest_important': list_latest_errata_by_updates(imp_rhsa),
-   200         2          289    144.5      3.8              'list_critical_updates': list_updates_from_errata(cri_rhsa),
-   201         2         2546   1273.0     33.4              'list_important_updates': list_updates_from_errata(imp_rhsa),
-   202         2            2      1.0      0.0              'rate_by_sev': rhsa_rate_by_sev,
-   203         2           80     40.0      1.0              'list_n_by_pnames': list_updates_by_num_of_errata(rhsa_ues),
-   204         2          190     95.0      2.5              'list_n_cri_by_pnames': _ups_by_nes(cri_rhsa),
-   205         2          782    391.0     10.3              'list_n_imp_by_pnames': _ups_by_nes(imp_rhsa),
-   206         2            1      0.5      0.0              'list_by_packages': rhsa_ues}
-
-Total time: 0.066045 s
-File: /usr/lib/python2.7/site-packages/fleure/analysis.py
-Function: analyze_rhba at line 209
+Total time: 0.021881 s
+File: /home/ssato/repos/public/github.com/ssato/fleure.git/fleure/analysis.py
+Function: list_update_errata_pairs at line 145
 
 Line #      Hits         Time  Per Hit   % Time  Line Contents
 ==============================================================
-   209                                           def analyze_rhba(rhba, keywords=fleure.globals.ERRATA_KEYWORDS,
-   210                                                            core_rpms=fleure.globals.CORE_RPMS):
-   211                                               """
-   212                                               Compute and return statistics of RHBAs from some view points.
-   213
-   214                                               :param rhba: A list of bug errata (RHBA) dicts
-   215                                               :param keywords: Keyword list to filter 'important' RHBAs
-   216                                               :param core_rpms: Core RPMs to filter errata by them
-   217                                               :return: RHSA analized data and metrics
-   218                                               """
-   219         2            2      1.0      0.0      kfn = lambda e: (len(e.get("keywords", [])), e["issue_date"],
-   220                                                                e["update_names"])
-   221         2            2      1.0      0.0      rhba_by_kwds = sorted(errata_of_keywords_g(rhba, keywords),
-   222         2        49780  24890.0     75.4                            key=kfn, reverse=True)
-   223                                               rhba_of_core_rpms_by_kwds = \
-   224         2            4      2.0      0.0          sorted(errata_of_rpms_g(rhba_by_kwds, core_rpms),
-   225         2          172     86.0      0.3                 key=kfn, reverse=True)
-   226         2            2      1.0      0.0      rhba_of_rpms = sorted(errata_of_rpms_g(rhba, core_rpms),
-   227         2         1711    855.5      2.6                            key=itemgetter("update_names"), reverse=True)
-   228         2          243    121.5      0.4      latest_rhba_of_rpms = list_latest_errata_by_updates(rhba_of_rpms)
-   229         2        12634   6317.0     19.1      rhba_ues = list_update_errata_pairs(rhba)
-   230
-   231         2            2      1.0      0.0      return {'list': rhba,
-   232         2            0      0.0      0.0              'list_by_kwds': rhba_by_kwds,
-   233         2            1      0.5      0.0              'list_of_core_rpms': rhba_of_rpms,
-   234         2            1      0.5      0.0              'list_latests_of_core_rpms': latest_rhba_of_rpms,
-   235         2            1      0.5      0.0              'list_by_kwds_of_core_rpms': rhba_of_core_rpms_by_kwds,
-   236         2         1279    639.5      1.9              'list_updates_by_kwds': list_updates_from_errata(rhba_by_kwds),
-   237         2          210    105.0      0.3              'list_n_by_pnames': list_updates_by_num_of_errata(rhba_ues),
-   238         2            1      0.5      0.0              'list_by_packages': rhba_ues}
+   145                                           def list_update_errata_pairs(ers):
+   146                                               """
+   147                                               :param ers: A list of errata dict
+   148                                               :return: A list of (update_name, [errata_advisory])
+   149
+   150                                               >>> ers = [dict(advisory="RHSA-2015:XXX1",
+   151                                               ...             update_names=["kernel", "tzdata"]),
+   152                                               ...        dict(advisory="RHSA-2014:XXX2",
+   153                                               ...             update_names=["glibc", "tzdata"])
+   154                                               ...        ]
+   155                                               >>> list_update_errata_pairs(ers) == [
+   156                                               ...     ('glibc', ['RHSA-2014:XXX2']),
+   157                                               ...     ('kernel', ['RHSA-2015:XXX1']),
+   158                                               ...     ('tzdata', ['RHSA-2015:XXX1', 'RHSA-2014:XXX2'])
+   159                                               ... ]
+   160                                               True
+   161                                               """
+   162        10           17      1.7      0.1      ues = fleure.utils.uconcat([(u, e["advisory"]) for u in e["update_names"]]
+   163        10        19043   1904.3     87.0                                 for e in ers)
+   164        10            9      0.9      0.0      return [(u, sorted((t[1] for t in g), reverse=True)) for u, g
+   165       612         2812      4.6     12.9              in itertools.groupby(ues, itemgetter(0))]
 
-Total time: 0.076346 s
-File: /usr/lib/python2.7/site-packages/fleure/analysis.py
-Function: analyze_errata at line 285
+Total time: 0.000409 s
+File: /home/ssato/repos/public/github.com/ssato/fleure.git/fleure/analysis.py
+Function: list_updates_by_num_of_errata at line 168
 
 Line #      Hits         Time  Per Hit   % Time  Line Contents
 ==============================================================
-   285                                           def analyze_errata(ers, score=fleure.globals.CVSS_MIN_SCORE,
-   286                                                              keywords=fleure.globals.ERRATA_KEYWORDS,
-   287                                                              core_rpms=fleure.globals.CORE_RPMS):
-   288                                               """
-   289                                               :param ers: A list of applicable errata sorted by severity
-   290                                                   if it's RHSA and advisory in ascending sequence
-   291                                               :param score: CVSS base metrics score
-   292                                               :param keywords: Keyword list to filter 'important' RHBAs
-   293                                               :param core_rpms: Core RPMs to filter errata by them
-   294                                               """
-   295       700          639      0.9      0.8      rhsa = [e for e in ers if e["advisory"][2] == 'S']
-   296       700          495      0.7      0.6      rhba = [e for e in ers if e["advisory"][2] == 'B']
-   297       700          471      0.7      0.6      rhea = [e for e in ers if e["advisory"][2] == 'E']
-   298
-   299         2         8287   4143.5     10.9      rhsa_data = analyze_rhsa(rhsa)
-   300         2        66086  33043.0     86.6      rhba_data = analyze_rhba(rhba, keywords, core_rpms)
-   301
-   302         2            1      0.5      0.0      if score > 0:
-   303                                                   rhba_by_score = list(higher_score_cve_errata_g(rhba, score))
-   304                                                   us_of_rhba_by_score = list_updates_from_errata(rhba_by_score)
-   305                                               else:
-   306         2            2      1.0      0.0          rhsa_by_score = []
-   307         2            0      0.0      0.0          rhba_by_score = []
-   308         2            0      0.0      0.0          us_of_rhsa_by_score = []
-   309         2            0      0.0      0.0          us_of_rhba_by_score = []
-   310
-   311         2            2      1.0      0.0      rhsa_data["list_higher_cvss_score"] = rhsa_by_score
-   312         2            1      0.5      0.0      rhba_data["list_higher_cvss_score"] = rhba_by_score
-   313         2            0      0.0      0.0      rhsa_data["list_higher_cvss_updates"] = us_of_rhsa_by_score
-   314         2            1      0.5      0.0      rhba_data["list_higher_cvss_updates"] = us_of_rhba_by_score
-   315
-   316         2            1      0.5      0.0      return dict(rhsa=rhsa_data,
-   317         2            2      1.0      0.0                  rhba=rhba_data,
-   318         2            1      0.5      0.0                  rhea=dict(list=rhea,
-   319         2          351    175.5      0.5                            list_by_packages=list_update_errata_pairs(rhea)),
-   320         2            2      1.0      0.0                  rate_by_type=[("Security", len(rhsa)),
-   321         2            2      1.0      0.0                                ("Bug", len(rhba)),
-   322         2            2      1.0      0.0                                ("Enhancement", len(rhea))])
+   168                                           def list_updates_by_num_of_errata(uess):
+   169                                               """
+   170                                               List number of specific type of errata for each package names.
+   171
+   172                                               :param uess: A list of (update, [errata_advisory]) pairs
+   173                                               :return: [(package_name :: str, num_of_relevant_errata :: Int)]
+   174
+   175                                               >>> ers = [{'advisory': u'RHSA-2015:1623',
+   176                                               ...         'update_names': ['kernel-headers', 'kernel']},
+   177                                               ...        {'advisory': 'RHSA-2015:1513',
+   178                                               ...         'update_names': ['bind-utils']},
+   179                                               ...        {'advisory': 'RHSA-2015:1081',
+   180                                               ...         'update_names': ['kernel-headers', 'kernel']}
+   181                                               ...        ]
+   182                                               >>> list_updates_by_num_of_errata(list_update_errata_pairs(ers))
+   183                                               [('kernel', 2), ('kernel-headers', 2), ('bind-utils', 1)]
+   184                                               >>>
+   185                                               """
+   186         8           10      1.2      2.4      return sorted(((u, len(es)) for u, es in uess), key=itemgetter(1),
+   187         8          399     49.9     97.6                    reverse=True)
 
-Total time: 0.001055 s
-File: /usr/lib/python2.7/site-packages/fleure/analysis.py
-Function: mk_overview_dataset at line 337
+Total time: 0.009145 s
+File: /home/ssato/repos/public/github.com/ssato/fleure.git/fleure/analysis.py
+Function: analyze_rhsa at line 190
 
 Line #      Hits         Time  Per Hit   % Time  Line Contents
 ==============================================================
-   337                                           def mk_overview_dataset(data, score=fleure.globals.CVSS_MIN_SCORE,
-   338                                                                   keywords=fleure.globals.ERRATA_KEYWORDS,
-   339                                                                   core_rpms=None):
-   340                                               """
-   341                                               :param data: RPMs, Update RPMs and various errata data summarized
-   342                                               :param score: CVSS base metrics score limit
-   343                                               :param core_rpms: Core RPMs to filter errata by them
-   344
-   345                                               :return: An instance of tablib.Dataset becomes a worksheet represents the
-   346                                                   overview of analysys reuslts
-   347                                               """
-   348         2           10      5.0      0.9      rows = [[_("Critical or Important RHSAs (Security Errata)")],
-   349         2            6      3.0      0.6              [_("# of Critical RHSAs"),
-   350         2            7      3.5      0.7               len(data["errata"]["rhsa"]["list_critical"])],
-   351         2            6      3.0      0.6              [_("# of Critical RHSAs (latests only)"),
-   352         2            4      2.0      0.4               len(data["errata"]["rhsa"]["list_latest_critical"])],
-   353         2            4      2.0      0.4              [_("# of Important RHSAs"),
-   354         2            2      1.0      0.2               len(data["errata"]["rhsa"]["list_important"])],
-   355         2            4      2.0      0.4              [_("# of Important RHSAs (latests only)"),
-   356         2            5      2.5      0.5               len(data["errata"]["rhsa"]["list_latest_important"])],
-   357         2            9      4.5      0.9              [_("Update RPMs by Critical or Important RHSAs at minimum")],
-   358         2            4      2.0      0.4              [_("# of Update RPMs by Critical RHSAs at minimum"),
-   359         2            4      2.0      0.4               len(data["errata"]["rhsa"]["list_critical_updates"])],
-   360         2            8      4.0      0.8              [_("# of Update RPMs by Important RHSAs at minimum"),
-   361         2            4      2.0      0.4               len(data["errata"]["rhsa"]["list_important_updates"])],
-   362         2            0      0.0      0.0              [],
-   363         2           18      9.0      1.7              [_("RHBAs (Bug Errata) by keywords: %s") % ", ".join(keywords)],
-   364         2            4      2.0      0.4              [_("# of RHBAs by keywords"),
-   365         2            4      2.0      0.4               len(data["errata"]["rhba"]["list_by_kwds"])],
-   366         2            6      3.0      0.6              [_("# of Update RPMs by RHBAs by keywords at minimum"),
-   367         2            2      1.0      0.2               len(data["errata"]["rhba"]["list_updates_by_kwds"])]]
-   368
-   369         2            2      1.0      0.2      if core_rpms is not None:
-   370         2            2      1.0      0.2          rows += [[],
-   371         2           12      6.0      1.1                   [_("RHBAs of core rpms: %s") % ", ".join(core_rpms)],
-   372         2            7      3.5      0.7                   [_("# of RHBAs of core rpms (latests only)"),
-   373         2            8      4.0      0.8                    len(data["errata"]["rhba"]["list_latests_of_core_rpms"])]]
-   374
-   375         2            2      1.0      0.2      if score > 0:
-   376                                                   rows += [[],
-   377                                                            [_("RHSAs and RHBAs by CVSS score")],
-   378                                                            [_("# of RHSAs of CVSS Score >= %.1f") % score,
-   379                                                             len(data["errata"]["rhsa"]["list_higher_cvss_score"])],
-   380                                                            [_("# of Update RPMs by the above RHSAs at minimum"),
-   381                                                             len(data["errata"]["rhsa"]["list_higher_cvss_updates"])],
-   382                                                            [_("# of RHBAs of CVSS Score >= %.1f") % score,
-   383                                                             len(data["errata"]["rhba"]["list_higher_cvss_score"])],
-   384                                                            [_("# of Update RPMs by the above RHBAs at minimum"),
-   385                                                             len(data["errata"]["rhba"]["list_higher_cvss_updates"])]]
-   386
-   387         2            0      0.0      0.0      rows += [[],
-   388         2            7      3.5      0.7               [_("# of RHSAs"), len(data["errata"]["rhsa"]["list"])],
-   389         2            5      2.5      0.5               [_("# of RHBAs"), len(data["errata"]["rhba"]["list"])],
-   390         2            5      2.5      0.5               [_("# of RHEAs (Enhancement Errata)"),
-   391         2            3      1.5      0.3                len(data["errata"]["rhea"]["list"])],
-   392         2            6      3.0      0.6               [_("# of Update RPMs"), len(data["updates"]["list"])],
-   393         2            6      3.0      0.6               [_("# of Installed RPMs"), len(data["installed"]["list"])],
-   394         2            1      0.5      0.1               [],
-   395         2            5      2.5      0.5               [_("Origin of Installed RPMs")],
-   396         2            5      2.5      0.5               [_("# of Rebuilt RPMs"), len(data["installed"]["list_rebuilt"])],
-   397         2            4      2.0      0.4               [_("# of Replaced RPMs"),
-   398         2            2      1.0      0.2                len(data["installed"]["list_replaced"])],
-   399         2            6      3.0      0.6               [_("# of RPMs from other vendors (non Red Hat)"),
-   400         2            4      2.0      0.4                len(data["installed"]["list_from_others"])]]
-   401
-   402         2           10      5.0      0.9      headers = (_("Item"), _("Value"), _("Notes"))
-   403         2          218    109.0     20.7      dataset = tablib.Dataset(headers=headers)
-   404         2           10      5.0      0.9      dataset.title = _("Overview of analysis results")
-   405
-   406         2            2      1.0      0.2      mcols = len(headers)
-   407        54           46      0.9      4.4      for row in rows:
-   408        52           50      1.0      4.7          if row and len(row) == 1:  # Special case: separator
-   409        10           60      6.0      5.7              dataset.append_separator(row[0])
-   410                                                   else:
-   411        42          454     10.8     43.0              dataset.append(padding_row(row, mcols))
-   412
-   413         2            2      1.0      0.2      return dataset
+   190                                           def analyze_rhsa(rhsa):
+   191                                               """
+   192                                               Compute and return statistics of RHSAs from some view points.
+   193
+   194                                               :param rhsa: A list of security errata (RHSA) dicts
+   195                                               :return: RHSA analized data and metrics
+   196                                               """
+   197       187          146      0.8      1.6      cri_rhsa = [e for e in rhsa if e["severity"] == "Critical"]
+   198       187          134      0.7      1.5      imp_rhsa = [e for e in rhsa if e["severity"] == "Important"]
+   199
+   200         2            1      0.5      0.0      rhsa_rate_by_sev = [("Critical", len(cri_rhsa)),
+   201         2            2      1.0      0.0                          ("Important", len(imp_rhsa)),
+   202         2            2      1.0      0.0                          ("Moderate",
+   203       187           95      0.5      1.0                           len([e for e in rhsa
+   204       185          127      0.7      1.4                                if e["severity"] == "Moderate"])),
+   205         2            1      0.5      0.0                          ("Low",
+   206       187          108      0.6      1.2                           len([e for e in rhsa
+   207       185          123      0.7      1.3                                if e["severity"] == "Low"]))]
+   208
+   209         2         2931   1465.5     32.1      rhsa_ues = list_update_errata_pairs(rhsa)
+   210         2            1      0.5      0.0      _ups_by_nes = lambda es: \
+   211                                                   list_updates_by_num_of_errata(list_update_errata_pairs(es))
+   212
+   213         2            2      1.0      0.0      return {'list': rhsa,
+   214         2            1      0.5      0.0              'list_critical': cri_rhsa,
+   215         2            2      1.0      0.0              'list_important': imp_rhsa,
+   216         2          136     68.0      1.5              'list_latest_critical': list_latest_errata_by_updates(cri_rhsa),
+   217         2          516    258.0      5.6              'list_latest_important': list_latest_errata_by_updates(imp_rhsa),
+   218         2          366    183.0      4.0              'list_critical_updates': list_updates_from_errata(cri_rhsa),
+   219         2         3241   1620.5     35.4              'list_important_updates': list_updates_from_errata(imp_rhsa),
+   220         2            2      1.0      0.0              'rate_by_sev': rhsa_rate_by_sev,
+   221         2          129     64.5      1.4              'list_n_by_pnames': list_updates_by_num_of_errata(rhsa_ues),
+   222         2          222    111.0      2.4              'list_n_cri_by_pnames': _ups_by_nes(cri_rhsa),
+   223         2          856    428.0      9.4              'list_n_imp_by_pnames': _ups_by_nes(imp_rhsa),
+   224         2            1      0.5      0.0              'list_by_packages': rhsa_ues}
 
-Total time: 0.065354 s
-File: /usr/lib/python2.7/site-packages/fleure/datasets.py
-Function: make_dataset at line 117
+Total time: 1.9179 s
+File: /home/ssato/repos/public/github.com/ssato/fleure.git/fleure/analysis.py
+Function: analyze_rhba at line 227
 
 Line #      Hits         Time  Per Hit   % Time  Line Contents
 ==============================================================
-   117                                           def make_dataset(list_data, title=None, headers=None, lheaders=None):
-   118                                               """
-   119                                               :param list_data: List of data
-   120                                               :param title: Dataset title to be used as worksheet's name
-   121                                               :param headers: Dataset headers to be used as column headers, etc.
-   122                                               :param lheaders: Localized version of `headers`
-   123                                               """
-   124        26          882     33.9      1.3      tds = tablib.Dataset()
-   125
-   126                                               # NOTE: We need to check title as valid worksheet name (length <= 31, etc.)
-   127                                               # See also xlwt.Utils.valid_sheet_name.
-   128        26           13      0.5      0.0      if title:
-   129        26           28      1.1      0.0          tds.title = title[:30]
-   130
-   131        26           11      0.4      0.0      if headers is not None:
-   132        26          290     11.2      0.4          tds.headers = headers if lheaders is None else lheaders
-   133      2407         1266      0.5      1.9          for val in list_data:
-   134     21090        62853      3.0     96.2              tds.append([_make_cell_data(val, h) for h in headers])
-   135                                               else:
-   136                                                   for val in list_data:
-   137                                                       tds.append(val.values())
-   138
-   139        26           11      0.4      0.0      return tds
+   227                                           def analyze_rhba(rhba, keywords=fleure.globals.ERRATA_KEYWORDS,
+   228                                                            pkeywords=None, core_rpms=fleure.globals.CORE_RPMS):
+   229                                               """
+   230                                               Compute and return statistics of RHBAs from some view points.
+   231
+   232                                               :param rhba: A list of bug errata (RHBA) dicts
+   233                                               :param keywords: A tuple of keywords to filter 'important' RHBAs
+   234                                               :param pkeywords: Similar to above but a dict gives the list per RPMs
+   235                                               :param core_rpms: Core RPMs to filter errata by them
+   236                                               :return: RHSA analized data and metrics
+   237                                               """
+   238         2            1      0.5      0.0      kfn = lambda e: (len(e.get("keywords", [])), e["issue_date"],
+   239                                                                e["update_names"])
+   240         2            3      1.5      0.0      rhba_by_kwds = sorted(errata_of_keywords_g(rhba, keywords, pkeywords),
+   241         2      1891727 945863.5     98.6                            key=kfn, reverse=True)
+   242                                               rhba_of_core_rpms_by_kwds = \
+   243         2            7      3.5      0.0          sorted(errata_of_rpms_g(rhba_by_kwds, core_rpms),
+   244         2          614    307.0      0.0                 key=kfn, reverse=True)
+   245         2            2      1.0      0.0      rhba_of_rpms = sorted(errata_of_rpms_g(rhba, core_rpms),
+   246         2         3335   1667.5      0.2                            key=itemgetter("update_names"), reverse=True)
+   247         2          481    240.5      0.0      latest_rhba_of_rpms = list_latest_errata_by_updates(rhba_of_rpms)
+   248         2        18091   9045.5      0.9      rhba_ues = list_update_errata_pairs(rhba)
+   249
+   250         2            5      2.5      0.0      return {'list': rhba,
+   251         2            3      1.5      0.0              'list_by_kwds': rhba_by_kwds,
+   252         2            1      0.5      0.0              'list_of_core_rpms': rhba_of_rpms,
+   253         2            2      1.0      0.0              'list_latests_of_core_rpms': latest_rhba_of_rpms,
+   254         2            2      1.0      0.0              'list_by_kwds_of_core_rpms': rhba_of_core_rpms_by_kwds,
+   255         2         3375   1687.5      0.2              'list_updates_by_kwds': list_updates_from_errata(rhba_by_kwds),
+   256         2          247    123.5      0.0              'list_n_by_pnames': list_updates_by_num_of_errata(rhba_ues),
+   257         2            2      1.0      0.0              'list_by_packages': rhba_ues}
 
-Total time: 127.18 s
-File: /usr/lib/python2.7/site-packages/fleure/decorators.py
-Function: decorated at line 29
-
-Line #      Hits         Time  Per Hit   % Time  Line Contents
-==============================================================
-    29                                               @functools.wraps(fnc)
-    30                                               def decorated(*args, **kwargs):
-    31                                                   """Decorated one"""
-    32         2    127180360 63590180.0    100.0          return fnc(*args, **kwargs)
-
-Total time: 0.053622 s
-File: /usr/lib/python2.7/site-packages/fleure/main.py
-Function: archive_report at line 299
+Total time: 1.92996 s
+File: /home/ssato/repos/public/github.com/ssato/fleure.git/fleure/analysis.py
+Function: analyze_errata at line 304
 
 Line #      Hits         Time  Per Hit   % Time  Line Contents
 ==============================================================
-   299                                           def archive_report(reportdir, output):
-   300                                               """Archive analysis report.
-   301
-   302                                               :reportdir: Dir where generated report files exist
-   303                                               :output: Output filename
-   304                                               :return:
-   305                                                   Absolute path of archive file made or None might indicates some
-   306                                                   failures before/during making archive.
+   304                                           def analyze_errata(ers, score=fleure.globals.CVSS_MIN_SCORE,
+   305                                                              keywords=fleure.globals.ERRATA_KEYWORDS,
+   306                                                              pkeywords=None, core_rpms=fleure.globals.CORE_RPMS):
    307                                               """
-   308         1            1      1.0      0.0      filenames = fleure.globals.REPORT_FILES
-   309         1           27     27.0      0.1      if all(os.path.exists(os.path.join(reportdir, fn)) for fn in filenames):
-   310         1        53372  53372.0     99.5          arcpath = fleure.archive.archive_report(reportdir, output)
-   311         1          221    221.0      0.4          LOG.info(_("Archived results: %s"), arcpath)
-   312         1            1      1.0      0.0          return arcpath
-   313
-   314                                               LOG.warn("Reprot files (%s) do not exist. Do no make a report archives",
-   315                                                        ", ".join(filenames))
-   316                                               return None
+   308                                               :param ers: A list of applicable errata sorted by severity
+   309                                                   if it's RHSA and advisory in ascending sequence
+   310                                               :param score: CVSS base metrics score
+   311                                               :param keywords: A tuple of keywords to filter 'important' RHBAs
+   312                                               :param pkeywords: Similar to above but a dict gives the list per RPMs
+   313                                               :param core_rpms: Core RPMs to filter errata by them
+   314                                               """
+   315       740          685      0.9      0.0      rhsa = [e for e in ers if e["advisory"][2] == 'S']
+   316       740          540      0.7      0.0      rhba = [e for e in ers if e["advisory"][2] == 'B']
+   317       740          532      0.7      0.0      rhea = [e for e in ers if e["advisory"][2] == 'E']
+   318
+   319         2         9825   4912.5      0.5      rhsa_data = analyze_rhsa(rhsa)
+   320         2            1      0.5      0.0      rhba_data = analyze_rhba(rhba, keywords=keywords, pkeywords=pkeywords,
+   321         2      1917944 958972.0     99.4                               core_rpms=core_rpms)
+   322         2            1      0.5      0.0      if score > 0:
+   323                                                   rhba_by_score = list(higher_score_cve_errata_g(rhba, score))
+   324                                                   us_of_rhba_by_score = list_updates_from_errata(rhba_by_score)
+   325                                               else:
+   326         2            1      0.5      0.0          rhsa_by_score = []
+   327         2            0      0.0      0.0          rhba_by_score = []
+   328         2            1      0.5      0.0          us_of_rhsa_by_score = []
+   329         2            1      0.5      0.0          us_of_rhba_by_score = []
+   330
+   331         2            2      1.0      0.0      rhsa_data["list_higher_cvss_score"] = rhsa_by_score
+   332         2            1      0.5      0.0      rhba_data["list_higher_cvss_score"] = rhba_by_score
+   333         2            1      0.5      0.0      rhsa_data["list_higher_cvss_updates"] = us_of_rhsa_by_score
+   334         2            2      1.0      0.0      rhba_data["list_higher_cvss_updates"] = us_of_rhba_by_score
+   335
+   336         2            1      0.5      0.0      return dict(rhsa=rhsa_data,
+   337         2            1      0.5      0.0                  rhba=rhba_data,
+   338         2            1      0.5      0.0                  rhea=dict(list=rhea,
+   339         2          411    205.5      0.0                            list_by_packages=list_update_errata_pairs(rhea)),
+   340         2            2      1.0      0.0                  rate_by_type=[("Security", len(rhsa)),
+   341         2            2      1.0      0.0                                ("Bug", len(rhba)),
+   342         2            3      1.5      0.0                                ("Enhancement", len(rhea))])
 
-Total time: 127.234 s
-File: /usr/lib/python2.7/site-packages/fleure/main.py
-Function: main at line 319
+Total time: 0.001092 s
+File: /home/ssato/repos/public/github.com/ssato/fleure.git/fleure/analysis.py
+Function: mk_overview_dataset at line 357
 
 Line #      Hits         Time  Per Hit   % Time  Line Contents
 ==============================================================
-   319                                           def main(root_or_arc_path, hid=None, verbosity=0, **kwargs):
-   320                                               """
-   321                                               :param root_or_arc_path:
-   322                                                   Path to the root dir of RPM DB files or Archive (tar.xz, tar.gz, zip,
-   323                                                   etc.) of RPM DB files. Path might be a relative path from current dir.
-   324                                               :param hid:
-   325                                                   Some identification info of the target host where original RPM DB data
-   326                                                   was collected.
-   327                                               :param verbosity: Verbosity level: 0 (default), 1 (verbose), 2 (debug)
-   328                                               :param kwargs:
-   329                                                   Extra keyword arguments other than `root_or_arc_path` passed to make an
-   330                                                   instance of :class:`fleure.config.Config`
-   331
-   332                                               :return: Workdir where results exist or path to archive of results
-   333                                               """
-   334         1           17     17.0      0.0      set_loglevel(verbosity)
-   335         1    109601638 109601638.0     86.1      host = prepare(root_or_arc_path, hid, **kwargs)
-   336
-   337         1            7      7.0      0.0      if host.available:
-   338         1          206    206.0      0.0          LOG.info(_("Anaylize the host: %s"), host.hid)
-   339         1     17578742 17578742.0     13.8          analyze(host)
-   340
-   341         1            3      3.0      0.0      if kwargs.get("archive", False):
-   342         1            7      7.0      0.0          outname = "report-%s-%s.zip" % (host.hid, fleure.globals.TODAY)
-   343         1        53636  53636.0      0.0          return archive_report(host.workdir, outname)
-   344                                               else:
-   345                                                   return host.workdir
+   357                                           def mk_overview_dataset(data, score=fleure.globals.CVSS_MIN_SCORE,
+   358                                                                   keywords=fleure.globals.ERRATA_KEYWORDS,
+   359                                                                   core_rpms=None, **kwargs):
+   360                                               """
+   361                                               :param data: RPMs, Update RPMs and various errata data summarized
+   362                                               :param score: CVSS base metrics score limit
+   363                                               :param keywords: A tuple of keywords to filter 'important' RHBAs
+   364                                               :param core_rpms: Core RPMs to filter errata by them
+   365
+   366                                               :return: An instance of tablib.Dataset becomes a worksheet represents the
+   367                                                   overview of analysys reuslts
+   368                                               """
+   369         2           12      6.0      1.1      rows = [[_("Critical or Important RHSAs (Security Errata)")],
+   370         2            6      3.0      0.5              [_("# of Critical RHSAs"),
+   371         2            8      4.0      0.7               len(data["errata"]["rhsa"]["list_critical"])],
+   372         2            6      3.0      0.5              [_("# of Critical RHSAs (latests only)"),
+   373         2            3      1.5      0.3               len(data["errata"]["rhsa"]["list_latest_critical"])],
+   374         2            6      3.0      0.5              [_("# of Important RHSAs"),
+   375         2            3      1.5      0.3               len(data["errata"]["rhsa"]["list_important"])],
+   376         2            5      2.5      0.5              [_("# of Important RHSAs (latests only)"),
+   377         2            4      2.0      0.4               len(data["errata"]["rhsa"]["list_latest_important"])],
+   378         2            8      4.0      0.7              [_("Update RPMs by Critical or Important RHSAs at minimum")],
+   379         2            4      2.0      0.4              [_("# of Update RPMs by Critical RHSAs at minimum"),
+   380         2            3      1.5      0.3               len(data["errata"]["rhsa"]["list_critical_updates"])],
+   381         2            5      2.5      0.5              [_("# of Update RPMs by Important RHSAs at minimum"),
+   382         2            3      1.5      0.3               len(data["errata"]["rhsa"]["list_important_updates"])],
+   383         2            2      1.0      0.2              [],
+   384         2           17      8.5      1.6              [_("RHBAs (Bug Errata) by keywords: %s") % ", ".join(keywords)],
+   385         2            6      3.0      0.5              [_("# of RHBAs by keywords"),
+   386         2            4      2.0      0.4               len(data["errata"]["rhba"]["list_by_kwds"])],
+   387         2            6      3.0      0.5              [_("# of Update RPMs by RHBAs by keywords at minimum"),
+   388         2            6      3.0      0.5               len(data["errata"]["rhba"]["list_updates_by_kwds"])]]
+   389
+   390         2            2      1.0      0.2      if core_rpms is not None:
+   391         2            2      1.0      0.2          rows += [[],
+   392         2           12      6.0      1.1                   [_("RHBAs of core rpms: %s") % ", ".join(core_rpms)],
+   393         2            6      3.0      0.5                   [_("# of RHBAs of core rpms (latests only)"),
+   394         2            9      4.5      0.8                    len(data["errata"]["rhba"]["list_latests_of_core_rpms"])]]
+   395
+   396         2            2      1.0      0.2      if score > 0:
+   397                                                   rows += [[],
+   398                                                            [_("RHSAs and RHBAs by CVSS score")],
+   399                                                            [_("# of RHSAs of CVSS Score >= %.1f") % score,
+   400                                                             len(data["errata"]["rhsa"]["list_higher_cvss_score"])],
+   401                                                            [_("# of Update RPMs by the above RHSAs at minimum"),
+   402                                                             len(data["errata"]["rhsa"]["list_higher_cvss_updates"])],
+   403                                                            [_("# of RHBAs of CVSS Score >= %.1f") % score,
+   404                                                             len(data["errata"]["rhba"]["list_higher_cvss_score"])],
+   405                                                            [_("# of Update RPMs by the above RHBAs at minimum"),
+   406                                                             len(data["errata"]["rhba"]["list_higher_cvss_updates"])]]
+   407
+   408         2            0      0.0      0.0      rows += [[],
+   409         2            8      4.0      0.7               [_("# of RHSAs"), len(data["errata"]["rhsa"]["list"])],
+   410         2            5      2.5      0.5               [_("# of RHBAs"), len(data["errata"]["rhba"]["list"])],
+   411         2            5      2.5      0.5               [_("# of RHEAs (Enhancement Errata)"),
+   412         2            3      1.5      0.3                len(data["errata"]["rhea"]["list"])],
+   413         2            8      4.0      0.7               [_("# of Update RPMs"), len(data["updates"]["list"])],
+   414         2            8      4.0      0.7               [_("# of Installed RPMs"), len(data["installed"]["list"])],
+   415         2            2      1.0      0.2               [],
+   416         2            4      2.0      0.4               [_("Origin of Installed RPMs")],
+   417         2            7      3.5      0.6               [_("# of Rebuilt RPMs"), len(data["installed"]["list_rebuilt"])],
+   418         2            4      2.0      0.4               [_("# of Replaced RPMs"),
+   419         2            3      1.5      0.3                len(data["installed"]["list_replaced"])],
+   420         2            6      3.0      0.5               [_("# of RPMs from other vendors (non Red Hat)"),
+   421         2            7      3.5      0.6                len(data["installed"]["list_from_others"])]]
+   422
+   423         2           10      5.0      0.9      headers = (_("Item"), _("Value"), _("Notes"))
+   424         2          234    117.0     21.4      dataset = tablib.Dataset(headers=headers)
+   425         2            9      4.5      0.8      dataset.title = _("Overview of analysis results")
+   426
+   427         2            2      1.0      0.2      mcols = len(headers)
+   428        54           53      1.0      4.9      for row in rows:
+   429        52           51      1.0      4.7          if row and len(row) == 1:  # Special case: separator
+   430        10           60      6.0      5.5              dataset.append_separator(row[0])
+   431                                                   else:
+   432        42          452     10.8     41.4              dataset.append(padding_row(row, mcols))
+   433
+   434         2            1      0.5      0.1      return dataset
 
-Not implemented yet
+Total time: 0.049521 s
+File: /home/ssato/repos/public/github.com/ssato/fleure.git/fleure/datasets.py
+Function: make_dataset at line 115
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   115                                           def make_dataset(list_data, title=None, headers=None, lheaders=None):
+   116                                               """
+   117                                               :param list_data: List of data
+   118                                               :param title: Dataset title to be used as worksheet's name
+   119                                               :param headers: Dataset headers to be used as column headers, etc.
+   120                                               :param lheaders: Localized version of `headers`
+   121
+   122                                               TODO: Which is better?
+   123                                                   - tablib.Dataset(); [tablib.append(vals) for vals in list_data]
+   124                                                   - tablib.Dataset(*list_data, header=...)
+   125                                               """
+   126                                               # .. note::
+   127                                               #    We need to check title as valid worksheet name, length <= 31, etc.
+   128                                               #    See also xlwt.Utils.valid_sheet_name.
+   129        26           19      0.7      0.0      if headers is not None:
+   130        26           11      0.4      0.0          tdata = [[_make_cell_data(val, h) for h in headers] for val in
+   131     22328        44865      2.0     90.6                   list_data]
+   132                                               else:
+   133                                                   tdata = [val.values() for val in list_data]
+   134
+   135        26         4626    177.9      9.3      return tablib.Dataset(*tdata, title=title[:30], headers=lheaders)
+
+Total time: 98.369 s
+File: /home/ssato/repos/public/github.com/ssato/fleure.git/fleure/decorators.py
+Function: decorated at line 39
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    39                                               @functools.wraps(fnc)
+    40                                               def decorated(*args, **kwargs):
+    41                                                   """Decorated one"""
+    42         3     98369000 32789666.7    100.0          return fnc(*args, **kwargs)
+
+Total time: 0.053718 s
+File: /home/ssato/repos/public/github.com/ssato/fleure.git/fleure/main.py
+Function: archive_report at line 295
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   295                                           def archive_report(reportdir, output):
+   296                                               """Archive analysis report.
+   297
+   298                                               :reportdir: Dir where generated report files exist
+   299                                               :output: Output filename
+   300                                               :return:
+   301                                                   Absolute path of archive file made or None might indicates some
+   302                                                   failures before/during making archive.
+   303                                               """
+   304         1            1      1.0      0.0      filenames = fleure.globals.REPORT_FILES
+   305         1           27     27.0      0.1      if all(os.path.exists(os.path.join(reportdir, fn)) for fn in filenames):
+   306         1        53471  53471.0     99.5          arcpath = fleure.archive.archive_report(reportdir, output)
+   307         1          218    218.0      0.4          LOG.info(_("Archived results: %s"), arcpath)
+   308         1            1      1.0      0.0          return arcpath
+   309
+   310                                               LOG.warn(_("Reprot files (%s) do not exist. Do no make a report "
+   311                                                          "archives"), ", ".join(filenames))
+   312                                               return None
+
+Total time: 98.423 s
+File: /home/ssato/repos/public/github.com/ssato/fleure.git/fleure/main.py
+Function: main at line 315
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   315                                           def main(root_or_arc_path, hid=None, verbosity=0, **kwargs):
+   316                                               """
+   317                                               :param root_or_arc_path:
+   318                                                   Path to the root dir of RPM DB files or Archive (tar.xz, tar.gz, zip,
+   319                                                   etc.) of RPM DB files. Path might be a relative path from current dir.
+   320                                               :param hid:
+   321                                                   Some identification info of the target host where original RPM DB data
+   322                                                   was collected.
+   323                                               :param verbosity: Verbosity level: 0 (default), 1 (verbose), 2 (debug)
+   324                                               :param kwargs:
+   325                                                   Extra keyword arguments other than `root_or_arc_path` passed to make an
+   326                                                   instance of :class:`fleure.config.Host`
+   327
+   328                                               :return: Workdir where results exist or path to archive of results
+   329                                               """
+   330         1           16     16.0      0.0      set_loglevel(verbosity)
+   331         1      5392504 5392504.0      5.5      host = configure(root_or_arc_path, hid, **kwargs)
+   332         1            1      1.0      0.0      if host is None:
+   333                                                   LOG.error(_("Failed to configure the host: root=%s"),
+   334                                                             root_or_arc_path)
+   335                                                   return None
+   336
+   337         1     71309437 71309437.0     72.5      prepare(host)
+   338
+   339         1            6      6.0      0.0      if host.available:
+   340         1          206    206.0      0.0          LOG.info(_("Anaylize the host: %s"), host.hid)
+   341         1     21667081 21667081.0     22.0          analyze(host)
+   342
+   343         1            3      3.0      0.0      if kwargs.get("archive", False):
+   344         1            8      8.0      0.0          outname = "report-%s-%s.zip" % (host.hid, fleure.globals.TODAY)
+   345         1        53733  53733.0      0.1          return archive_report(host.workdir, outname)
+   346                                               else:
+   347                                                   return host.workdir
+
 ssato@x1carbon%                                               ~/repos/public/github.com/ssato/fleure.git

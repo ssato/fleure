@@ -18,6 +18,8 @@ import fleure.datasets
 import fleure.main
 
 
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
 TARGETS = (fleure.main.main,
            # fleure.main.analyze_and_save_results,
            fleure.main.prepare,
@@ -50,7 +52,7 @@ def prof_main(argv=None):
     root_or_arc_path = os.path.join(os.path.dirname(__file__),
                                     "rhel-6-client-1_var_lib_rpm.tar.xz")
     cnf = dict(workdir=tmpdir, repos=["rhel-6-server-rpms"], verbosity=2,
-               period=["2015-01-01", "2015-11-11"], archive=True)
+               period=["2015-01-01", "2016-04-10"], archive=True)
 
     if args.profile in ("line", "all"):
         lprof = line_profiler.LineProfiler(*TARGETS)
