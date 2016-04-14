@@ -1,15 +1,14 @@
 #
 # Copyright (C) 2016 Satoru SATOH <ssato at redhat.com>
-# License: GPLv3+
+# License: MIT
 #
 # pylint: disable=missing-docstring,invalid-name,no-member
 from __future__ import absolute_import
 
-import sqlalchemy
 import unittest
-from sqlalchemy.orm import scoped_session, sessionmaker
 
 import fleure.models.package as TT
+import fleure.models.tests.common
 
 
 class Test00(unittest.TestCase):
@@ -46,17 +45,7 @@ class Test00(unittest.TestCase):
         self.assertEquals(origin, ("centos", False, False, True))
 
 
-class Test10(unittest.TestCase):
-
-    def setUp(self):
-        self.engine = sqlalchemy.create_engine("sqlite:///:memory:")
-        self.session = scoped_session(sessionmaker(bind=self.engine))
-
-        TT.Base.query = self.session.query_property()
-        TT.Base.metadata.create_all(bind=self.engine)
-
-    def tearDown(self):
-        self.session.remove()
+class Test10(fleure.models.tests.common.TestsWithSession):
 
     def test_00_empty_db(self):
         pkgs = self.session.query(TT.Package).all()
