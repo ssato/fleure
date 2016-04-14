@@ -112,26 +112,21 @@ def _make_cell_data(obj, key, default="N/A"):
         return ", ".join(val) if isinstance(val, (list, tuple)) else val
 
 
-def make_dataset(list_data, title=None, headers=None, lheaders=None):
+def make_dataset(data, title, headers, lheaders=None):
     """
-    :param list_data: List of data
+    :param data: List of data :: [dict]
     :param title: Dataset title to be used as worksheet's name
     :param headers: Dataset headers to be used as column headers, etc.
     :param lheaders: Localized version of `headers`
 
     TODO: Which is better?
-        - tablib.Dataset(); [tablib.append(vals) for vals in list_data]
-        - tablib.Dataset(*list_data, header=...)
+        - tablib.Dataset(); [tablib.append(vals) for vals in data]
+        - tablib.Dataset(*data, header=...)
     """
     # .. note::
     #    We need to check title as valid worksheet name, length <= 31, etc.
     #    See also xlwt.Utils.valid_sheet_name.
-    if headers is not None:
-        tdata = [[_make_cell_data(val, h) for h in headers] for val in
-                 list_data]
-    else:
-        tdata = [val.values() for val in list_data]
-
+    tdata = [[_make_cell_data(val, h) for h in headers] for val in data]
     return tablib.Dataset(*tdata, title=title[:30], headers=lheaders)
 
 
