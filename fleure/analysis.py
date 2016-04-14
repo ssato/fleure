@@ -48,6 +48,29 @@ def list_updates_from_errata(ers):
 _STEMMER = nltk.PorterStemmer()
 
 
+def _errata_keywords(names, keywords, pkeywords):
+    """
+    Make a list of errata keywords of given list of packages `names`.
+
+    :param names: Package names
+    :param keywords: A tuple of keywords to filter 'important' RHBAs
+    :param pkeywords: Similar to above but a dict gives the list per RPMs
+    :return: A set of keywords
+
+    >>> names = ["kernel", "glibc"]
+    >>> keywords = ['crash', 'panic', 'hang']
+    >>> pkeywords = dict(kernel=["xfs", "kvm"], glibc=["nss", "segv"])
+    >>> kwds = _errata_keywords(names, keywords, pkeywords)
+    >>> ref = keywords
+    >>> for keys in pkeywords.values():
+    ...     ref.extend(keys)
+    >>> all(k in ref for k in kwds)
+    True
+    """
+    return set(itertools.chain(keywords,
+                               *[pkeywords.get(n, []) for n in names]))
+
+
 def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
                          pkeywords=None, stemming=True):
     """
@@ -86,14 +109,15 @@ def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
     for ert in ers:
         tokens = set(nltk.wordpunct_tokenize(ert["description"]))
         if stemming:
-            tokens = set(_stem(w) for w in tokens)
+            tokens = set(_stem(w.lower()) for w in tokens)
 
-        kwds = set(itertools.chain(keywords,
-                                   *[pkeywords.get(n, []) for n
-                                     in ert.get("package_names", [])]))
-        matched = [k for k in kwds if k in tokens]
+        kwds = _errata_keywords(ert.get("package_names", []), keywords,
+                                pkeywords)
+        matched = kwds & tokens
         if matched:
-            ert["keywords"] = matched
+            LOG.debug("%s matched: keywords=%s", ert["advisory"],
+                     ', '.join(matched))
+            ert["keywords"] = list(matched)
             yield ert
 
 
