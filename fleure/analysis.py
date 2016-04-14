@@ -115,7 +115,7 @@ def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
                                 pkeywords)
         matched = kwds & tokens
         if matched:
-            LOG.debug("%s matched: keywords=%s", ert["advisory"],
+            LOG.debug(_("%s matched: keywords=%s"), ert["advisory"],
                       ', '.join(matched))
             ert["keywords"] = list(matched)
             yield ert
