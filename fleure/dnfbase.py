@@ -64,11 +64,8 @@ def _to_pkg(pkg):
     if isinstance(pkg, collections.Mapping):
         return pkg  # Conversion should be done already.
 
-    originally_from = "Unknown"
-
     return fleure.package.Package(pkg.name, pkg.v, pkg.r, pkg.a, pkg.epoch,
-                                  pkg.summary, pkg.packager, "N/A",
-                                  originally_from=originally_from)
+                                  pkg.summary, pkg.packager, "N/A")
 
 
 # see dnf.cli.commands.updateinfo.UpdateInfoCommand.TYPE2LABEL:
