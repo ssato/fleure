@@ -23,7 +23,8 @@ errata_keywords:
   - segmentation fault
   - data corruption
 
-errata_pkeywords: []
+errata_pkeywords:
+  kernel: []
 
 core_rpms:
   - kernel
