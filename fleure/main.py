@@ -218,6 +218,7 @@ def analyze(host):
     metadata = dict(id=host.hid, root=host.root, workdir=host.workdir,
                     repos=host.repos, backend=host.base.name,
                     score=host.cvss_min_score, keywords=host.errata_keywords,
+                    pkeywords=host.errata_pkeywords,
                     installed=len(host.installed), hosts=[host.hid, ],
                     generated=datetime.datetime.now().strftime("%F %T"),
                     period=host.period, refdir=host.refdir)
