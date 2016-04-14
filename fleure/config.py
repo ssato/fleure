@@ -142,6 +142,7 @@ class Host(bunch.Bunch):
         super(Host, self).__init__(cnf)
 
         # post setups:
+        self.root_or_arc_path = root_or_arc_path
         if os.path.isdir(root_or_arc_path):
             self.root = _normpath(root_or_arc_path)
         else:
