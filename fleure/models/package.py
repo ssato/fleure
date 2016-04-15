@@ -6,9 +6,7 @@
 """
 from __future__ import absolute_import
 
-import operator
 import sqlalchemy
-
 from sqlalchemy import Column
 from .base import Base
 
