@@ -12,7 +12,6 @@ from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 from .base import Base
-from .package import Package
 
 
 _RHBZ_URL_FMT = "https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=%d"
@@ -26,7 +25,6 @@ errata_bz_table = sqlalchemy.Table(
     "errata_bz_association", Base.metadata,
     Column("errata_id", String(20), ForeignKey("errata.advisory")),
     Column("bz_id", sqlalchemy.Integer, ForeignKey("bugzilla.id")))
-
 
 errata_cve_table = sqlalchemy.Table(
     "errata_cve_association", Base.metadata,
