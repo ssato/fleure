@@ -61,16 +61,15 @@ def inspect_origin(name, vendor, buildhost, extras=None,
             not available)
 
 
-_NEVRA_KEYS = "name epoch version release arch".split()
-
-
 class Package(Base):
     """Package model.
     """
     __tablename__ = "packages"
 
-    id = Column(sqlalchemy.Integer, sqlalchemy.Sequence("package_id_seq"),
-                primary_key=True)
+    # TBD: Which is better?
+    # id = Column(sqlalchemy.Integer, sqlalchemy.Sequence("package_id_seq"),
+    #            primary_key=True)
+    nevra = Column(sqlalchemy.String(150), primary_key=True)
     name = Column(sqlalchemy.String(100))
     epoch = Column(sqlalchemy.Integer)
     version = Column(sqlalchemy.String(20))
@@ -99,12 +98,8 @@ class Package(Base):
         self.buildhost = buildhost
         (self.origin, self.rebuilt, self.replaced, self.from_others) = \
             inspect_origin(name, vendor, buildhost, extras)
-
-    def nevra(self):
-        """
-        :return: a tuple of (name, epoch, version, ...)
-        """
-        return operator.itemgetter(*_NEVRA_KEYS)(self.__dict__)
+        self.nevra = "%s %d:%s-%s %s" % \
+            (name, self.epoch, version, release, arch)
 
     def __repr__(self):
         """repr.

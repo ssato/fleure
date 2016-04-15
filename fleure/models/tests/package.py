@@ -58,5 +58,6 @@ class Test10(fleure.models.tests.common.TestsWithSession):
 
         pkgs = self.session.query(TT.Package).all()
         self.assertEquals(len(pkgs), 1)
+        self.assertEquals(pkgs[0].nevra, "kernel 0:2.6.38.8-32 x86_64")
 
 # vim:sw=4:ts=4:et:
