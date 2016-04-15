@@ -48,6 +48,22 @@ class Test00(unittest.TestCase):
 class Test10(fleure.models.tests.common.TestsWithSession):
 
     def test_00_empty_db(self):
+        nevras = self.session.query(TT.NEVRA).all()
+        self.assertEquals(len(nevras), 0)
+
+    def test_10_add_one(self):
+        pkg0 = TT.NEVRA("kernel", "2.6.38.8", "32", "x86_64")
+        self.session.add(pkg0)
+        self.session.commit()
+
+        pkgs = self.session.query(TT.NEVRA).all()
+        self.assertEquals(len(pkgs), 1)
+        self.assertEquals(pkgs[0].nevra, "kernel 0:2.6.38.8-32 x86_64")
+
+
+class Test20(fleure.models.tests.common.TestsWithSession):
+
+    def test_00_empty_db(self):
         pkgs = self.session.query(TT.Package).all()
         self.assertEquals(len(pkgs), 0)
 

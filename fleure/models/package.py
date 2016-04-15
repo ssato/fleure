@@ -61,6 +61,36 @@ def inspect_origin(name, vendor, buildhost, extras=None,
             not available)
 
 
+class NEVRA(Base):
+    """Basic RPM Package info model.
+    """
+    __tablename__ = "nevras"
+
+    nevra = Column(sqlalchemy.String(150), primary_key=True)
+    name = Column(sqlalchemy.String(100))
+    epoch = Column(sqlalchemy.Integer)
+    version = Column(sqlalchemy.String(20))
+    release = Column(sqlalchemy.String(20))
+    arch = Column(sqlalchemy.Enum("noarch", "i386", "i686", "x86_64"))
+
+    def __init__(self, name, version, release, arch, epoch=None):
+        """
+        :param name: Package name
+        """
+        self.name = name
+        self.epoch = 0 if epoch is None else int(epoch)
+        self.version = version
+        self.release = release
+        self.arch = arch
+        self.nevra = "%s %d:%s-%s %s" % \
+            (name, self.epoch, version, release, arch)
+
+    def __repr__(self):
+        """repr.
+        """
+        return "<RPM(%s)>" % self.nevra
+
+
 class Package(Base):
     """Package model.
     """
@@ -104,6 +134,6 @@ class Package(Base):
     def __repr__(self):
         """repr.
         """
-        return "<Package('%s', '%s', '%s', '%s', '%s')>" % self.nevra()
+        return "<RPMPackage(%s)>" % self.nevra
 
 # vim:sw=4:ts=4:et:
