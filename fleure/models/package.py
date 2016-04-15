@@ -42,7 +42,8 @@ def inspect_origin(name, vendor, buildhost, extras=None,
     :param buildhost: buildhost string in RPM
     :param extra_names: Extra (non-vendor-origin) package names
     :param expected: Expected origin
-    :return: (origin, rebuilt, replaced, from_others)
+    :return: (origin :: str, rebuilt :: bool, replaced :: bool,
+              from_others :: bool)
     """
     if extras is None:
         extras = []
@@ -121,9 +122,9 @@ class Package(Base):
         self.version = version
         self.release = release
         self.arch = arch
-        self.summary = summary if summary else "N/A"
-        self.vendor = vendor if vendor else "unknown"
-        self.buildhost = buildhost if buildhost else "unknown"
+        self.summary = summary if summary else "n/a"
+        self.vendor = vendor if vendor else "n/a"
+        self.buildhost = buildhost if buildhost else "n/a"
         (self.origin, self.rebuilt, self.replaced, self.from_others) = \
             inspect_origin(name, vendor, buildhost, extras)
         self.nevra = "%s %d:%s-%s %s" % \
