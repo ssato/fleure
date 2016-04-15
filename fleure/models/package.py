@@ -123,9 +123,9 @@ class Package(Base):
         self.version = version
         self.release = release
         self.arch = arch
-        self.summary = summary
-        self.vendor = vendor
-        self.buildhost = buildhost
+        self.summary = summary if summary else "N/A"
+        self.vendor = vendor if vendor else "unknown"
+        self.buildhost = buildhost if buildhost else "unknown"
         (self.origin, self.rebuilt, self.replaced, self.from_others) = \
             inspect_origin(name, vendor, buildhost, extras)
         self.nevra = "%s %d:%s-%s %s" % \
