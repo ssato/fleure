@@ -12,6 +12,12 @@ import fleure.models.package as TT
 import fleure.models.tests.common
 
 
+PACKAGES = [TT.Package("kernel", "2.6.38.8", "32", "x86_64"),
+            TT.Package("nss", "3.16.1-4", "1.el6_5", "x86_64", "0"),
+            TT.Package("nss-util", "3.16.1-4", "1.el6_5", "x86_64", "0"),
+            TT.Package("nspr", "4.10.6", "1.el6_5", "x86_64", "0")]
+
+
 class Test00(unittest.TestCase):
 
     def setUp(self):
@@ -69,21 +75,17 @@ class Test20(fleure.models.tests.common.TestsWithSession):
         self.assertEquals(len(pkgs), 0)
 
     def test_10_add_one(self):
-        pkg0 = TT.Package("kernel", "2.6.38.8", "32", "x86_64")
-        self.session.add(pkg0)
+        self.session.add(PACKAGES[0])
         self.session.commit()
 
         pkgs = self.session.query(TT.Package).all()
         self.assertEquals(len(pkgs), 1)
-        self.assertEquals(pkgs[0].nevra, "kernel 0:2.6.38.8-32 x86_64")
-        self.assertEquals(pkgs[0].rebuilt, False)
-        self.assertEquals(pkgs[0].from_others, False)
+        self.assertEquals(pkgs[0].nevra, PACKAGES[0].nevra)
+        self.assertEquals(pkgs[0].rebuilt, PACKAGES[0].rebuilt)
+        self.assertEquals(pkgs[0].from_others, PACKAGES[0].from_others)
 
     def test_20_add_some(self):
-        ref = [TT.Package("nss", "3.16.1-4", "1.el6_5", "x86_64", "0"),
-               TT.Package("nss-util", "3.16.1-4", "1.el6_5", "x86_64", "0"),
-               TT.Package("nspr", "4.10.6", "1.el6_5", "x86_64", "0")]
-
+        ref = PACKAGES[1:]
         self.session.add_all(ref)
         self.session.commit()
 
