@@ -15,6 +15,8 @@ from .. import base as TT
 class TestsWithSession(unittest.TestCase):
 
     def setUp(self):
+        # For further debug:
+        # self.engine = sqlalchemy.create_engine("sqlite:////tmp/test.db")
         self.engine = sqlalchemy.create_engine("sqlite:///:memory:")
         self.session = scoped_session(sessionmaker(bind=self.engine))
 
