@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014 - 2015 Red Hat, Inc.
+# Copyright (C) 2014 - 2016 Red Hat, Inc.
 # Red Hat Author(s): Satoru SATOH <ssato at redhat.com>
 # License: GPLv3+
 #
@@ -11,7 +11,7 @@ import fleure.tests.common
 
 try:
     import fleure.utils  # rpm, yum modules
-    import fleure.dnfbase as TT  # dnf
+    import fleure.backends.dnfbase as TT  # dnf
 except ImportError:
     TT = None
 

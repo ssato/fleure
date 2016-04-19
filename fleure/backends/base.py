@@ -1,5 +1,6 @@
 #
-# Copyright (C) 2014 Satoru SATOH <ssato redhat.com>
+# Copyright (C) 2014 - 2016 Red Hat, Inc.
+# Author: Satoru SATOH <ssato@redhat.com>
 # License: GPLv3+
 #
 # suppress warns of `kwargs`

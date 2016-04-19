@@ -16,21 +16,21 @@ import os.path
 import tempfile
 import uuid
 
+import fleure.backends.yumbase
 import fleure.globals
 import fleure.archive
 import fleure.dates
 import fleure.rpmutils
 import fleure.utils
-import fleure.yumbase
 
 
 LOG = logging.getLogger(__name__)
-BACKENDS = dict(yum=fleure.yumbase.Base, )
+BACKENDS = dict(yum=fleure.backends.yumbase.Base, )
 DEFAULT_BACKEND = "yum"
 try:
-    import fleure.dnfbase
+    import fleure.backends.dnfbase
 
-    BACKENDS["dnf"] = fleure.dnfbase.Base
+    BACKENDS["dnf"] = fleure.backends.dnfbase.Base
     DEFAULT_BACKEND = "dnf"  # Prefer this.
 except ImportError:  # dnf is not available for RHEL, AFAIK.
     pass

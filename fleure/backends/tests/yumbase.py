@@ -1,19 +1,14 @@
 #
-# Copyright (C) 2014 - 2015 Red Hat, Inc.
+# Copyright (C) 2014 - 2016 Red Hat, Inc.
 # Red Hat Author(s): Satoru SATOH <ssato at redhat.com>
-#
-# This software is licensed to you under the GNU General Public License,
-# version 3 (GPLv3). There is NO WARRANTY for this software, express or
-# implied, including the implied warranties of MERCHANTABILITY or FITNESS FOR A
-# PARTICULAR PURPOSE. You should have received a copy of GPLv3 along with this
-# software; if not, see http://www.gnu.org/licenses/gpl.html
+# License: AGPLv3+
 #
 # pylint: disable=missing-docstring
 from __future__ import absolute_import
 import fleure.tests.common
 
 try:
-    import fleure.yumbase as TT
+    import fleure.backends.yumbase as TT
     import fleure.utils
 except ImportError:
     TT = None

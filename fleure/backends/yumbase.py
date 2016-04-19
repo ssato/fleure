@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014 - 2015 Red Hat, Inc.
+# Copyright (C) 2014 - 2016 Red Hat, Inc.
 # Red Hat Author(s): Satoru SATOH <ssato@redhat.com>
 # License: GPLv3+
 #
@@ -14,7 +14,7 @@ import logging
 import operator
 import yum
 
-import fleure.base
+import fleure.backends.base
 import fleure.package
 import fleure.rpmutils
 import fleure.utils
@@ -127,7 +127,7 @@ def _to_pkg(pkg, extras=None):
                                   pkg.buildhost, extras=extras)
 
 
-class Base(fleure.base.Base):
+class Base(fleure.backends.base.Base):
     """Yum backend.
     """
     _name = "yum"

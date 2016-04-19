@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 - 2015 Red Hat, Inc.
+# Copyright (C) 2013 - 2016 Red Hat, Inc.
 # Author: Satoru SATOH <ssato@redhat.com>
 # License: GPLv3+
 #
@@ -17,7 +17,7 @@ import logging
 import operator
 import os.path
 
-import fleure.base
+import fleure.backends.base
 import fleure.globals
 import fleure.package
 import fleure.rpmutils
@@ -182,7 +182,7 @@ def _pathjoin(*paths):
     return ret
 
 
-class Base(fleure.base.Base):
+class Base(fleure.backends.base.Base):
     """Dnf backend.
     """
     _name = "dnf"

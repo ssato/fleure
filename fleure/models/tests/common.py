@@ -17,13 +17,15 @@ class TestsWithSession(unittest.TestCase):
     def setUp(self):
         # For further debug:
         # self.engine = sqlalchemy.create_engine("sqlite:////tmp/test.db")
-        self.engine = sqlalchemy.create_engine("sqlite:///:memory:")
+        self.engine = sqlalchemy.create_engine("sqlite://")
         self.session = scoped_session(sessionmaker(bind=self.engine))
 
         TT.Base.query = self.session.query_property()
         TT.Base.metadata.create_all(bind=self.engine)
 
     def tearDown(self):
+        TT.Base.metadata.drop_all(bind=self.engine)
         self.session.remove()
+        self.session.close()
 
 # vim:sw=4:ts=4:et:

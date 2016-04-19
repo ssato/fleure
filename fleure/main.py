@@ -20,12 +20,12 @@ import tablib
 
 import fleure.analysis
 import fleure.archive
+import fleure.backends.yumbase
 import fleure.config
 import fleure.depgraph
 import fleure.globals
 import fleure.datasets
 import fleure.utils
-import fleure.yumbase
 
 from fleure.globals import _, profile
 from fleure.datasets import make_dataset
@@ -288,8 +288,8 @@ def set_loglevel(verbosity=0, backend=False):
     if not backend:
         llvl = logging.WARN
 
-    fleure.yumbase.LOG.setLevel(llvl)
-    fleure.dnfbase.LOG.setLevel(llvl)
+    for backend in fleure.config.BACKENDS:
+        backend.LOG.setLevel(llvl)
 
 
 def archive_report(reportdir, output):
