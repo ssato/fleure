@@ -288,8 +288,8 @@ def set_loglevel(verbosity=0, backend=False):
     if not backend:
         llvl = logging.WARN
 
-    for backend in fleure.config.BACKENDS:
-        backend.LOG.setLevel(llvl)
+    for mod in fleure.config.BACKEND_MODULES:
+        getattr(mod, "LOG").setLevel(llvl)
 
 
 def archive_report(reportdir, output):
