@@ -4,4 +4,5 @@ bunch
 matplotlib
 networkx
 nltk
+sqlalchemy
 tablib
