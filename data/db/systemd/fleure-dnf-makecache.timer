@@ -1,0 +1,12 @@
+# /usr/lib/systemd/system/fleure-dnf-makecache.timer
+[Unit]
+Description=fleure wrapper of 'dnf makecache'
+ConditionKernelCommandLine=!rd.live.image
+
+[Timer]
+OnBootSec=10min
+OnUnitInactiveSec=1h
+Unit=fleure-dnf-makecache.service
+
+[Install]
+WantedBy=basic.target
