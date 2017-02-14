@@ -6,6 +6,21 @@ topdir=${curdir}/../
 nosetests_opts="-c ${curdir}/nose.cfg"
 nprocs=$(echo ${NOSE_PROCESSES})
 
+# prefer python 3 versions:
+#function _detect () {
+#    local target=$1
+#    local fallback=$2
+#    ${target:?} 2> /dev/null > /dev/null && echo ${target} || echo ${fallback:?}
+#}
+#flake8=$(_detect python3-flake8 flake8)
+#pep8=$(_detect python3-pep8 pep8)
+#pylint=$(_detect python3-pylint pylint)
+#nosetests=$(_detect nosetets-3.4 nosetests)
+flake8=flake8
+pep8=pep8
+pylint=pylint
+nosetests=nosetests
+
 if `env | grep -q 'WITH_COVERAGE' 2>/dev/null`; then
     nosetests_opts="${nosetests_opts} --with-coverage --cover-tests"
     nprocs=0  # It seems that coverage does not like parallel tests.
@@ -20,30 +35,30 @@ if test "x${nprocs}" != "x0" ; then
     fi
 fi
 
-if `which pep8 2>&1 > /dev/null`; then
+if `which ${pep8:?} 2>&1 > /dev/null`; then
     #pep8_opts="--statistics --benchmark"
-    if `which flake8 2>&1 > /dev/null`; then
+    if `which ${flake8:?} 2>&1 > /dev/null`; then
         pep8_opts="$pep8_opts --doctests"
-        function _pep8 () { flake8 $pep8_opts $@; }
+        function _pep8 () { ${flake8} $pep8_opts $@; }
     else
-        function _pep8 () { pep8 $pep8_opts $@; }
+        function _pep8 () { ${pep8} $pep8_opts $@; }
     fi
 else
     function _pep8 () { :; }
 fi
 
-if `which pylint 2>&1 > /dev/null`; then
+if `which ${pylint:?} 2>&1 > /dev/null`; then
     pylint_opt="--disable=invalid-name,locally-disabled"
     test -f ${curdir}/pylintrc && \
         pylint_opt="$pylint_opt --rcfile=$curdir/pylintrc" || :
-    function _pylint () { pylint ${rcopt} $@ || :; }
+    function _pylint () { ${pylint} ${rcopt} $@ || :; }
 else
     function _pylint () { :; }
 fi
 
 if test $# -gt 0; then
     for x in $@; do _pep8 ${x%%:*}; _pylint ${x%%:*}; done
-    PYTHONPATH=$topdir nosetests ${nosetests_opts} $@
+    PYTHONPATH=$topdir ${nosetests:?} ${nosetests_opts} $@
 else
     cd ${topdir}
     # Find out python package dir and run tests for .py files under it.
@@ -59,7 +74,7 @@ else
             _pep8 $d
         fi
     done
-    PYTHONPATH=. nosetests ${nosetests_opts} --all-modules
+    PYTHONPATH=. ${nosetests:?} ${nosetests_opts} --all-modules
 fi
 
 # vim:sw=4:ts=4:et:
