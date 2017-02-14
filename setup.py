@@ -33,6 +33,11 @@ data_files = [
     (os.path.join(get_python_lib(), "fleure/locale/ja/LC_MESSAGES"),
      ["fleure/locale/ja/LC_MESSAGES/fleure.mo"]),
     ("/etc/fleure.d", list_files("data/conf/")),
+    ("/usr/lib/systemd/system/", list_files("data/db/systemd/")),
+]
+
+data_scripts = [
+    "tools/fleure-dnf-makecache.sh",
 ]
 
 
@@ -92,6 +97,7 @@ setup(name=PACKAGE,
       cmdclass=dict(srpm=SrpmCommand, rpm=RpmCommand),
       entry_points=open(os.path.join(os.curdir,
                                      "pkg/entry_points.txt")).read(),
-      data_files=data_files)
+      data_files=data_files,
+      scripts=data_scripts)
 
 # vim:sw=4:ts=4:et:
