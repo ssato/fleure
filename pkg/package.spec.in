@@ -65,6 +65,14 @@ Summary:        %{srcname} common data files
 %description -n python-%{srcname}-common
 Common data files of %{srcname}.
 
+%package     -n python-%{srcname}-db
+Summary:        %{srcname} database related data and tools
+Requires:       python-%{srcname}-common
+Requires:       systemd
+
+%description -n python-%{srcname}-db
+Common data files of %{srcname}.
+
 %prep
 %setup -q -n %{srcname}-%{version}
 
@@ -94,6 +102,10 @@ mv $RPM_BUILD_ROOT%{_bindir}/%{srcname}_cli $RPM_BUILD_ROOT%{_bindir}/%{cli}-2
 %files -n python-%{srcname}-common
 %{_sysconfdir}/%{srcname}.d/*.yml
 %{_datadir}/%{srcname}/templates/2/*/*.j2
+
+%files -n python-%{srcname}-db
+%{_prefix}/lib/systemd/system/*.*
+%{_bindir}/*.sh
 
 %changelog
 * Sun Oct  4 2015 Satoru SATOH <ssato@redhat.com> - 0.1-1
