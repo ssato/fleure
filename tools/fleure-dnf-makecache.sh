@@ -5,7 +5,7 @@
 set -e
 
 # Defaults:
-DNF=$(which dnf || which yum) # Prefer dnf instead of yum
+DNF=$(which dnf 2>/dev/null || which yum 2>/dev/null) # Prefer dnf.
 REPOS="
 rhel-6-server-rpms
 rhel-6-server-optional-rpms
