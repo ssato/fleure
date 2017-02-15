@@ -35,7 +35,7 @@ def period_type(period_s):
     """
     :param period_s:
         A string represents date period such as
-        "YYYY[-MM[-DD]][,YYYY[-MM[-DD]]], ex. " "'2014-10-01,2014-12-31',
+        "YYYY[-MM[-DD]][,YYYY[-MM[-DD]]]", ex. '2014-10-01,2014-12-31',
         '2014-01-01'.
 
     .. seealso:: :func:`period_to_dates` and its friends in fleure.dates
