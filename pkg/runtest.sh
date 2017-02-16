@@ -37,6 +37,7 @@ fi
 
 if `which ${pep8:?} 2>&1 > /dev/null`; then
     #pep8_opts="--statistics --benchmark"
+    pep8_opts="--ignore=E731"
     if `which ${flake8:?} 2>&1 > /dev/null`; then
         pep8_opts="$pep8_opts --doctests"
         function _pep8 () { ${flake8} $pep8_opts $@; }
