@@ -5,7 +5,7 @@
 # pylint: disable=missing-docstring,invalid-name,no-member
 from __future__ import absolute_import
 
-import itertools
+# import itertools
 import unittest
 
 import fleure.models.package as TT
@@ -68,6 +68,7 @@ class Test10(fleure.models.tests.common.TestsWithSession):
         self.assertEquals(pkgs[0].nevra, "kernel 0:2.6.38.8-32 x86_64")
 
 
+"""
 class Test20(fleure.models.tests.common.TestsWithSession):
 
     def test_00_empty_db(self):
@@ -95,5 +96,6 @@ class Test20(fleure.models.tests.common.TestsWithSession):
             self.assertEquals(pkg.nevra, pkg_ref.nevra)
             self.assertEquals(pkg.rebuilt, pkg_ref.rebuilt)
             self.assertEquals(pkg.from_others, pkg_ref.from_others)
+"""
 
 # vim:sw=4:ts=4:et:
