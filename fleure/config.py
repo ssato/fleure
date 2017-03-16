@@ -89,13 +89,12 @@ def try_to_load_config_from_files(conf_path=None):
     """
     Load configurations from given `conf_path`.
     """
-    cnf = anyconfig.to_container()
-    cnf.update(**DEFAULTS)
+    cnf = DEFAULTS.copy()
 
     if conf_path:
         try:
             diff = anyconfig.load(conf_path)
-            cnf.update(diff)
+            anyconfig.merge(cnf, diff)
         except (IOError, OSError):
             pass
 
