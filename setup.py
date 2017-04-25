@@ -33,11 +33,11 @@ data_files = [
     (os.path.join(get_python_lib(), "fleure/locale/ja/LC_MESSAGES"),
      ["fleure/locale/ja/LC_MESSAGES/fleure.mo"]),
     ("/etc/fleure.d", list_files("data/conf/")),
-    ("/usr/lib/systemd/system/", list_files("data/db/systemd/")),
+#    ("/usr/lib/systemd/system/", list_files("data/db/systemd/")),
 ]
 
 data_scripts = [
-    "tools/fleure-dnf-makecache.sh",
+#    "tools/fleure-dnf-makecache.sh",
 ]
 
 
