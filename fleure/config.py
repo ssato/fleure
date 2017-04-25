@@ -94,7 +94,7 @@ def try_to_load_config_from_files(conf_path=None):
     if conf_path:
         try:
             diff = anyconfig.load(conf_path)
-            anyconfig.merge(cnf, diff)
+            anyconfig.api.merge(cnf, diff)
         except (IOError, OSError):
             pass
 
