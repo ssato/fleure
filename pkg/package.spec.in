@@ -93,7 +93,7 @@ mv $RPM_BUILD_ROOT%{_bindir}/%{srcname}_cli $RPM_BUILD_ROOT%{_bindir}/%{cli}-2
 
 %files -n python-%{srcname}-common
 %{_sysconfdir}/%{srcname}.d/*.yml
-%{_datadir}/%{srcname}/templates/2/*/*.j2
+%{_datadir}/%{srcname}/templates/2/*/*.*
 
 %changelog
 * Sun Oct  4 2015 Satoru SATOH <ssato@redhat.com> - 0.1-1
