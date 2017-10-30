@@ -18,7 +18,6 @@ fleure
    :target: https://scrutinizer-ci.com/g/ssato/fleure
    :alt: [Code Quality]
 
-
 fleure (フルーア) [#]_ , a successor of rk-updateinfo (rpmkit.updateinfo cli),
 is a package level static analysis tool for systems running RPM-based linux
 distributions such like RHEL (primary target) and Fedora.
@@ -31,5 +30,32 @@ from yum repos and do some analysis based on these data.
 - License: AGPLv3+ and GPLv3+
 
 .. [#] The name 'fleure' is borrowed from the name of a track by my most favorite music duo, Authechre.
+
+
+Build & Install
+==================
+
+Requirements
+--------------
+
+- python-anyconfig: https://github.com/ssato/python-anyconfig
+- python-anytemplate: https://github.com/ssato/python-anytemplate
+
+::
+
+  ## Example session in Fedora 25+
+  # sudo dnf copr enable ssato/python-anyconfig -y
+  # sudo dnf install -y python-{anytemplate,anyconfig}
+
+Build
+------
+
+Run `python setup.py srpm` and mock dist/SRPMS/<built-srpm>, or
+run `python setup.py rpm`.
+
+Install
+-----------
+
+- build srpm, rpm w/ mock and install it
 
 .. vim:sw=2:ts=2:et:
