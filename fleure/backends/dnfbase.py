@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 - 2016 Red Hat, Inc.
+# Copyright (C) 2013 - 2017 Red Hat, Inc.
 # Author: Satoru SATOH <ssato@redhat.com>
 # License: GPLv3+
 #
@@ -215,7 +215,8 @@ class Base(fleure.backends.base.Base):
         conf = dnf.conf.Conf()
         if self.root != os.path.sep:
             conf.installroot = self.root
-            conf.logdir = _pathjoin(self.root, conf.logdir)
+            #conf.logdir = _pathjoin(self.root, conf.logdir)
+            conf.logdir = _pathjoin(self.root, "var", "cache")
             conf.persistdir = _pathjoin(self.root, conf.persistdir)
 
         # :see: https://bugzilla.redhat.com/show_bug.cgi?id=1184943
@@ -226,7 +227,9 @@ class Base(fleure.backends.base.Base):
             self.cachedir = conf.cachedir = cachedir
 
         self.base = dnf.Base(conf)
-        # self.base.conf.cachedir = self.cachedir   # Required?
+        self.base.conf.cachedir = self.cachedir   # Required?
+        LOG.debug("*** cachedir=%s, logdir=%s", self.cachedir, conf.logdir)
+
         self._hpackages = collections.defaultdict(list)
 
     def _make_list_of(self, item, process_fns=None):
