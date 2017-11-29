@@ -25,7 +25,7 @@ class Test10(unittest.TestCase):
 
         conf = base.base.conf
         self.assertEqual(conf.installroot, u"/tmp")
-        self.assertEqual(conf.logdir, u"/tmp/var/log")
+        # self.assertEqual(conf.logdir, u"/tmp/var/log")
 
     @fleure.tests.common.skip_if_not(TT is not None)
     def test_14__init__with_cachedir(self):
