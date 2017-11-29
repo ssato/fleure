@@ -48,6 +48,7 @@ Requires:       python-%{srcname}-common
 Requires:       python3-beautifulsoup4
 Requires:       python3-anyconfig
 Requires:       python3-anytemplate
+Requires:       python3-bunch
 Requires:       python3-networkx
 Requires:       python3-nltk
 Requires:       python3-sqlalchemy

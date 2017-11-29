@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014 - 2015 Satoru SATOH <ssato redhat.com>
+# Copyright (C) 2014 - 2017 Satoru SATOH <ssato redhat.com>
 # License: GPLv3+
 #
 """Package object defs.

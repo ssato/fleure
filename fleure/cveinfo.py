@@ -2,7 +2,7 @@
 # cve related functions from rpmkit.swapi
 #
 # Copyright (C) 2010 Satoru SATOH <satoru.satoh at gmail.com>
-# Copyright (C) 2011 - 2015 Satoru SATOH <ssato at redhat.com>
+# Copyright (C) 2011 - 2017 Satoru SATOH <ssato at redhat.com>
 #
 # This software is licensed to you under the GNU General Public License,
 # version 2 (GPLv2). There is NO WARRANTY for this software, express or

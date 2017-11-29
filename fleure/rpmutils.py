@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014 - 2015 Red Hat, Inc.
+# Copyright (C) 2014 - 2017 Red Hat, Inc.
 # Red Hat Author(s): Satoru SATOH <ssato@redhat.com>
 #
 # This software is licensed to you under the GNU General Public License,

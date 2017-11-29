@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2011 - 2015 Satoru SATOH <ssato at redhat.com>
+# Copyright (C) 2011 - 2017 Satoru SATOH <ssato at redhat.com>
 #
 # pylint: disable=missing-docstring
 from __future__ import absolute_import
