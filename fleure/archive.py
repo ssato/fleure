@@ -69,8 +69,8 @@ def _is_bad_path(filepath, prefix=None):
     filepath = os.path.normpath(filepath)
     if prefix is None:
         return filepath.startswith('/')
-    else:
-        return not filepath.startswith(prefix)
+
+    return not filepath.startswith(prefix)
 
 
 def _remove_if_bad_file(filepath, prefix=None):
@@ -177,8 +177,9 @@ def _exract_fnc(maybe_arc_path):
     """
     if maybe_arc_path.endswith(".zip"):
         return safe_unzip
-    else:  # TBD: re.match(r".tar.(?:gz|bz2|xz)$", maybe_arc_path):
-        return safe_untar
+
+    # TBD: re.match(r".tar.(?:gz|bz2|xz)$", maybe_arc_path):
+    return safe_untar
 
 
 def extract_rpmdb_archive(arc_path, root=None):

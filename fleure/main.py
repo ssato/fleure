@@ -342,7 +342,7 @@ def main(root_or_arc_path, hid=None, verbosity=0, **kwargs):
     if kwargs.get("archive", False):
         outname = "report-%s-%s.zip" % (host.hid, fleure.globals.TODAY)
         return archive_report(host.workdir, outname)
-    else:
-        return host.workdir
+
+    return host.workdir
 
 # vim:sw=4:ts=4:et:

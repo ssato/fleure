@@ -40,20 +40,20 @@ def _round_ymd(year, mon, day, roundout=False):
     if mon is None:
         return (year + 1 if roundout else year, 1, 1)
 
-    elif day is None:
+    if day is None:
         if roundout:
             return (year + 1, 1, 1) if mon == 12 else (year, mon + 1, 1)
-        else:
-            return (year, mon, 1)
+
+        return (year, mon, 1)
     else:
         if roundout:
             last_day = calendar.monthrange(year, mon)[1]
             if day == last_day:
                 return (year + 1, 1, 1) if mon == 12 else (year, mon + 1, 1)
-            else:
-                return (year, mon, day + 1)
-        else:
-            return (year, mon, day)
+
+            return (year, mon, day + 1)
+
+    return (year, mon, day)
 
 
 def _d2i(dtpl):
@@ -113,9 +113,9 @@ def _to_date(date_s):
     """
     if '-' in date_s:
         return tuple(int(x) for x in date_s.split()[0].split('-'))
-    else:
-        (month, day, year) = date_s.split('/')
-        return (int("20" + year), int(month), int(day))
+
+    (month, day, year) = date_s.split('/')
+    return (int("20" + year), int(month), int(day))
 
 
 def period_to_dates(start_date, end_date=fleure.globals.TODAY):

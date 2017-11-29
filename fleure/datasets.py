@@ -56,8 +56,8 @@ def _fmt_cve(cve):
     """CVE formatter"""
     if 'score' in cve:
         return '%(cve)s (score=%(score)s, metrics=%(metrics)s, url=%(url)s)'
-    else:
-        return '%(cve)s (CVSS=N/A)'
+
+    return '%(cve)s (CVSS=N/A)'
 
 
 def _fmt_cvess(cves):
@@ -107,9 +107,8 @@ def _make_cell_data(obj, key, default="N/A"):
         bzs = obj.get("bzs", [])
         return ", ".join(_fmt_bzs(bzs)) if bzs else default
 
-    else:
-        val = obj.get(key, default)
-        return ", ".join(val) if isinstance(val, (list, tuple)) else val
+    val = obj.get(key, default)
+    return ", ".join(val) if isinstance(val, (list, tuple)) else val
 
 
 def make_dataset(data, title, headers, lheaders=None):

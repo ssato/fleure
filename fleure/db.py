@@ -98,8 +98,8 @@ def _get_value(dic, key):
         return _get_value(candidate, candidate.keys()[0])
     elif isinstance(candidate, list):
         return _get_value(candidate[0], key)  # Workaround for invalid ones.
-    else:
-        return candidate
+
+    return candidate
 
 
 def _exec_sql_stmt(cur, stmt, values=None):
