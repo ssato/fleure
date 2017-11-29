@@ -20,12 +20,14 @@
 """
 from __future__ import absolute_import
 
-import anytemplate
 import logging
-import networkx
 import operator
 import os.path
+
+import networkx
 import yum  # TODO: Remove dependency to yum and switch to dnf.
+
+import anytemplate
 
 import fleure.globals
 import fleure.utils

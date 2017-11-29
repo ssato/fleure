@@ -8,13 +8,15 @@
 """
 from __future__ import absolute_import
 
-import anyconfig
-import anyconfig.utils
-import bunch
 import logging
 import os.path
 import tempfile
 import uuid
+
+import bunch
+
+import anyconfig
+import anyconfig.utils
 
 import fleure.globals
 import fleure.archive

@@ -1,12 +1,12 @@
 #
-# Copyright (C) 2016 Satoru SATOH <ssato at redhat.com>
+# Copyright (C) 2016, 2017 Satoru SATOH <ssato at redhat.com>
 # License: MIT
 #
 # pylint: disable=missing-docstring,invalid-name,no-member
 from __future__ import absolute_import
 
-import sqlalchemy
 import unittest
+import sqlalchemy
 
 from sqlalchemy.orm import scoped_session, sessionmaker
 from .. import base as TT

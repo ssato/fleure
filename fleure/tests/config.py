@@ -1,14 +1,15 @@
 #
-# Copyright (C) 2015, 2016 Satoru SATOH <ssato at redhat.com>
+# Copyright (C) 2015 - 2017 Satoru SATOH <ssato at redhat.com>
 # License: GPLv3+
 #
 # pylint: disable=missing-docstring,invalid-name
 from __future__ import absolute_import
 
-import anyconfig
 import os.path
 import os
 import unittest
+
+import anyconfig
 
 import fleure.config as TT
 import fleure.globals

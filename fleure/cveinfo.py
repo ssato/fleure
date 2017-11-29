@@ -16,9 +16,9 @@
 """
 from __future__ import absolute_import
 
-import bs4 as beautifulsoup
 import logging
 import re
+import bs4 as beautifulsoup
 
 try:
     import urllib.request as urllib2  # python 3

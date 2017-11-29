@@ -10,12 +10,13 @@
 from __future__ import absolute_import
 
 import collections
-import dnf
-import hawkey
 import itertools
 import logging
 import operator
 import os.path
+
+import dnf
+import hawkey
 
 import fleure.backends.base
 import fleure.globals

@@ -13,7 +13,6 @@ Misc utility routines for fleure.
 """
 from __future__ import absolute_import
 
-import anyconfig.utils
 import codecs
 import itertools
 import json
@@ -21,6 +20,7 @@ import logging
 import os.path
 import os
 import subprocess
+import anyconfig.utils
 
 # from fleure.decorators import async  # TBD
 
