@@ -215,7 +215,7 @@ class Base(fleure.backends.base.Base):
         conf = dnf.conf.Conf()
         if self.root != os.path.sep:
             conf.installroot = self.root
-            #conf.logdir = _pathjoin(self.root, conf.logdir)
+            # conf.logdir = _pathjoin(self.root, conf.logdir)
             conf.logdir = _pathjoin(self.root, "var", "cache")
             conf.persistdir = _pathjoin(self.root, conf.persistdir)
 
