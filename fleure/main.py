@@ -20,7 +20,6 @@ import tablib
 
 import fleure.analysis
 import fleure.archive
-import fleure.backends.yumbase
 import fleure.config
 import fleure.depgraph
 import fleure.globals
