@@ -51,7 +51,7 @@ def hosts_rpmroot_g(hosts_datadir):
         if fleure.rpmutils.check_rpmdb_root(hostdir):
             yield (os.path.basename(hostdir), hostdir)
         else:
-            LOG.warn(_("Failed to find RPM DBs under %s"), hostdir)
+            LOG.warning(_("Failed to find RPM DBs under %s"), hostdir)
             yield (os.path.basename(hostdir), None)
 
 

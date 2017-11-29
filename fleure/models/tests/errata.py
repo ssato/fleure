@@ -26,9 +26,9 @@ condition was found in the way NSS verified certain certificates.\n""",
 class Test_10_Errata(fleure.models.tests.common.TestsWithSession):
 
     def test_00_empty_db(self):
-        self.assertEquals(len(self.session.query(TT.Bugzilla).all()), 0)
-        self.assertEquals(len(self.session.query(TT.CVE).all()), 0)
-        self.assertEquals(len(self.session.query(TT.Errata).all()), 0)
+        self.assertEqual(len(self.session.query(TT.Bugzilla).all()), 0)
+        self.assertEqual(len(self.session.query(TT.CVE).all()), 0)
+        self.assertEqual(len(self.session.query(TT.Errata).all()), 0)
 
     def test_10_add_one(self):
         bzs = [TT.Bugzilla("1301846",
@@ -59,7 +59,7 @@ class Test_10_Errata(fleure.models.tests.common.TestsWithSession):
         self.session.commit()
 
         items = self.session.query(TT.Errata).all()
-        self.assertEquals(len(items), 1)
-        self.assertEquals(items[0].advisory, "RHSA-2014:0917")
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0].advisory, "RHSA-2014:0917")
 
 # vim:sw=4:ts=4:et:

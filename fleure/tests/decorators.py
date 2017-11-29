@@ -22,7 +22,7 @@ class Test(unittest.TestCase):
 
     def test_10_noop_original_kept(self):
         fnc2 = TT.noop(fnc)
-        self.assertEquals(inspect.getdoc(fnc), inspect.getdoc(fnc2))
+        self.assertEqual(inspect.getdoc(fnc), inspect.getdoc(fnc2))
 
     def test_10_noop_not_callable(self):
         self.assertRaises(ValueError, TT.noop, None)
@@ -32,7 +32,7 @@ class Test(unittest.TestCase):
         fnc2 = lambda _param: param  # Function lgnores parameters
         fnc2 = TT.memoize(fnc2)
         param = 1
-        self.assertEquals(fnc2(0), fnc2(1))
+        self.assertEqual(fnc2(0), fnc2(1))
 
     def test_30_async(self):
         TT.async.pool = TT.multiprocessing.Pool()

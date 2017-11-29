@@ -351,7 +351,7 @@ class Base(fleure.backends.base.Base):
                 logging.info("Excluded or no package matched: %s", pspec)
 
             except dnf.exceptions.DepsolveError:
-                logging.warn("Depsolv error! Make it excluded: %s", pspec)
+                logging.warning("Depsolv error! Make it excluded: %s", pspec)
                 excls.extend(list(_excludes_from_removed([pspec])))
 
         # TODO: reset transaction:

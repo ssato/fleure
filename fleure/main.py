@@ -279,7 +279,7 @@ def set_loglevel(verbosity=0, backend=False):
     if verbosity in (0, 1, 2):
         llvl = [logging.WARN, logging.INFO, logging.DEBUG][verbosity]
     else:
-        LOG.warn(_("Wrong verbosity: %d"), verbosity)
+        LOG.warning(_("Wrong verbosity: %d"), verbosity)
         llvl = logging.WARN
 
     LOG.setLevel(llvl)
@@ -306,8 +306,8 @@ def archive_report(reportdir, output):
         LOG.info(_("Archived results: %s"), arcpath)
         return arcpath
 
-    LOG.warn(_("Reprot files (%s) do not exist. Do no make a report "
-               "archives"), ", ".join(filenames))
+    LOG.warning(_("Reprot files (%s) do not exist. Do no make a report "
+                  "archives"), ", ".join(filenames))
     return None
 
 

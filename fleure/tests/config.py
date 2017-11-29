@@ -21,7 +21,7 @@ class FunctionsTest00(unittest.TestCase):
     def test_20_try_to_load_config_from_files__no_arg(self):
         cnf = TT.try_to_load_config_from_files()
         for key in TT.DEFAULTS.keys():
-            self.assertEquals(cnf[key], TT.DEFAULTS[key])
+            self.assertEqual(cnf[key], TT.DEFAULTS[key])
 
     def test_22_try_to_load_config_from_files__sysconf(self):
         cnf_path = os.path.join(fleure.tests.common.selfdir(),
@@ -29,7 +29,7 @@ class FunctionsTest00(unittest.TestCase):
         cnf_ref = anyconfig.load(cnf_path)
         cnf = TT.try_to_load_config_from_files(cnf_path)
         for key in cnf_ref.keys():
-            self.assertEquals(cnf[key], cnf_ref[key], key)
+            self.assertEqual(cnf[key], cnf_ref[key], key)
 
 
 class HostTest00(unittest.TestCase):
@@ -40,15 +40,15 @@ class HostTest00(unittest.TestCase):
                        workdir=workdir)
         self.assertTrue(isinstance(host, TT.Host))
 
-        self.assertEquals(host.root, root)
-        self.assertEquals(host.workdir, workdir)
+        self.assertEqual(host.root, root)
+        self.assertEqual(host.workdir, workdir)
         self.assertTrue(host.hid is not None)
-        self.assertEquals(host.tpaths, TT.DEFAULTS["tpaths"])
+        self.assertEqual(host.tpaths, TT.DEFAULTS["tpaths"])
 
         self.assertTrue(host.repos == [])
         self.assertTrue(host.base is None)
         self.assertFalse(host.available)
-        self.assertEquals(host.errors, [])
+        self.assertEqual(host.errors, [])
 
 
 class HostTest10(fleure.tests.common.TestsWithRpmDB):
@@ -66,6 +66,6 @@ class HostTest10(fleure.tests.common.TestsWithRpmDB):
         self.host.configure()
         base = self.host.init_base()
         base.prepare()
-        self.assertNotEquals(base.list_installed(), [])
+        self.assertNotEqual(base.list_installed(), [])
 
 # vim:sw=4:ts=4:et:

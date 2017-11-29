@@ -28,7 +28,7 @@ class Test00(fleure.tests.common.TestsWithRpmDB):
         pkgs = base.list_installed()
 
         self.assertTrue(isinstance(pkgs, list))
-        self.assertNotEquals(pkgs, [])
+        self.assertNotEqual(pkgs, [])
 
     @fleure.tests.common.skip_if_not(TT is not None)
     def test_40_list_errata(self):

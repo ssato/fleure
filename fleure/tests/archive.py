@@ -110,7 +110,7 @@ class Test00(fleure.tests.common.TestsWithWorkdir):
         paths = sorted(os.path.join(topdir, fn) for fn in filenames)
 
         with TT.zipfile.ZipFile(output) as zipf:
-            self.assertEquals(sorted(zipf.namelist()), paths)
+            self.assertEqual(sorted(zipf.namelist()), paths)
 
 
 class Test10(fleure.tests.common.TestsWithWorkdir):

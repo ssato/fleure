@@ -24,17 +24,17 @@ class Test10(unittest.TestCase):
         self.assertTrue(isinstance(base, TT.Base))
 
         conf = base.base.conf
-        self.assertEquals(conf.installroot, u"/tmp")
-        self.assertEquals(conf.logdir, u"/tmp/var/log")
+        self.assertEqual(conf.installroot, u"/tmp")
+        self.assertEqual(conf.logdir, u"/tmp/var/log")
 
     @fleure.tests.common.skip_if_not(TT is not None)
     def test_14__init__with_cachedir(self):
         cachedir = u"/tmp/aaa"
         base = TT.Base(cachedir=cachedir)
         self.assertTrue(isinstance(base, TT.Base))
-        self.assertEquals(base.base.conf.cachedir, cachedir,
-                          "%s vs. %s" % (base.base.conf.cachedir,
-                                         cachedir))
+        self.assertEqual(base.base.conf.cachedir, cachedir,
+                         "%s vs. %s" % (base.base.conf.cachedir,
+                                        cachedir))
 
 
 class Test20(fleure.tests.common.TestsWithRpmDB):

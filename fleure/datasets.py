@@ -88,7 +88,7 @@ def _fmt_bzs(bzs, summary=False):
     try:
         bzs = [fmt(bz) % bz for bz in bzs]
     except KeyError:
-        LOG.warn(_("BZ Key error: %s"), str(bzs))
+        LOG.warning(_("BZ Key error: %s"), str(bzs))
 
     return bzs
 
@@ -187,7 +187,7 @@ def _errata_to_int(errata):
 
     match = reg.match(errata["advisory"])
     if not match:
-        LOG.warn(_("Not an errata advisory ? : %(advisory)s"), errata)
+        LOG.warning(_("Not an errata advisory ? : %(advisory)s"), errata)
         return 0
 
     dic = match.groupdict()

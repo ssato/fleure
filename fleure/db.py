@@ -253,8 +253,8 @@ def convert_uixmlgz(repo, outdir, root=os.path.sep):
     """
     uixmlgz = find_uixmlgz_path(repo, root=root)
     if uixmlgz is None:
-        LOG.warn("Could not find updateinfo.xml.gz: repo=%s, root=%s",
-                 repo, root)
+        LOG.warning("Could not find updateinfo.xml.gz: repo=%s, root=%s",
+                    repo, root)
         return False
 
     with gzip.open(uixmlgz) as inp:

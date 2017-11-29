@@ -272,13 +272,13 @@ def _cve_socre_ge(cve, score=0, default=False):
     :return: True if given CVE's socre is greater or equal to given score.
     """
     if "score" not in cve:
-        LOG.warn(_("CVE %(cve)s lacks of CVSS base metrics and score"), cve)
+        LOG.warning(_("CVE %(cve)s lacks of CVSS base metrics and score"), cve)
         return default
     try:
         return float(cve["score"]) >= float(score)
     except (KeyError, ValueError):
-        LOG.warn(_("Failed to compare CVE's score: %s, score=%.1f"),
-                 str(cve), score)
+        LOG.warning(_("Failed to compare CVE's score: %s, score=%.1f"),
+                    str(cve), score)
 
     return default
 

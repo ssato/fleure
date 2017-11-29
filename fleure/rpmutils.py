@@ -54,7 +54,7 @@ def _is_bsd_hashdb(dbpath):
 
         bsddb.hashopen(dbpath, 'r')
     except (OSError, IOError):
-        LOG.warn(_("Not a Berkley DB?: %s"), dbpath)
+        LOG.warning(_("Not a Berkley DB?: %s"), dbpath)
         return False
 
     return True

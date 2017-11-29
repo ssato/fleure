@@ -191,7 +191,7 @@ def get_cvss_for_cve(cve):
         if year < 2009:  # No CVSS
             return None
     else:
-        LOG.warn(_("Invalid CVE: %s"), cve)
+        LOG.warning(_("Invalid CVE: %s"), cve)
         return None
 
     def has_cvss_link(tag):
@@ -222,7 +222,7 @@ def get_cvss_for_cve(cve):
                     url=url_fmt % (cve, cvss_base_metrics))
 
     except Exception as exc:
-        LOG.warn(_("Could not get CVSS data: err=%s"), str(exc))
+        LOG.warning(_("Could not get CVSS data: err=%s"), str(exc))
 
     return None
 

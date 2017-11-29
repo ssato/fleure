@@ -27,9 +27,9 @@ class Test(unittest.TestCase):
             if val is None:
                 continue
             try:
-                self.assertEquals(val, val_ref)
+                self.assertEqual(val, val_ref)
             except AssertionError:
-                self.assertEquals(bool(val), bool(val_ref), "key=" + key)
+                self.assertEqual(bool(val), bool(val_ref), "key=" + key)
 
     @fleure.tests.common.skip_if_not(TT is not None)
     def test_11_parse_args__repos(self):
@@ -45,9 +45,9 @@ class Test(unittest.TestCase):
             if val is None:
                 continue
             try:
-                self.assertEquals(val, val_ref)
+                self.assertEqual(val, val_ref)
             except AssertionError:
-                self.assertEquals(bool(val), bool(val_ref), "key=" + key)
+                self.assertEqual(bool(val), bool(val_ref), "key=" + key)
 
     @fleure.tests.common.skip_if_not(TT is not None)
     def test_12_parse_args__period(self):
@@ -55,11 +55,11 @@ class Test(unittest.TestCase):
 
         period = "2015-01-01"
         args = TT.parse_args([root, "--period", period])
-        self.assertEquals(args.period, [period])
+        self.assertEqual(args.period, [period])
 
         period = "2015-01-01,2015-09-29"
         args = TT.parse_args([root, "--period", period])
-        self.assertEquals(args.period, period.split(','))
+        self.assertEqual(args.period, period.split(','))
 
     @fleure.tests.common.skip_if_not(TT is not None)
     def test_24_main__no_root_arg(self):

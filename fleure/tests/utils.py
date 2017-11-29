@@ -19,23 +19,23 @@ class Test00(unittest.TestCase):
 
     def test_30_subproc_call(self):
         (rcode, out, err) = TT.subproc_call(":")
-        self.assertEquals(rcode, 0)
-        self.assertEquals(out, '')
-        self.assertEquals(err, '')
+        self.assertEqual(rcode, 0)
+        self.assertEqual(out, '')
+        self.assertEqual(err, '')
 
         (rcode, out, err) = TT.subproc_call("echo OK")
-        self.assertEquals(rcode, 0)
-        self.assertEquals(out, "OK\n")
-        self.assertEquals(err, '')
+        self.assertEqual(rcode, 0)
+        self.assertEqual(out, "OK\n")
+        self.assertEqual(err, '')
 
         (rcode, out, err) = TT.subproc_call("echo NG > /dev/stderr && false")
-        self.assertNotEquals(rcode, 0)
-        self.assertEquals(out, '')
-        self.assertEquals(err, "NG\n")
+        self.assertNotEqual(rcode, 0)
+        self.assertEqual(out, '')
+        self.assertEqual(err, "NG\n")
 
     def test_32_subproc_call__timeout(self):
         (rcode, out, err) = TT.subproc_call("sleep 10", timeout=2)
-        self.assertNotEquals(rcode, 0)
+        self.assertNotEqual(rcode, 0)
         self.assertFalse(out, out)
         self.assertFalse(err, err)
 
