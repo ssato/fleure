@@ -199,6 +199,7 @@ def main(argv=None):
     fnc = fleure.multihosts.main if args.multihost else fleure.main.main
     fnc(args.root_or_archive, **cnf)
 
+
 if __name__ == '__main__':
     main()
 
