@@ -108,8 +108,8 @@ def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
 
     for ert in ers:
         tokens = set(nltk.wordpunct_tokenize(ert["description"]))
-        if stemming:
-            tokens = set(_stem(w.lower()) for w in tokens)
+        if stemming and tokens:
+            tokens = set(_stem(w.lower()) for w in tokens if w)
 
         kwds = _errata_keywords(ert.get("package_names", []), keywords,
                                 pkeywords)
