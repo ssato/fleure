@@ -14,6 +14,7 @@ import itertools
 import logging
 import operator
 import os.path
+import os
 
 import dnf
 import hawkey
@@ -216,19 +217,18 @@ class Base(fleure.backends.base.Base):
         conf = dnf.conf.Conf()
         if self.root != os.path.sep:
             conf.installroot = self.root
-            # conf.logdir = _pathjoin(self.root, conf.logdir)
-            conf.logdir = _pathjoin(self.root, "var", "cache")
-            conf.persistdir = _pathjoin(self.root, conf.persistdir)
+            conf.logdir = _pathjoin(self.root, conf.logdir[1:])
+            conf.persistdir = _pathjoin(self.root, conf.persistdir[1:])
 
         # :see: https://bugzilla.redhat.com/show_bug.cgi?id=1184943
         if cachedir is None:
-            conf.cachedir = _pathjoin(self.root, conf.cachedir)
-            self.cachedir = conf.cachedir
-        else:
-            self.cachedir = conf.cachedir = cachedir
+            cachedir = _pathjoin(self.root, conf.cachedir[1:])
+
+        self.cachedir = conf.cachedir = cachedir
 
         self.base = dnf.Base(conf)
         self.base.conf.cachedir = self.cachedir   # Required?
+        self.base.conf.logdir = conf.logdir       # Likewise
         LOG.debug("*** cachedir=%s, logdir=%s", self.cachedir, conf.logdir)
 
         self._hpackages = collections.defaultdict(list)
@@ -295,6 +295,9 @@ class Base(fleure.backends.base.Base):
         """
         Initialize RPM DB (sack) and Yum repo metadata (fetch from remote).
         """
+        if not os.path.exists(self.base.conf.logdir):
+            os.makedirs(self.base.conf.logdir)
+
         if not self._populated:
             # It will take some time to get metadata from remote repos.
             # see :method:`run` in :class:`dnf.cli.cli.Cli`.
