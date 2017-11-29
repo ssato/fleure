@@ -144,7 +144,8 @@ class TestsWithWorkdir(unittest.TestCase):
         self.workdir = setup_workdir()
 
     def tearDown(self):
-        cleanup_workdir(self.workdir)
+        if not os.environ.get("_DO_NOT_CLEANUP"):
+            cleanup_workdir(self.workdir)
 
 
 class TestsWithRpmDB(TestsWithWorkdir):
