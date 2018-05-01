@@ -25,7 +25,12 @@ import operator
 import os.path
 
 import networkx
-import yum  # TODO: Remove dependency to yum and switch to dnf.
+
+try:
+    import yum  # TODO: Remove dependency to yum and switch to dnf.
+    SUPPORT = True
+except ImportError:
+    SUPPORT = False
 
 import anytemplate
 
@@ -199,7 +204,13 @@ def dump_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
     if workdir is None:
         workdir = root
 
-    ctx = _make_depgraph_context(root, ers)
+    if SUPPORT:
+        ctx = _make_depgraph_context(root, ers)
+    else:
+        LOG.warning(_("Required yum is not available so depgraph "
+                      "will not be generated."))
+        return
+
     fleure.utils.json_dump(ctx, os.path.join(workdir, outname + ".json"))
 
     output = os.path.join(workdir, outname + ".dot")
