@@ -1,4 +1,5 @@
 anyconfig
+anytemplate
 beautifulsoup4
 ipython
 matplotlib
