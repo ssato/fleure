@@ -76,7 +76,7 @@ Summary:        %{srcname} common data files
 Common data files of %{srcname}.
 
 %prep
-%setup -q -n %{srcname}-%{version}
+%autosetup -n %{srcname}-%{version}
 
 %build
 %py2_build
