@@ -1,12 +1,11 @@
 # Ref. https://fedoraproject.org/wiki/Packaging:Python
 %global srcname fleure
-%global sumtxt  Package level static analysis tool for RPM-based Linux systems
 %global cli     %{srcname}_cli
 
 Name:           python-%{srcname}
 Version:        @VERSION@
 Release:        1%{?dist}
-Summary:        %{sumtxt}
+Summary:        Package level static analysis tool for RPM-based Linux systems
 Group:          Applications/System
 License:        AGPLv3+ and GPLv3+
 URL:            https://github.com/ssato/%{srcname}
@@ -22,7 +21,7 @@ A package level static analysis tool for systems running RPM-based linux
 distributions such like RHEL (primary target) and Fedora.
 
 %package     -n python2-%{srcname}
-Summary:        %{sumtxt}
+Summary:        %{summary}
 Requires:       python-%{srcname}-common
 Requires:       python-beautifulsoup4
 # Available from: https://copr.fedoraproject.org/coprs/ssato/python-anyconfig/
@@ -43,7 +42,7 @@ A package level static analysis tool for systems running RPM-based linux
 distributions such like RHEL (primary target) and Fedora.
 
 %package     -n python3-%{srcname}
-Summary:        %{sumtxt}
+Summary:        %{summary}
 Requires:       python-%{srcname}-common
 Requires:       python3-beautifulsoup4
 Requires:       python3-anyconfig
