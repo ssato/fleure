@@ -2,7 +2,7 @@
 %global srcname fleure
 %global cli     %{srcname}_cli
 %global desc \
-A package level static analysis tool for systems running RPM-based linux
+A package level static analysis tool for systems running RPM-based linux \
 distributions such like RHEL (primary target) and Fedora.
 
 Name:           python-%{srcname}
