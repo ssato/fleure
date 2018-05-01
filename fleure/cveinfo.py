@@ -68,7 +68,7 @@ CVSSS_METRICS_MAP = dict(
             C=3,  # Complete
         ),
     ),
-    I=dict(
+    I=dict(  # flake8: noqa (suppress 'ambiguous variable name' warn)
         label="Integrity Impact",
         metrics=dict(
             N=1,  # None
