@@ -20,7 +20,6 @@ import os.path
 import os
 import re
 import rpm
-import yum
 
 try:
     import bsddb
@@ -97,13 +96,27 @@ def check_rpmdb_root(root, readonly=True, system=False,
     return True
 
 
+def _compare_evr(evr1, evr2):
+    """Stolen from yum (rpmUtils.miscutils.compareEVR) (yum: GPLv2+).
+
+    :param evr1: A tuple of (Epoch, Version, Release)
+    :param evr2: Likewise
+    :return:
+        1 if evr1 is newer than evr2, 0 if these are same version and -1 if
+        evr2 is newer than evr1.
+    """
+    epoch1 = '0' if evr1[0] is None else str(evr1[0])
+    epoch2 = '0' if evr2[0] is None else str(evr2[0])
+
+    return rpm.labelCompare((epoch1, str(evr1[1]), str(evr1[2])),
+                            (epoch2, str(evr2[1]), str(evr2[2])))
+
+
 def pcmp(lhs, rhs):
     """
     Compare packages by these NVRAEs.
 
     :param lhs, rhs: dict(name, version, release, epoch, arch)
-
-    :note: It does not utilize rpm.versionCompare even if yum is not available.
 
     >>> lhs = dict(name="gpg-pubkey", version="00a4d52b", release="4cb9dd70",
     ...           arch="noarch", epoch=0,
@@ -137,7 +150,7 @@ def pcmp(lhs, rhs):
     p2evr = operator.itemgetter("epoch", "version", "release")
 
     assert lhs["name"] == rhs["name"], "Trying to compare different packages!"
-    return yum.compareEVR(p2evr(lhs), p2evr(rhs))
+    return _compare_evr(p2evr(lhs), p2evr(rhs))
 
 
 def errata_url(advisory):
