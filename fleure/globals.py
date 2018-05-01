@@ -110,7 +110,7 @@ LOGGER = get_logger()
 _ = gettext.translation(domain=PACKAGE,
                         localedir=os.path.join(os.path.dirname(__file__),
                                                "locale"),
-                        fallback=True).ugettext
+                        fallback=True).gettext
 
 
 def rpm_list_path(workdir, filename="packages.json"):
