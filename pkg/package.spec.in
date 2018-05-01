@@ -9,7 +9,6 @@ Name:           python-%{srcname}
 Version:        @VERSION@
 Release:        1%{?dist}
 Summary:        Package level static analysis tool for RPM-based Linux systems
-Group:          Applications/System
 License:        AGPLv3+ and GPLv3+
 URL:            https://github.com/ssato/%{srcname}
 Source0:        %{srcname}-%{version}.tar.gz
