@@ -29,15 +29,6 @@ LOG = logging.getLogger(__name__)
 BACKENDS = dict()
 BACKEND_MODULES = []
 try:
-    import fleure.backends.yumbase
-
-    BACKEND_MODULES = [fleure.backends.yumbase]
-    BACKENDS["yum"] = fleure.backends.yumbase.Base
-    DEFAULT_BACKEND = "yum"
-except ImportError:
-    pass
-
-try:
     import fleure.backends.dnfbase
 
     BACKEND_MODULES.append(fleure.backends.dnfbase)
@@ -47,7 +38,7 @@ except ImportError:  # dnf is not available for RHEL, AFAIK.
     pass
 
 if not BACKEND_MODULES:
-    raise RuntimeError("Neigther yum nor dnf is available!")
+    raise RuntimeError("dnf is not available!")
 
 # TBD to switch:
 # BACKENDS = {backend.name: backend for backend in
