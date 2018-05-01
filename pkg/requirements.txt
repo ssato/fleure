@@ -1,6 +1,5 @@
 anyconfig
 beautifulsoup4
-bunch
 ipython
 matplotlib
 networkx
