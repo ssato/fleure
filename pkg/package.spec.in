@@ -1,6 +1,9 @@
 # Ref. https://fedoraproject.org/wiki/Packaging:Python
 %global srcname fleure
 %global cli     %{srcname}_cli
+%global desc \
+A package level static analysis tool for systems running RPM-based linux
+distributions such like RHEL (primary target) and Fedora.
 
 Name:           python-%{srcname}
 Version:        @VERSION@
@@ -16,9 +19,7 @@ BuildRequires:  python-setuptools python3-setuptools
 # for pygettext.py:
 BuildRequires:  python2-tools python3-tools
 
-%description
-A package level static analysis tool for systems running RPM-based linux
-distributions such like RHEL (primary target) and Fedora.
+%description    %{desc}
 
 %package     -n python2-%{srcname}
 Summary:        %{summary}
@@ -37,9 +38,7 @@ Requires:       libosinfo
 Requires:       rpm-python
 %{?python_provide:%python_provide python2-%{srcname}}
 
-%description -n python2-%{srcname}
-A package level static analysis tool for systems running RPM-based linux
-distributions such like RHEL (primary target) and Fedora.
+%description -n python2-%{srcname} %{desc}
 
 %package     -n python3-%{srcname}
 Summary:        %{summary}
@@ -55,9 +54,7 @@ Requires:       python3-tablib
 Requires:       rpm-python3
 %{?python_provide:%python_provide python3-%{srcname}}
 
-%description -n python3-%{srcname}
-A package level static analysis tool for systems running RPM-based linux
-distributions such like RHEL (primary target) and Fedora.
+%description -n python3-%{srcname} %{desc}
 
 %package     -n python-%{srcname}-common
 Summary:        %{srcname} common data files
