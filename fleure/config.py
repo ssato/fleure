@@ -10,10 +10,9 @@ from __future__ import absolute_import
 
 import logging
 import os.path
+import pprint
 import tempfile
 import uuid
-
-import bunch
 
 import anyconfig
 import anyconfig.utils
@@ -113,7 +112,7 @@ def try_to_load_config_from_files(conf_path=None):
     return cnf
 
 
-class Host(bunch.Bunch):
+class Host(dict):
     """Object holding common configurations and host specific data.
     """
     def __init__(self, root_or_arc_path, conf_path=None, **kwargs):
@@ -193,8 +192,20 @@ class Host(bunch.Bunch):
         self.errors = []
         self.details = True
 
+    def __getattr__(self, key):
+        """
+        :param key: Attribute key
+        """
+        try:
+            return object.__getattribute__(self, key)
+        except AttributeError:
+            try:
+                return self[key]
+            except KeyError:
+                raise AttributeError(key)
+
     def __str__(self):
-        return self.toJSON(indent=2)
+        return pprint.pformat(self)
 
     def configure(self):
         """
