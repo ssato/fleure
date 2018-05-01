@@ -29,7 +29,10 @@ class Test(unittest.TestCase):
 
     def test_20_memoize(self):
         param = 0
-        fnc2 = lambda _param: param  # Function lgnores parameters
+
+        def fnc2(_param):
+            return param
+
         fnc2 = TT.memoize(fnc2)
         param = 1
         self.assertEqual(fnc2(0), fnc2(1))

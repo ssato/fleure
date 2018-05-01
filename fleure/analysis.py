@@ -25,14 +25,19 @@ from fleure.globals import _
 LOG = logging.getLogger(__name__)
 
 
+def _ung(errata):
+    """List update names from update packages.
+    """
+    return sorted(set(u["name"] for u in errata.get("updates", [])))
+
+
 def list_latest_errata_by_updates(ers):
     """
     :param ers: A list of errata dict
     :return: A list of items in `ers` grouped by update names
     """
-    ung = lambda e: sorted(set(u["name"] for u in e.get("updates", [])))
     return [xs[-1] for xs
-            in fleure.utils.sgroupby(ers, ung, itemgetter("issue_date"))]
+            in fleure.utils.sgroupby(ers, _ung, itemgetter("issue_date"))]
 
 
 def list_updates_from_errata(ers):
@@ -187,6 +192,12 @@ def list_updates_by_num_of_errata(uess):
                   reverse=True)
 
 
+def _ups_by_nes(ers):
+    """List updates by number of errata.
+    """
+    return list_updates_by_num_of_errata(list_update_errata_pairs(ers))
+
+
 def analyze_rhsa(rhsa):
     """
     Compute and return statistics of RHSAs from some view points.
@@ -207,8 +218,6 @@ def analyze_rhsa(rhsa):
                               if e["severity"] == "Low"]))]
 
     rhsa_ues = list_update_errata_pairs(rhsa)
-    _ups_by_nes = lambda es: \
-        list_updates_by_num_of_errata(list_update_errata_pairs(es))
 
     return {'list': rhsa,
             'list_critical': cri_rhsa,
@@ -224,6 +233,14 @@ def analyze_rhsa(rhsa):
             'list_by_packages': rhsa_ues}
 
 
+def kfn(ert):
+    """
+    :return: A tuple of (num_of_keywords, issue_data, update_names)
+    """
+    return (len(ert.get("keywords", [])), ert["issue_date"],
+            ert["update_names"])
+
+
 def analyze_rhba(rhba, keywords=fleure.globals.ERRATA_KEYWORDS,
                  pkeywords=None, core_rpms=fleure.globals.CORE_RPMS):
     """
@@ -235,8 +252,6 @@ def analyze_rhba(rhba, keywords=fleure.globals.ERRATA_KEYWORDS,
     :param core_rpms: Core RPMs to filter errata by them
     :return: RHSA analized data and metrics
     """
-    kfn = lambda e: (len(e.get("keywords", [])), e["issue_date"],
-                     e["update_names"])
     rhba_by_kwds = sorted(errata_of_keywords_g(rhba, keywords, pkeywords),
                           key=kfn, reverse=True)
     rhba_of_core_rpms_by_kwds = \

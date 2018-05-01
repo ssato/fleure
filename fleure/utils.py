@@ -225,7 +225,7 @@ def longest_common_prefix(*args):
     ''
     """
     return ''.join(x[0] for x
-                   in itertools.takewhile(all_eq, itertools.izip(*args)))
+                   in itertools.takewhile(all_eq, zip(*args)))
 
 
 def longest_common_suffix(*args):

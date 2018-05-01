@@ -210,6 +210,21 @@ def analyze(args):
     fleure.main.analyze(*args)
 
 
+def ilen(host):
+    """Length of installed packages of the host"""
+    return len(host.installed)
+
+
+def hps(host):
+    """Host packages"""
+    return [p2nevra(p) for p in host.installed]
+
+
+def gby(itms, keyfun):
+    """Groupby."""
+    return itertools.groupby(sorted(itms, key=keyfun), keyfun)
+
+
 def main(hosts_datadir, workdir=None, verbosity=0, multiproc=False, **kwargs):
     """
     :param hosts_datadir:
@@ -225,9 +240,6 @@ def main(hosts_datadir, workdir=None, verbosity=0, multiproc=False, **kwargs):
     hosts = prepare(all_hosts)
 
     LOG.info(_("Analyze %d/%d hosts"), len(hosts), len(all_hosts))
-    ilen = lambda h: len(h.installed)
-    hps = lambda h: [p2nevra(p) for p in h.installed]
-    gby = lambda xs, kf: itertools.groupby(sorted(xs, key=kf), kf)
 
     # Group hosts by installed rpms to degenerate these hosts and avoid to
     # analyze for same installed RPMs more than once. his :: [[[h]]]

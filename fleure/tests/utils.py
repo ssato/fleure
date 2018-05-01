@@ -12,6 +12,7 @@
 from __future__ import absolute_import
 
 import unittest
+import six
 import fleure.utils as TT
 
 
@@ -20,18 +21,18 @@ class Test00(unittest.TestCase):
     def test_30_subproc_call(self):
         (rcode, out, err) = TT.subproc_call(":")
         self.assertEqual(rcode, 0)
-        self.assertEqual(out, '')
-        self.assertEqual(err, '')
+        self.assertEqual(out, six.b(''))
+        self.assertEqual(err, six.b(''))
 
         (rcode, out, err) = TT.subproc_call("echo OK")
         self.assertEqual(rcode, 0)
-        self.assertEqual(out, "OK\n")
-        self.assertEqual(err, '')
+        self.assertEqual(out, six.b("OK\n"))
+        self.assertEqual(err, six.b(''))
 
         (rcode, out, err) = TT.subproc_call("echo NG > /dev/stderr && false")
         self.assertNotEqual(rcode, 0)
-        self.assertEqual(out, '')
-        self.assertEqual(err, "NG\n")
+        self.assertEqual(out, six.b(''))
+        self.assertEqual(err, six.b("NG\n"))
 
     def test_32_subproc_call__timeout(self):
         (rcode, out, err) = TT.subproc_call("sleep 10", timeout=2)

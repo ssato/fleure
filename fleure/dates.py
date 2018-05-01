@@ -66,6 +66,11 @@ def _d2i(dtpl):
     return dtpl[0] * 10000 + dtpl[1] * 100 + dtpl[2]
 
 
+def _int(x):
+    """Try to convert `x` to int object."""
+    return x if x is None else int(x)
+
+
 def _ymd_to_date(ymd, roundout=False):
     """
     :param ymd: Date string in YYYY[-MM[-DD]]
@@ -97,8 +102,7 @@ def _ymd_to_date(ymd, roundout=False):
         LOG.error("Invalid input for normalize_date(): %s", ymd)
 
     dic = match.groups()
-    int_ = lambda x: x if x is None else int(x)
-    return _round_ymd(int(dic[0]), int_(dic[1]), int_(dic[2]), roundout)
+    return _round_ymd(int(dic[0]), _int(dic[1]), _int(dic[2]), roundout)
 
 
 def _to_date(date_s):
