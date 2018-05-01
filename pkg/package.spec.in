@@ -5,6 +5,12 @@
 A package level static analysis tool for systems running RPM-based linux \
 distributions such like RHEL (primary target) and Fedora.
 
+%if 0%{?fedora} || 0%{?rhel} > 7
+%bcond_without python3
+%else
+%bcond_with python3
+%endif
+
 Name:           python-%{srcname}
 Version:        @VERSION@
 Release:        1%{?dist}
@@ -13,25 +19,31 @@ License:        AGPLv3+ and GPLv3+
 URL:            https://github.com/ssato/fleure
 Source0:        %{srcname}-%{version}.tar.gz
 BuildArch:      noarch
-BuildRequires:  python2-devel python3-devel
-BuildRequires:  python-setuptools python3-setuptools
+
+BuildRequires:  python2-devel
+BuildRequires:  python2-setuptools
 # for pygettext.py:
-BuildRequires:  python2-tools python3-tools
+BuildRequires:  python2-tools
+%if %{with python3}
+BuildRequires:  python3-devel
+BuildRequires:  python3-setuptools
+BuildRequires:  python3-tools
+%endif
 
 %description    %{desc}
 
 %package     -n python2-%{srcname}
 Summary:        %{summary}
 Requires:       python-%{srcname}-common
-Requires:       python-beautifulsoup4
+Requires:       python2-beautifulsoup4
 # Available from: https://copr.fedoraproject.org/coprs/ssato/python-anyconfig/
-Requires:       python-anyconfig
-Requires:       python-anytemplate
-Requires:       python-bunch
-Requires:       python-networkx
-Requires:       python-nltk
-Requires:       python-sqlalchemy
-Requires:       python-tablib
+Requires:       python2-anyconfig
+Requires:       python2-anytemplate
+Requires:       python2-bunch
+Requires:       python2-networkx
+Requires:       python2-nltk
+Requires:       python2-sqlalchemy
+Requires:       python2-tablib
 Requires:       graphviz
 Requires:       libosinfo
 Requires:       rpm-python
@@ -39,6 +51,7 @@ Requires:       rpm-python
 
 %description -n python2-%{srcname} %{desc}
 
+%if %{with python3}
 %package     -n python3-%{srcname}
 Summary:        %{summary}
 Requires:       python-%{srcname}-common
@@ -54,6 +67,7 @@ Requires:       rpm-python3
 %{?python_provide:%python_provide python3-%{srcname}}
 
 %description -n python3-%{srcname} %{desc}
+%endif
 
 %package     -n python-%{srcname}-common
 Summary:        %{srcname} common data files
@@ -65,27 +79,30 @@ Common data files of %{srcname}.
 %setup -q -n %{srcname}-%{version}
 
 %build
-%py3_build
 %py2_build
+%if %{with python3}
+%py3_build
+%endif
 
 %install
-%py3_install
-mv $RPM_BUILD_ROOT%{_bindir}/%{srcname}_cli $RPM_BUILD_ROOT%{_bindir}/%{cli}-3
 %py2_install
-mv $RPM_BUILD_ROOT%{_bindir}/%{srcname}_cli $RPM_BUILD_ROOT%{_bindir}/%{cli}-2
-# Default: python-2 version
-(cd $RPM_BUILD_ROOT%{_bindir}/ && ln -s %{cli}-2 %{cli})
+%if %{with python3}
+%py3_install
+%endif
 
 %files -n python2-%{srcname}
 %doc README.rst
 %{python2_sitelib}/*
-%{_bindir}/%{cli}-2
-%{_bindir}/%{cli}
+%if %{without python3}
+%{_bindir}/*
+%endif
 
+%if %{with python3}
 %files -n python3-%{srcname}
 %doc README.rst
 %{python3_sitelib}/*
-%{_bindir}/%{cli}-3
+%{_bindir}/*
+%endif
 
 %files -n python-%{srcname}-common
 %{_sysconfdir}/%{srcname}.d/*.yml
