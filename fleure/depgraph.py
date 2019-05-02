@@ -35,6 +35,7 @@ except ImportError:
 import anytemplate
 
 import fleure.globals
+import fleure.rpmutils
 import fleure.utils
 
 from fleure.globals import _
@@ -95,11 +96,12 @@ def make_requires_dict(root=None, reverse=False, use_yum=True):
         fnc = "requiring_packages" if reverse else "required_packages"
         return sorted(x.name for x in getattr(pkg, fnc)())
 
-    if not use_yum:
-        raise NotImplementedError("It's not work w/o yum yet!")  # Not yet.
+    if use_yum:
+        return dict((p.name, list_reqs(p)) for p in _yum_list_installed(root))
 
-    list_installed = _yum_list_installed  # Alternative is not available yet.
-    return dict((p.name, list_reqs(p)) for p in list_installed(root))
+    ips = fleure.rpmutils.list_installed_rpms(root=root, resolve=True)
+    return dict((p["name"], sorted(r["name"] for r in p["requires"]))
+                for p in ips)
 
 
 def make_dependency_graph(root, reverse=True, rreqs=None, edge_attrs=None):
