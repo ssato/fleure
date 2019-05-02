@@ -278,7 +278,7 @@ def list_installed_rpms_itr(root=None, keys=fleure.globals.RPM_KEYS):
 
     for pkg in ips:
         rss = (_find(r, root=root) for r in pkg.get("requires", []))
-        pkg["requires"] = fleure.utils.uniq(fleure.utils.concat(rss))
+        pkg["requires"] = fleure.utils.uconcat(rss)
 
         yield pkg
 
