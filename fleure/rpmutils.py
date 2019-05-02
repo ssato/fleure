@@ -241,6 +241,26 @@ def rpm_find_reqs(subject, root=None, keys=fleure.globals.RPM_KEYS):
     return rpm_search(root, keys=keys, pred=pred)
 
 
+def rpm_find_reqd(pkg, root=None, keys=fleure.globals.RPM_KEYS):
+    """
+    Find a list of packages requiring given package `pkg`. This is a 'reversed'
+    version of :func:`rpm_find_reqs`.
+
+    :param pkg:
+        A dict represents a package that must have keys, "name", "provides" and
+        "filenames".
+    :param root: RPM DB root dir
+    :param keys: RPM Package dict keys
+    """
+    def find_reqd(req):
+        """Find a list of packages requiring `req`.
+        """
+        return rpm_search(root, ("requires", req), keys)
+
+    _find = fleure.decorators.memoize(find_reqd)
+    return fleure.utils.uconcat(_find(p) for p in pkg.get("provides", []))
+
+
 def list_installed_rpms_itr(root=None, keys=fleure.globals.RPM_KEYS):
     """
     List installed RPMs :: [dict]
