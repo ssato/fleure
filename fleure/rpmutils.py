@@ -171,7 +171,7 @@ def errata_url(advisory):
     return "http://rhn.redhat.com/errata/%s.html" % advisory.replace(':', '-')
 
 
-def rpm_transactionset(root='/', readonly=True):
+def rpm_transactionset(root=None, readonly=True):
     """
     Return rpm.TransactionSet object.
 
@@ -180,7 +180,9 @@ def rpm_transactionset(root='/', readonly=True):
 
     :return: An instance of rpm.TransactionSet
     """
-    if not root.startswith('/'):
+    if root is None:
+        root = '/'
+    elif not root.startswith('/'):
         root = os.path.abspath(root)
 
     trs = rpm.TransactionSet(root)
