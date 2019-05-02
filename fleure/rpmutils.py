@@ -196,7 +196,32 @@ def rpm_transactionset(root=None, readonly=True):
     return trs
 
 
-def list_installed_rpms(root='/', keys=fleure.globals.RPM_KEYS):
+def rpm_search(root=None, key_val=None, pred=None,
+               keys=fleure.globals.RPM_KEYS):
+    """
+    :param root: RPM DB root dir
+    :param key_val:
+        A tuple of key and value to search RPMs for, e.g. ("name", "kernel")
+    :param pred: A callable to select resutls ( :: hdr -> bool)
+    :param keys: Tag names, e.g. ("name", "version", "epoch", "release")
+
+    :return: A list of packages :: [dict]
+    """
+    rts = rpm_transactionset(root)
+    dbi = rts.dbMatch() if key_val is None else rts.dbMatch(*key_val)
+
+    if callable(pred):
+        hdrs = (h for h in dbi if pred(h))
+    else:
+        hdrs = (h for h in dbi)
+
+    res = [dict(zip(keys, [h[k] for k in keys])) for h in hdrs]
+    del rts
+
+    return res
+
+
+def list_installed_rpms(root=None, keys=fleure.globals.RPM_KEYS):
     """
     List installed RPMs :: [dict]
 
@@ -208,11 +233,7 @@ def list_installed_rpms(root='/', keys=fleure.globals.RPM_KEYS):
     >>> list_installed_rpms()  # doctest: +ELLIPSIS
     [{...}, ...]
     """
-    rts = rpm_transactionset(root)
-    ips = [dict(zip(keys, [h[k] for k in keys])) for h in rts.dbMatch()]
-    del rts
-
-    return ips
+    return rpm_search(root, keys=keys)
 
 
 def guess_rhel_version_simple(root):
