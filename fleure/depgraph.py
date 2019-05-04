@@ -21,6 +21,7 @@
 from __future__ import absolute_import
 
 import logging
+import itertools
 import operator
 import os.path
 
@@ -99,9 +100,18 @@ def make_requires_dict(root=None, reverse=False, use_yum=True):
     if use_yum:
         return dict((p.name, list_reqs(p)) for p in _yum_list_installed(root))
 
-    ips = fleure.rpmutils.list_installed_rpms(root=root, resolve=True)
-    return dict((p["name"], sorted(r["name"] for r in p["requires"]))
+    ips = fleure.rpmutils.list_installed_rpms(root=root, resolv=True)
+
+    if reverse:
+        reqs = fleure.utils.uconcat([(r["name"], p["name"]) for r
+                                     in p["requires"]] for p in ips)
+        reqs = ((k, [tpl[1] for tpl in g]) for k, g
+                in itertools.groupby(reqs, operator.itemgetter(0)))
+    else:
+        reqs = ((p["name"], sorted(r["name"] for r in p["requires"]))
                 for p in ips)
+
+    return dict(reqs)
 
 
 def make_dependency_graph(root, reverse=True, rreqs=None, edge_attrs=None):
