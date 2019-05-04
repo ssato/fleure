@@ -223,9 +223,8 @@ def rpm_search(root=None, key_val=None, pred=None,
     return res
 
 
-def rpm_find_reqs(subject, root=None, keys=fleure.globals.RPM_KEYS):
-    """
-    Find a list of requirements resolved to packages.
+def rpm_resolve_reqs(subject, root=None, keys=fleure.globals.RPM_KEYS):
+    """Find a list of packages providing `subject`
 
     :param subject: A str maybe a package name, filename or provide name
     :param root: RPM DB root dir
@@ -241,6 +240,27 @@ def rpm_find_reqs(subject, root=None, keys=fleure.globals.RPM_KEYS):
     return rpm_search(root, key_val=(key, subject), keys=keys)
 
 
+def rpm_find_reqs(pkg, root=None, keys=fleure.globals.RPM_KEYS):
+    """
+    Find a list of requirements resolved to packages.
+
+    :param pkg: A dict represents a package that must have key "requires"
+    :param root: RPM DB root dir
+    :param keys: RPM Package dict keys
+    """
+    _find = fleure.decorators.memoize(rpm_resolve_reqs)
+    return fleure.utils.uconcat(_find(x) for x in pkg["requires"])
+
+
+def _find_reqd(root, req, keys):
+    """Find a list of packages requiring `req`.
+    """
+    return rpm_search(root, ("requires", req), keys)
+
+
+find_reqd = fleure.decorators.memoize(_find_reqd)
+
+
 def rpm_find_reqd(pkg, root=None, keys=fleure.globals.RPM_KEYS):
     """
     Find a list of packages requiring given package `pkg`. This is a 'reversed'
@@ -252,59 +272,47 @@ def rpm_find_reqd(pkg, root=None, keys=fleure.globals.RPM_KEYS):
     :param root: RPM DB root dir
     :param keys: RPM Package dict keys
     """
-    def find_reqd(req):
-        """Find a list of packages requiring `req`.
-        """
-        return rpm_search(root, ("requires", req), keys)
-
-    _find = fleure.decorators.memoize(find_reqd)
-    return fleure.utils.uconcat(_find(p) for p in pkg.get("provides", []))
+    return fleure.utils.uconcat(find_reqd(root, p, keys) for p
+                                in pkg["provides"])
 
 
-def list_installed_rpms_itr(root=None, requiring=False):
+def list_installed_rpms_itr(root=None):
     """
     List installed RPMs :: [dict]
 
     :param root: Root dir of RPM DBs.
-    :param requiring: Find requiring packages also
-
     :return: A list of packages :: [dict]
 
     >>> list_installed_rpms()  # doctest: +ELLIPSIS
     [{...}, ...]
     """
-    ips = rpm_search(root, keys=fleure.globals.RPM_KEYS_WITH_REQS)
-    _find = fleure.decorators.memoize(rpm_find_reqs)
-
+    keys = list(fleure.globals.RPM_KEYS) + ["requires", "provides"]
+    ips = rpm_search(root, keys=keys)
     for pkg in ips:
-        rss = (_find(r, root=root) for r in pkg.get("requires", []))
-        pkg["requires"] = fleure.utils.uconcat(rss)
-
-        if requiring:
-            pkg["requiring"] = rpm_find_reqd(pkg, root)
+        pkg["requires"] = rpm_find_reqs(pkg, root)
+        pkg["required"] = rpm_find_reqd(pkg, root)
 
         yield pkg
 
 
 def list_installed_rpms(root=None, keys=fleure.globals.RPM_KEYS,
-                        resolve=False, requiring=False):
+                        resolv=False):
     """
     List installed RPMs :: [dict]
 
     :param root: Root dir of RPM DBs.
     :param keys: RPM Package dict keys
-    :param resolve: Resolve requirements
-    :param requiring: Find requiring packages also
+    :param resolv: Resolve dependencies also if True
 
     :return: A list of packages :: [dict]
 
     >>> list_installed_rpms()  # doctest: +ELLIPSIS
     [{...}, ...]
     """
-    if not resolve and not requiring:
+    if not resolv:
         return rpm_search(root, keys=keys)
 
-    return list(list_installed_rpms_itr(root=root, requiring=requiring))
+    return list(list_installed_rpms_itr(root=root))
 
 
 def guess_rhel_version_simple(root):
