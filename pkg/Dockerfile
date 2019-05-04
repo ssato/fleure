@@ -9,8 +9,7 @@ MAINTAINER https://github.com/ssato/fleure
 RUN dnf install -y dnf-plugins-core && dnf copr enable -y ssato/python-anyconfig
 RUN dnf install -y git python3-{anyconfig,template} \
 python3-{beautifulsoup4,networkx,nltk,tablib,line_profiler,sqlalchemy,ipython} \
-python3-{dnf,nltk,beautifulsoup4,matplotlib,networkx,tablib,line_profiler,sqlalchemy,ipython} \
-{dnf-,}yum yum
+python3-{dnf,nltk,beautifulsoup4,matplotlib,networkx,tablib,line_profiler,sqlalchemy,ipython}
 
 RUN git clone https://github.com/ssato/fleure.git /tmp/fleure
 #CMD cd /tmp/fleure && bash -x ./pkg/runtest.sh
