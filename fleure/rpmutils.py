@@ -301,7 +301,7 @@ def list_installed_rpms(root=None, keys=fleure.globals.RPM_KEYS,
     >>> list_installed_rpms()  # doctest: +ELLIPSIS
     [{...}, ...]
     """
-    if not resolve:
+    if not resolve and not requiring:
         return rpm_search(root, keys=keys)
 
     return list(list_installed_rpms_itr(root=root, requiring=requiring))
