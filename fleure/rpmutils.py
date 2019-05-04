@@ -276,6 +276,12 @@ def rpm_find_reqd(pkg, root=None, keys=fleure.globals.RPM_KEYS):
                                 in pkg["provides"])
 
 
+def _filter_out_self(pkg, pkgs):
+    """Fitler out `pkg` from `pkgs`
+    """
+    return [x for x in pkgs if x["name"] != pkg["name"]]
+
+
 def list_installed_rpms_itr(root=None):
     """
     List installed RPMs :: [dict]
@@ -289,8 +295,8 @@ def list_installed_rpms_itr(root=None):
     keys = list(fleure.globals.RPM_KEYS) + ["requires", "provides"]
     ips = rpm_search(root, keys=keys)
     for pkg in ips:
-        pkg["requires"] = rpm_find_reqs(pkg, root)
-        pkg["required"] = rpm_find_reqd(pkg, root)
+        pkg["requires"] = _filter_out_self(pkg, rpm_find_reqs(pkg, root))
+        pkg["required"] = _filter_out_self(pkg, rpm_find_reqd(pkg, root))
 
         yield pkg
 
