@@ -56,8 +56,6 @@ RPMDB_FILENAMES = ("Packages", "Basenames", "Dirnames", "Installtid", "Name",
 
 RPM_VENDOR = "redhat"
 RPM_KEYS = ("name", "epoch", "version", "release", "arch")
-RPM_KEYS_WITH_REQS = ("name", "epoch", "version", "release", "arch",
-                      "requires")
 ERRATA_KEYWORDS = ("crash", "panic", "hang", "SEGV", "segmentation fault",
                    "data corruption")
 ERRATA_PKEYWORDS = {}
