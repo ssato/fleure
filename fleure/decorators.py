@@ -8,8 +8,6 @@ from __future__ import absolute_import
 
 import functools
 import inspect
-import multiprocessing
-import os
 
 
 def ref_to_original(fnc):
@@ -58,37 +56,6 @@ def memoize(fnc):
             cache[key] = fnc(*args, **kwargs)
 
         return cache[key]
-
-    return decorated
-
-
-def async(fnc):
-    """
-    A decorator to run :func:`fnc` asynchronously with help of multiprocessing
-    module, originally from http://bit.ly/1KKBJZ2 .
-
-    .. note::
-       async.pool must be initialized to multiprocessing.pool.Pool object by
-       call the function :func:`multiprocessing.Pool`.
-
-    :param fnc: Target function to run asynchronously
-    """
-    _make_ref_to_original(fnc)
-
-    # pylint: disable=no-member
-    @functools.wraps(fnc)
-    def decorated(*args, **kwargs):
-        """Decorated one"""
-        if os.getenv("_FLEURE_ASYNC", 0) == 1:
-            return fnc(*args, **kwargs)
-
-        if hasattr(async, "pool"):
-            if not isinstance(async.pool, multiprocessing.pool.Pool):
-                raise ValueError("async.pool is not initialized yet!")
-        else:
-            setattr(async, "pool", multiprocessing.Pool())
-
-        return async.pool.apply_async(fnc, args, kwargs)
 
     return decorated
 

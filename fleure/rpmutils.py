@@ -26,7 +26,6 @@ try:
 except ImportError:
     bsddb = None
 
-# from fleure.decorators import async  # TBD
 import fleure.globals
 import fleure.decorators
 import fleure.utils

@@ -22,8 +22,6 @@ import os
 import subprocess
 import anyconfig.utils
 
-# from fleure.decorators import async  # TBD
-
 
 LOG = logging.getLogger(__name__)
 
@@ -243,7 +241,6 @@ def longest_common_suffix(*args):
     return ''.join(reversed(rsfx))
 
 
-# @fleure.decorators.async (TBD)
 def subproc_call(cmd_s, cwd=os.curdir, timeout=None, **kwargs):
     """
     :func:`subprocess.Popen.communicate` + :func:`subprocess.check_call`.

@@ -37,9 +37,4 @@ class Test(unittest.TestCase):
         param = 1
         self.assertEqual(fnc2(0), fnc2(1))
 
-    def test_30_async(self):
-        TT.async.pool = TT.multiprocessing.Pool()
-        fnc2 = TT.async(fnc)
-        fnc2()
-
 # vim:sw=4:ts=4:et:

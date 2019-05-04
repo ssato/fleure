@@ -29,17 +29,10 @@ if os.environ.get("FLEURE_MEMORY_DEBUG", False):
     try:
         from memory_profiler import profile
     except ImportError:
-        from fleure.decorators import noop as profile
+        from fleure.decorators import noop as profile  # flake8: noqa
 else:
-    from fleure.decorators import noop as profile
+    from fleure.decorators import noop as profile  # flake8: noqa
 
-if os.environ.get("FLEURE_NO_ASYNC", False):
-    from fleure.decorators import noop as async
-else:
-    from fleure.decorators import async
-
-# Workaround for flake8's F401 (import but not used) error.
-assert profile and async
 
 PACKAGE = "fleure"
 
