@@ -232,13 +232,13 @@ def rpm_find_reqs(subject, root=None, keys=fleure.globals.RPM_KEYS):
     :param keys: RPM Package dict keys
     """
     if subject.startswith('/'):  # filename
-        pred = lambda h: subject in h["filenames"]
+        key = "basenames"
     elif '(' in subject:  # provide name
-        pred = lambda h: subject in h["provides"]
+        key = "provides"
     else:
-        pred = lambda h: h["name"] == subject
+        key = "name"
 
-    return rpm_search(root, keys=keys, pred=pred)
+    return rpm_search(root, key_val=(key, subject), keys=keys)
 
 
 def rpm_find_reqd(pkg, root=None, keys=fleure.globals.RPM_KEYS):
@@ -261,12 +261,12 @@ def rpm_find_reqd(pkg, root=None, keys=fleure.globals.RPM_KEYS):
     return fleure.utils.uconcat(_find(p) for p in pkg.get("provides", []))
 
 
-def list_installed_rpms_itr(root=None, keys=fleure.globals.RPM_KEYS):
+def list_installed_rpms_itr(root=None, requiring=False):
     """
     List installed RPMs :: [dict]
 
     :param root: Root dir of RPM DBs.
-    :param keys: RPM Package dict keys
+    :param requiring: Find requiring packages also
 
     :return: A list of packages :: [dict]
 
@@ -280,17 +280,21 @@ def list_installed_rpms_itr(root=None, keys=fleure.globals.RPM_KEYS):
         rss = (_find(r, root=root) for r in pkg.get("requires", []))
         pkg["requires"] = fleure.utils.uconcat(rss)
 
+        if requiring:
+            pkg["requiring"] = rpm_find_reqd(pkg, root)
+
         yield pkg
 
 
 def list_installed_rpms(root=None, keys=fleure.globals.RPM_KEYS,
-                        resolve=False):
+                        resolve=False, requiring=False):
     """
     List installed RPMs :: [dict]
 
     :param root: Root dir of RPM DBs.
     :param keys: RPM Package dict keys
     :param resolve: Resolve requirements
+    :param requiring: Find requiring packages also
 
     :return: A list of packages :: [dict]
 
@@ -300,7 +304,7 @@ def list_installed_rpms(root=None, keys=fleure.globals.RPM_KEYS,
     if not resolve:
         return rpm_search(root, keys=keys)
 
-    return list(list_installed_rpms_itr(root=root, keys=keys))
+    return list(list_installed_rpms_itr(root=root, requiring=requiring))
 
 
 def guess_rhel_version_simple(root):
