@@ -330,7 +330,7 @@ def guess_rhel_version_simple(root):
         osver = 4
     elif irpmver == 442:
         osver = 5
-    elif irpmver >= 470 and irpmver < 4110:
+    elif 470 <= irpmver < 4110:
         osver = 6
     elif irpmver >= 4110:
         osver = 7
