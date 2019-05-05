@@ -111,7 +111,8 @@ def safe_untar(arcfile, destdir, files=None):
         return [err or "Failed to list files in tar: %s" % arcfile]
 
     if files is None:
-        files = [f for f in out.splitlines() if not _is_bad_path(f)]
+        files = [f for f in out.decode('utf-8').splitlines()
+                 if not _is_bad_path(f)]
 
     errors = []
     for filepath in files:
