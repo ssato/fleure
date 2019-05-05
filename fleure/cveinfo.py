@@ -168,7 +168,7 @@ def cvss_metrics(cvss, metrics_map=None):
         val = metric["metrics"].get(val, False)
 
         if not val:
-            LOG.error(_("Uknown value for CVSS metric '%s': %s"), metric, val)
+            LOG.error(_("Uknown value for CVSS metric: %r"), metric)
             return metrics
 
         metrics.append((label, val))
