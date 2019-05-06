@@ -105,7 +105,7 @@ def parse_args(argv):
     # ..note:: Disabled until issue of yum vs. multiprocessing module is fixed.
     # add_arg("-M", "--multiproc", action="store_true",
     #         help="Specify this option to analyze data in parallel")
-    add_arg("-B", "--backend", choices=backends.keys(),
+    add_arg("-B", "--backend", choices=tuple(backends.keys()),
             help="Specify backend to get updates and errata. Choices: "
                  "%s [%s]" % (', '.join(backends.keys()), defaults["backend"]))
     add_arg("-S", "--score", type=float, dest="cvss_min_score",

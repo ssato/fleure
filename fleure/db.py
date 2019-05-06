@@ -95,7 +95,7 @@ def _get_value(dic, key):
         return None
     elif isinstance(candidate, dict):
         # Search value with the new key found at first recursively.
-        return _get_value(candidate, candidate.keys()[0])
+        return _get_value(candidate, tuple(candidate.keys())[0])
     elif isinstance(candidate, list):
         return _get_value(candidate[0], key)  # Workaround for invalid ones.
 
