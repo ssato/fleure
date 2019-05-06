@@ -17,6 +17,7 @@ import codecs
 import itertools
 import json
 import logging
+import operator
 import os.path
 import os
 import subprocess
@@ -108,17 +109,20 @@ def uniq(vals, sort=True, key=None, reverse=False, callables=None):
     [0, 3, 1, 2, 4, 5]
     >>> uniq((0, 3, 1, 2, 1, 0, 4, 5), sort=False)
     [0, 3, 1, 2, 4, 5]
+    >>> uniq(({'name': 'A'}, {'name': 'B'}))
+    [{'name': 'A'}, {'name': 'B'}]
     """
     # TBD:
     # if use_set and not callables:
     #    return sorted(set(vals), key=key, reverse=reverse)
+    if not vals:
+        return vals
 
     acc = []
+    keyed_acc = []
+
     if not callable(key):
         key = None
-
-    if key is not None:
-        keyed_acc = []
 
     for val in vals:
         if callables:
@@ -127,6 +131,11 @@ def uniq(vals, sort=True, key=None, reverse=False, callables=None):
         if key is None:
             if val in acc:
                 continue
+
+            if not keyed_acc and isinstance(val, dict):
+                key = operator.itemgetter(*sorted(val.keys()))
+                # `val` is the first item in vals.
+                keyed_acc = [key(val)]
         else:
             if key(val) in keyed_acc:
                 continue
