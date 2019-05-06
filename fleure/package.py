@@ -45,13 +45,16 @@ def inspect_origin(name, vendor, buildhost, extras=None,
     if extras is None:
         extras = []
 
-    available = name not in extras
     # ex. www.a.t.co -> t.co
     try:
         bhs = buildhost.split('.')
     except TypeError:  # py3
         bhs = buildhost.decode('utf-8').split('.')
+        if vendor:
+            vendor = vendor.decode('utf-8')
+        name = name.decode('utf-8')
 
+    available = name not in extras
     bhsfx = '.'.join(bhs[-2:])
     origin_by_v = VENDORS_MAP.get(vendor, None)
     origin_by_b = BH_ORIGIN_MAP.get(bhsfx, None)
@@ -87,14 +90,24 @@ class Package(dict):
         """
         super(Package, self).__init__()
 
-        self["name"] = name
-        self["version"] = version
-        self["release"] = release
-        self["arch"] = arch
+        if type(name) == bytes:
+            self["name"] = name.decode('utf-8')
+            self["version"] = version.decode('utf-8')
+            self["release"] = release.decode('utf-8')
+            self["arch"] = arch.decode('utf-8') if arch else arch
+            self["summary"] = summary.decode('utf-8')
+            self["vendor"] = vendor.decode('utf-8') if vendor else vendor
+            self["buildhost"] = buildhost.decode('utf-8')
+        else:
+            self["name"] = name
+            self["version"] = version
+            self["release"] = release
+            self["arch"] = arch
+            self["summary"] = summary
+            self["vendor"] = vendor
+            self["buildhost"] = buildhost
+
         self["epoch"] = 0 if epoch is None else int(epoch)
-        self["summary"] = summary
-        self["vendor"] = vendor
-        self["buildhost"] = buildhost
 
         for key, val in kwargs.items():
             self[key] = val
