@@ -36,6 +36,7 @@ from fleure.globals import _
 LOG = logging.getLogger(__name__)
 
 _RHERRATA_RE = re.compile(r"^RH[SBE]A-\d{4}[:-]\d{4,5}(?:-\d+)?$")
+_PKG_KEY_FN = operator.itemgetter("name", "version", "release")
 
 
 def _is_bsd_hashdb(dbpath):
@@ -197,6 +198,15 @@ def rpm_transactionset(root=None, readonly=True):
     return trs
 
 
+def _normalize_val_from_rpmh(val):
+    """Normalize the value gotten from RPM DB headers.
+    """
+    if isinstance(val, bytes):
+        return val.decode('utf-8')
+
+    return val
+
+
 def rpm_search(root=None, key_val=None, pred=None,
                keys=fleure.globals.RPM_KEYS):
     """
@@ -216,7 +226,8 @@ def rpm_search(root=None, key_val=None, pred=None,
     else:
         hdrs = (h for h in dbi)
 
-    res = [dict(zip(keys, [h[k] for k in keys])) for h in hdrs]
+    res = [dict(zip(keys, [_normalize_val_from_rpmh(h[k]) for k in keys]))
+           for h in hdrs]
     del rts
 
     return res
@@ -229,6 +240,7 @@ def rpm_resolve_reqs(subject, root=None, keys=fleure.globals.RPM_KEYS):
     :param root: RPM DB root dir
     :param keys: RPM Package dict keys
     """
+    subject = subject.decode('utf-8')
     if subject.startswith('/'):  # filename
         key = "basenames"
     elif '(' in subject:  # provide name
@@ -248,7 +260,8 @@ def rpm_find_reqs(pkg, root=None, keys=fleure.globals.RPM_KEYS):
     :param keys: RPM Package dict keys
     """
     _find = fleure.decorators.memoize(rpm_resolve_reqs)
-    return fleure.utils.uconcat(_find(x) for x in pkg["requires"])
+    return fleure.utils.uconcat((_find(x) for x in pkg["requires"]),
+                                key=_PKG_KEY_FN)
 
 
 def _find_reqd(root, req, keys):
@@ -271,8 +284,8 @@ def rpm_find_reqd(pkg, root=None, keys=fleure.globals.RPM_KEYS):
     :param root: RPM DB root dir
     :param keys: RPM Package dict keys
     """
-    return fleure.utils.uconcat(find_reqd(root, p, keys) for p
-                                in pkg["provides"])
+    return fleure.utils.uconcat((find_reqd(root, p, keys) for p
+                                 in pkg["provides"]), key=_PKG_KEY_FN)
 
 
 def _filter_out_self(pkg, pkgs):
