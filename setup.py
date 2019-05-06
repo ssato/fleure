@@ -36,6 +36,7 @@ class bdist_rpm(setuptools.command.bdist_rpm.bdist_rpm):
                 in open(self.spec_tmpl).readlines()]
 
 
-setuptools.setup(version=VERSION)
+setuptools.setup(version=VERSION,
+                 cmdclass=dict(bdist_rpm=bdist_rpm))
 
 # vim:sw=4:ts=4:et:
