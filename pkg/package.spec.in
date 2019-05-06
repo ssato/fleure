@@ -91,6 +91,7 @@ Common data files of %{pkgname}.
 %py2_install
 %else
 %py3_install
+(cd %{buildroot}/%{_bindir} && mv fleure_cli{,-3})
 %endif
 
 %if %{with python2}
