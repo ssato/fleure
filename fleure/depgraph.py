@@ -28,10 +28,10 @@ import os.path
 import networkx
 
 try:
-    import yum  # TODO: Remove dependency to yum and switch to dnf.
-    SUPPORT = True
+    import yum
+    YUM_IS_AVAILABLE = True
 except ImportError:
-    SUPPORT = False
+    YUM_IS_AVAILABLE = False
 
 import anytemplate
 
@@ -53,6 +53,9 @@ def _yum_list_installed(root=None, cachedir=None, persistdir=None):
     :param root: RPM DB root dir
     :return: List of yum.rpmsack.RPMInstalledPackage objects
     """
+    if not YUM_IS_AVAILABLE:
+        return[]
+
     if root is None:
         root = "/var/lib/rpm"
 
@@ -133,7 +136,7 @@ def make_dependency_graph(root, reverse=True, rreqs=None, edge_attrs=None):
         edge_attrs = _E_ATTRS
 
     graph = networkx.DiGraph()
-    for key, vals in rreqs.iteritems():
+    for key, vals in rreqs.items():
         graph.add_node(key, names=[key])
         graph.add_edges_from([(key, val, edge_attrs) for val in vals])
 
@@ -181,7 +184,7 @@ def _make_depgraph_context(root, ers):
         """
         for name in graph:
             yield dict(id=pmap[name], name=name,
-                       layers=([grp for grp, ns in groups.iteritems()
+                       layers=([grp for grp, ns in groups.items()
                                 if name in ns] + ["visible"]))
 
     groups = dict(roots=[n for n in pgs if graph.successors(n)],
@@ -194,7 +197,7 @@ def _make_depgraph_context(root, ers):
                   timestamp=fleure.globals.TODAY)
 
     return dict(name="rpm_depgraph_1",
-                layers=sorted(groups.keys() + ["visible"]),
+                layers=sorted(list(groups.keys()) + ["visible"]),
                 nodes=sorted(_mk_ps_g(graph, groups),
                              key=operator.itemgetter("name")),
                 edges=sorted(graph.edges_iter()))
@@ -215,13 +218,7 @@ def dump_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
     if workdir is None:
         workdir = root
 
-    if SUPPORT:
-        ctx = _make_depgraph_context(root, ers)
-    else:
-        LOG.warning(_("Required yum is not available so depgraph "
-                      "will not be generated."))
-        return
-
+    ctx = _make_depgraph_context(root, ers)
     fleure.utils.json_dump(ctx, os.path.join(workdir, outname + ".json"))
 
     output = os.path.join(workdir, outname + ".dot")
