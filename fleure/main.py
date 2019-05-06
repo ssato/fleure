@@ -240,7 +240,7 @@ def analyze(host):
 
     ips = host.installed
     analyze_and_dump_results(host, ips, ers, ups)
-    LOG.info(_("%s: Saved analysis results in %s"), host.workdir)
+    LOG.info(_("%s: Saved analysis results in %s"), host.hid, host.workdir)
 
     if host.period:
         (start, end) = host.period
@@ -268,7 +268,8 @@ def analyze(host):
 
         LOG.info(_("%s: Analyzing delta errata and packages ..."), host.hid)
         analyze_and_dump_results(host, ips, ers, ups)
-        LOG.info(_("%s: Saved delta analysis results in %s"), host.workdir)
+        LOG.info(_("%s: Saved delta analysis results in %s"),
+                 host.hid, host.workdir)
 
 
 def set_loglevel(verbosity=0, backend=False):
