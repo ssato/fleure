@@ -10,6 +10,7 @@
 from __future__ import absolute_import
 from operator import itemgetter
 
+import functools
 import itertools
 import logging
 import nltk
@@ -46,7 +47,8 @@ def list_updates_from_errata(ers):
     """
     ups = sorted(fleure.utils.uconcat(e.get("updates", []) for e in ers),
                  key=itemgetter("name"))
-    return [sorted(g, cmp=fleure.rpmutils.pcmp, reverse=True)[0] for g
+    kfn = functools.cmp_to_key(fleure.rpmutils.pcmp)
+    return [sorted(g, key=kfn, reverse=True)[0] for g
             in fleure.utils.sgroupby(ups, itemgetter("name"))]
 
 
