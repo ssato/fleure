@@ -310,6 +310,9 @@ def list_installed_rpms_itr(root=None):
         pkg["requires"] = _filter_out_self(pkg, rpm_find_reqs(pkg, root))
         pkg["required"] = _filter_out_self(pkg, rpm_find_reqd(pkg, root))
 
+        if pkg["name"] == "gpg-pubkey":
+            continue
+
         yield pkg
 
 
