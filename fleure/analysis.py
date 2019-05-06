@@ -93,17 +93,14 @@ def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
     ...             description="system hangs, or crash...")
     >>> ert1 = dict(advisory="RHEA-2015:XXX2",
     ...             description="some enhancement and changes")
-    >>> try:
-    ...     ers = list(errata_of_keywords_g([ert0], ("hang", ), stemming=True))
-    ...     assert ert0 in ers
-    ...     assert ers[0]["keywords"] == ['hang']  # Stemmed 'hangs' matches.
-    ...     ers = list(errata_of_keywords_g([ert0, ert1], ("hang", "crash"),
-    ...                                     stemming=False))
-    ...     assert ert0 in ers
-    ...     assert ers[0]["keywords"] == ['crash']
-    ...     assert ert1 not in ers
-    ... except AttributeError:  # https://github.com/nltk/nltk/issues/1188
-    ...     pass
+    >>> ers = list(errata_of_keywords_g([ert0], ("hang", ), stemming=True))
+    >>> assert ert0 in ers
+    >>> assert ers[0]["keywords"] == ['hang']  # Stemmed 'hangs' matches.
+    >>> ers = list(errata_of_keywords_g([ert0, ert1], ("hang", "crash"),
+    ...                                 stemming=False))
+    >>> assert ert0 in ers
+    >>> assert ers[0]["keywords"] == ['crash']
+    >>> assert ert1 not in ers
     """
     if stemming:
         _stem = _STEMMER.stem
@@ -112,7 +109,9 @@ def errata_of_keywords_g(ers, keywords=fleure.globals.ERRATA_KEYWORDS,
         pkeywords = fleure.globals.ERRATA_PKEYWORDS
 
     for ert in ers:
-        tokens = set(nltk.wordpunct_tokenize(ert["description"]))
+        # .. note:: This does not work in NLTK < 3.1 in Fedora.
+        # tokens = set(nltk.wordpunct_tokenize(ert["description"]))
+        tokens = set(nltk.word_tokenize(ert["description"]))
         if stemming and tokens:
             tokens = set(_stem(w.lower()) for w in tokens if w)
 
