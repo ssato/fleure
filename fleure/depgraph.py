@@ -68,7 +68,7 @@ def _yum_list_installed(root=None, cachedir=None, persistdir=None):
     return sack.returnPackages()  # NOTE: 'gpg-pubkey' is not in this list.
 
 
-def make_requires_dict(root=None, reverse=False, use_yum=True):
+def make_requires_dict(root=None, reverse=False, use_yum=False):
     """
     Returns RPM dependency relations map.
 
