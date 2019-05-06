@@ -110,6 +110,8 @@ def make_requires_dict(root=None, reverse=False, use_yum=False):
                                      in p["requires"]] for p in ips)
         reqs = ((k, [tpl[1] for tpl in g]) for k, g
                 in itertools.groupby(reqs, operator.itemgetter(0)))
+        reqs_no_reqd = ((p["name"], []) for p in ips if not p["required"])
+        reqs = itertools.chain(reqs, reqs_no_reqd)
     else:
         reqs = ((p["name"], sorted(r["name"] for r in p["requires"]))
                 for p in ips)
