@@ -337,7 +337,7 @@ def guess_rhel_version_simple(root):
     rpmver = [h for h in rts.dbMatch()][0][rpm.RPMTAG_RPMVERSION]
     del rts
 
-    irpmver = int(''.join(rpmver.split('.')[:4])[:4])
+    irpmver = int(''.join(rpmver.decode('utf-8').split('.')[:4])[:4])
 
     if irpmver in (433, 432, 431):
         osver = 4

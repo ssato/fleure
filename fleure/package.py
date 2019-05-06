@@ -46,7 +46,13 @@ def inspect_origin(name, vendor, buildhost, extras=None,
         extras = []
 
     available = name not in extras
-    bhsfx = '.'.join(buildhost.split('.')[-2:])  # ex. www.a.t.co -> t.co
+    # ex. www.a.t.co -> t.co
+    try:
+        bhs = buildhost.split('.')
+    except TypeError:  # py3
+        bhs = buildhost.decode('utf-8').split('.')
+
+    bhsfx = '.'.join(bhs[-2:])
     origin_by_v = VENDORS_MAP.get(vendor, None)
     origin_by_b = BH_ORIGIN_MAP.get(bhsfx, None)
     bhsfx_by_v = VENDOR_BH_MAP.get(vendor, None)
