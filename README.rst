@@ -10,7 +10,7 @@ fleure
    :target: https://coveralls.io/r/ssato/fleure
    :alt: [Coverage Status]
 
-.. image:: https://landscape.io/github/ssato/fleure/master/landscape.png
+.. .. image:: https://landscape.io/github/ssato/fleure/master/landscape.png
    :target: https://landscape.io/github/ssato/fleure/master
    :alt: [Code Health]
 
@@ -43,15 +43,15 @@ Requirements
 
 ::
 
-  ## Example session in Fedora 25+
-  # sudo dnf copr enable ssato/python-anyconfig -y
-  # sudo dnf install -y python-{anytemplate,anyconfig}
+  ## Example session in Fedora 29+
+  $ sudo dnf copr enable ssato/python-anyconfig -y
+  $ sudo dnf install -y python3-any{template,config}
 
 Build
 ------
 
-Run `python setup.py srpm` and mock dist/SRPMS/<built-srpm>, or
-run `python setup.py rpm`.
+Run `python setup.py bdist_rpm --source-only` and mock dist/SRPMS/<built-srpm>,
+or run `python setup.py bdist_rpm`.
 
 Install
 -----------
