@@ -128,8 +128,10 @@ cp -a data/templates/2/ja/* %{buildroot}/usr/share/fleure/templates/2/ja/
 %{_datadir}/%{pkgname}/templates/2/*/*.*
 
 %changelog
+* Sat May 11 2019 Satoru SATOH <ssato@redhat.com> - 0.1.2-1
+- fix: add some dirty hacks to build for python 2
+
 * Sat May 11 2019 Satoru SATOH <ssato@redhat.com> - 0.1.1-1
-- New upstream
 - Build only for python 3 by default
 
 * Sun Oct  4 2015 Satoru SATOH <ssato@redhat.com> - 0.1-1
