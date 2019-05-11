@@ -88,7 +88,26 @@ Common data files of %{pkgname}.
 
 %install
 %if %{with python2}
+sed -i 's/setuptools.setup(/&name="fleure", /' setup.py  # Dirty hack.
 %py2_install
+test -d %{buildroot}/usr/bin || {
+install -d %{buildroot}/usr/bin
+cat << EOF > %{buildroot}/usr/bin/anyconfig_cli
+#! /usr/bin/python
+import sys
+from pkg_resources import load_entry_point
+
+if __name__ == '__main__':
+    sys.exit(
+        load_entry_point('fleure', 'console_scripts', 'fleure_cli')()
+    )
+EOF
+}
+chmod +x %{buildroot}/usr/bin/anyconfig_cli
+mkdir -p %{buildroot}/etc/fleure.d
+mkdir -p %{buildroot}/usr/share/fleure/templates/2/ja
+cp -a data/conf/*.yml %{buildroot}/etc/fleure.d
+cp -a data/templates/2/ja/* %{buildroot}/usr/share/fleure/templates/2/ja/
 %else
 %py3_install
 (cd %{buildroot}/%{_bindir} && mv fleure_cli{,-3})
