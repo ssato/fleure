@@ -109,8 +109,9 @@ Common data files of %{pkgname}.
 %{_datadir}/%{pkgname}/templates/2/*/*.*
 
 %changelog
-* Mon May  6 2019 Satoru SATOH <ssato@redhat.com> - 0.1.1-1
+* Sat May 11 2019 Satoru SATOH <ssato@redhat.com> - 0.1.1-1
 - New upstream
+- Build only for python 3 by default
 
 * Sun Oct  4 2015 Satoru SATOH <ssato@redhat.com> - 0.1-1
 - Initial packaging originally came from the part of rpmkit
