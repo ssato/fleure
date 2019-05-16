@@ -202,7 +202,7 @@ def _make_depgraph_context(root, ers):
                 layers=sorted(list(groups.keys()) + ["visible"]),
                 nodes=sorted(_mk_ps_g(graph, groups),
                              key=operator.itemgetter("name")),
-                edges=sorted(graph.edges_iter()))
+                edges=sorted(graph.edges()))
 
 
 def dump_depgraph(root, ers, workdir=None, outname="rpm_depgraph_gv",
