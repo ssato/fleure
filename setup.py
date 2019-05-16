@@ -7,7 +7,7 @@ import setuptools
 import setuptools.command.bdist_rpm
 
 
-VERSION = "0.1.2"
+VERSION = "0.1.3"
 
 # For daily snapshot versioning mode:
 if os.environ.get("_SNAPSHOT_BUILD", None) is not None:
