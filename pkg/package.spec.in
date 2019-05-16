@@ -59,6 +59,8 @@ Requires:       python3-beautifulsoup4
 Requires:       python3-anyconfig
 Requires:       python3-anytemplate
 Requires:       python3-networkx
+# https://bugzilla.redhat.com/show_bug.cgi?id=1708372
+Requires:       python3-networkx-test
 Requires:       python3-nltk
 Requires:       python3-sqlalchemy
 Requires:       python3-tablib
@@ -128,6 +130,9 @@ cp -a data/templates/2/ja/* %{buildroot}/usr/share/fleure/templates/2/ja/
 %{_datadir}/%{pkgname}/templates/2/*/*.*
 
 %changelog
+* Thu May 16 2019 Satoru SATOH <ssato@redhat.com> - 0.1.3-1
+- Make it work with the latest networkx
+
 * Sat May 11 2019 Satoru SATOH <ssato@redhat.com> - 0.1.2-1
 - fix: add some dirty hacks to build for python 2
 
