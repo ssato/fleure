@@ -5,12 +5,6 @@
 A package level static analysis tool for systems running RPM-based linux \
 distributions such like RHEL (primary target) and Fedora.
 
-%if 0%{?rhel} == 7 || 0%{?epel} == 7
-%bcond_without python2
-%else
-%bcond_with python2
-%endif
-
 Name:           python-%{pkgname}
 Version:        @VERSION@
 Release:        1%{?dist}
@@ -19,38 +13,12 @@ License:        AGPLv3+ and GPLv3+
 URL:            https://github.com/ssato/fleure
 Source0:        %{pkgname}-%{version}.tar.gz
 BuildArch:      noarch
-%if %{with python2}
-BuildRequires:  python2
-BuildRequires:  python2-devel
-BuildRequires:  python2-setuptools
-# for pygettext.py:
-BuildRequires:  python2-tools
-%else
 BuildRequires:  python3
 BuildRequires:  python3-devel
 BuildRequires:  python3-setuptools
 BuildRequires:  python3-tools
-%endif
 
 %description    %{desc}
-
-%if %{with python2}
-%package     -n python2-%{pkgname}
-Summary:        %{summary}
-Requires:       python-%{pkgname}-common
-Requires:       python2-beautifulsoup4
-# Available from: https://copr.fedoraproject.org/coprs/ssato/python-anyconfig/
-Requires:       python2-anyconfig
-Requires:       python2-anytemplate
-Requires:       python2-networkx
-Requires:       python2-nltk
-Requires:       python2-sqlalchemy
-Requires:       python2-tablib
-Requires:       rpm-python
-%{?python_provide:%python_provide python2-%{pkgname}}
-
-%description -n python2-%{pkgname} %{desc}
-%else
 
 %package     -n python3-%{pkgname}
 Summary:        %{summary}
@@ -68,7 +36,6 @@ Requires:       rpm-python3
 %{?python_provide:%python_provide python3-%{pkgname}}
 
 %description -n python3-%{pkgname} %{desc}
-%endif
 
 %package     -n python-%{pkgname}-common
 Summary:        %{pkgname} common data files
@@ -82,46 +49,14 @@ Common data files of %{pkgname}.
 %autosetup -n %{pkgname}-%{version}
 
 %build
-%if %{with python2}
-%py2_build
-%else
 %py3_build
-%endif
 
 %install
-%if %{with python2}
-sed -i 's/setuptools.setup(/&name="fleure", /' setup.py  # Dirty hack.
-%py2_install
-test -d %{buildroot}/usr/bin || {
-install -d %{buildroot}/usr/bin
-cat << EOF > %{buildroot}/usr/bin/anyconfig_cli
-#! /usr/bin/python
-import sys
-from pkg_resources import load_entry_point
-
-if __name__ == '__main__':
-    sys.exit(
-        load_entry_point('fleure', 'console_scripts', 'fleure_cli')()
-    )
-EOF
-}
-chmod +x %{buildroot}/usr/bin/anyconfig_cli
-mkdir -p %{buildroot}/etc/fleure.d
-mkdir -p %{buildroot}/usr/share/fleure/templates/2/ja
-cp -a data/conf/*.yml %{buildroot}/etc/fleure.d
-cp -a data/templates/2/ja/* %{buildroot}/usr/share/fleure/templates/2/ja/
-%else
 %py3_install
 (cd %{buildroot}/%{_bindir} && mv fleure_cli{,-3})
-%endif
 
-%if %{with python2}
-%files -n python2-%{pkgname}
-%{python2_sitelib}/*
-%else
 %files -n python3-%{pkgname}
 %{python3_sitelib}/*
-%endif
 %doc README.rst
 %{_bindir}/*
 
@@ -130,6 +65,9 @@ cp -a data/templates/2/ja/* %{buildroot}/usr/share/fleure/templates/2/ja/
 %{_datadir}/%{pkgname}/templates/2/*/*.*
 
 %changelog
+* Sun Nov  3 2019 Satoru SATOH <satoru.satoh@gmail.com> - 0.2.0-1
+- Drop py2 support
+
 * Thu May 16 2019 Satoru SATOH <ssato@redhat.com> - 0.1.3-1
 - Make it work with the latest networkx
 
