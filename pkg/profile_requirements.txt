@@ -1,0 +1,3 @@
+-r test_requirements.txt
+line_profiler
+memory_profiler

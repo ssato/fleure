@@ -5,5 +5,3 @@ nose
 pycodestyle
 pylint
 six
-line_profiler
-#memory_profiler
