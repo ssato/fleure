@@ -29,9 +29,9 @@ if os.environ.get("FLEURE_MEMORY_DEBUG", False):
     try:
         from memory_profiler import profile
     except ImportError:
-        from fleure.decorators import noop as profile  # flake8: noqa
+        from fleure.decorators import noop as profile  # noqa: F401
 else:
-    from fleure.decorators import noop as profile  # flake8: noqa
+    from fleure.decorators import noop as profile  # noqa: F401
 
 
 PACKAGE = "fleure"
