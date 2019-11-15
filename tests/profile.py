@@ -7,11 +7,15 @@
 from __future__ import absolute_import, print_function
 
 import argparse
-import line_profiler
 import os.path
 import os
 import sys
 import tempfile
+
+try:
+    import line_profiler
+except ImportError:
+    line_profiler = None
 
 import fleure.analysis
 import fleure.datasets
@@ -59,7 +63,7 @@ def prof_main(argv=None):
     cnf = dict(workdir=workdir, repos=["rhel-6-server-rpms"], verbosity=2,
                period=["2015-01-01", "2016-04-10"], archive=True)
 
-    if args.profile in ("line", "all"):
+    if args.profile in ("line", "all") and line_profiler:
         lprof = line_profiler.LineProfiler(*TARGETS)
         lprof.runcall(fleure.main.main, root_or_arc_path, **cnf)
         lprof.print_stats()
