@@ -240,7 +240,7 @@ def rpm_resolve_reqs(subject, root=None, keys=fleure.globals.RPM_KEYS):
     :param root: RPM DB root dir
     :param keys: RPM Package dict keys
     """
-    subject = subject.decode('utf-8')
+    subject = _normalize_val_from_rpmh(subject)
     if subject.startswith('/'):  # filename
         key = "basenames"
     elif '(' in subject:  # provide name
